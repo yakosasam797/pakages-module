@@ -1,4 +1,7 @@
 node_modules/
 dist/
+public/vendor-crm/
+public/booking/
+public/brand/
 *.log
 .DS_Store

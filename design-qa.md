@@ -7,6 +7,8 @@
 - Accordion reference: `C:/Users/YAKSHITH/.t3/userdata/attachments/e0f960be-c119-42ca-8249-25786b10649d-eaa8e625-abff-46ff-976c-ca926b316085.png` (3238 × 1582 px).
 - Package-story reference: `C:/Users/YAKSHITH/.t3/userdata/attachments/e0f960be-c119-42ca-8249-25786b10649d-4f1770c2-7499-442f-a448-6f0c2418cd0b.png` (3210 × 1274 px).
 - List implementation: `design-qa-implementation.png`
+- Package-type navigation: `design-qa-package-types.png`
+- Proposal workspace: `design-qa-proposals.png`
 - Detail implementation: `design-qa-detail-top.png`
 - Collapsed itinerary implementation: `design-qa-detail-collapsed.png`
 - Long-itinerary state: `design-qa-detail-day-4.png`
@@ -45,6 +47,11 @@ The content hierarchy has been translated into one continuous working document:
 ## Interaction verification
 
 - New package opens a six-stage operational workspace instead of a generic catalog modal.
+- Packages and Proposals are separate primary workspace tabs, matching the Vendor/Services information hierarchy.
+- Package lifecycle state no longer occupies the primary tabs; Published, Draft, and Archived are available through the Status filter.
+- A second navigation row filters package products by All packages, Complete trips, Accommodation, Transport, Activities, Visa, and Flights.
+- The Package type column makes the product model visible in every catalog row.
+- Proposals render as a functioning list with customer, package type, travel, value, updated date, and proposal status.
 - Trip setup, Route, Itinerary, Pricing, Media, and Review remain in one horizontal progress strip at the top of the workspace.
 - The previous package-outline rail is absent; the day workspace uses the available shell width and its structural dividers reach the shell edges.
 - Package creation includes a customer-facing “Why travellers will love this package” field with one highlight per line.
@@ -137,8 +144,120 @@ The content hierarchy has been translated into one continuous working document:
 - Visual QA: the feedback comparison board places both supplied references beside the browser-rendered 1440 × 900 implementation. Density, accordion affordance, typography hierarchy, spacing rhythm, token use, image quality, and copy were checked. The implementation intentionally inherits Direction 03 typography and shell rather than the source sites’ consumer styling.
 - Focused comparison: the day accordion and creation story field are legible on the combined board, so no additional crop was required.
 
+### Pass 7 — package products and proposals hierarchy
+
+- P1: Published, Draft, and Archived occupied the main tabs even though they describe lifecycle state rather than the kind of product a user is trying to find.
+- Fix: moved lifecycle state into a dedicated Status filter and kept Packages and Proposals as the only page-level navigation.
+- P1: Proposals appeared as a toolbar action, which understated a core sales workspace and did not match the Vendors/Services relationship used elsewhere in the platform.
+- Fix: promoted Packages and Proposals to peer workspace tabs and built a functional proposal list with its own search, filters, type counts, actions, and status model.
+- P2: adding the Package type column initially pushed row actions beyond the standard desktop canvas.
+- Fix: tightened both package and proposal column tracks; the final 1440 × 900 captures keep Open and overflow actions visible without desktop horizontal scrolling.
+- Post-fix evidence: `design-qa-package-types.png` and `design-qa-proposals.png`; production build and automated desktop/mobile interaction checks passed with no console errors.
+
+### Pass 8 â€” remove the services-style taxonomy
+
+- P1: the package-type row copied the Services taxonomy too literally and introduced a second tab selector that does not reflect how package users move between Packages and Proposals.
+- Fix: removed the complete-trip, accommodation, transport, activity, visa, and flight tabs; these are now values in a single Package type filter in the list toolbar.
+
 ## Findings
 
 No actionable P0, P1, or P2 issues remain in the verified list, detail, modal, and responsive states.
+
+final result: passed
+
+---
+
+## Current list revision — 2026-09-26
+
+### Source and browser evidence
+
+- Packages visual truth: `C:/Users/YAKSHITH/.t3/userdata/attachments/cff6c540-42a4-4476-b6ce-f9c075158ae7-b4362471-7146-43fa-83a0-8dbce528e047.png` (1655 × 977 px).
+- Packages implementation: `design-qa-packages-source-size.png` (1655 × 977 px, CSS viewport 1655 × 977, device scale factor 1).
+- Proposals visual truth: `C:/Users/YAKSHITH/.t3/userdata/attachments/cff6c540-42a4-4476-b6ce-f9c075158ae7-72de579a-71ab-434a-a578-0f1b72f46c05.png` (1508 × 979 px).
+- Proposals implementation: `design-qa-proposals-source-size.png` (1508 × 979 px, CSS viewport 1508 × 979, device scale factor 1).
+- Region autocomplete focus: `design-qa-region-suggestions.png` (1655 × 977 px).
+- Narrow responsive state: `design-qa-list-narrow.png` (820 × 900 px).
+- Density normalization: source and implementation were compared at matching CSS-pixel dimensions with device scale factor 1; no resampling was required.
+- State: light theme, Packages default list, Proposals default list, and Packages with `Bangalore` region suggestions open.
+
+### Full-view comparison evidence
+
+- The implementation preserves the source shell, workspace tabs, title/actions, filter row, table column order, status hierarchy, and footer pagination treatment.
+- The requested changes are visible: `Recently updated` and the trailing package/proposal result count are removed, the search copy identifies regions, and the table has no horizontal scrollbar.
+- At 1655 × 977, the Packages table shows 7 of 9 rows and paginates the remaining rows. The table scroll element measured 1152 px client width and 1152 px scroll width at 1440 × 900, with 424 px client and scroll height.
+- At 1508 × 979, all 4 Proposals fit in one page with every information column visible and no horizontal overflow.
+- At 820 × 900, the table becomes a full-information card row and paginates one record per view instead of introducing a horizontal scrollbar.
+
+### Focused comparison evidence
+
+- Region search was reviewed separately because the source does not show the open state. `design-qa-region-suggestions.png` confirms that `Bangalore` returns `Bengaluru, Karnataka`, identifies India and South India, and provides a clear `Show packages` selection action.
+- Selecting the suggestion returns exactly the two Bangalore/Bengaluru packages.
+- The service-type menu exposes 12 options including Complete trips, Accommodation, Transport, Activities, Visa, Flights, Meals & dining, Guides, Travel insurance, Cruises, and Rail.
+- The region menu includes the complete configured geography list through Oceania.
+
+### Required fidelity surfaces
+
+- Fonts and typography: the existing Onest/Public Sans/JetBrains Mono design-system stack, weights, compact table labels, money formatting, truncation, and line heights remain consistent with the product shell.
+- Spacing and layout rhythm: title, tabs, toolbar, table header, 64 px data rows, and pagination retain the source rhythm. Adaptive page sizing reserves footer space and prevents table-owned vertical scrolling.
+- Colors and tokens: the implementation continues to use the shared neutral, teal, pink, success, warning, and information tokens. No new decorative palette was introduced.
+- Image quality and assets: existing local destination thumbnails remain sharp, correctly cropped, and use the source product imagery. No placeholder or code-drawn image assets were added.
+- Copy and content: region-aware search wording is explicit; the obsolete sort and result-count copy is absent; status labels and package/proposal content remain intact.
+
+### Primary interactions and diagnostics
+
+- Tested package/service type filtering and confirmed 12 service-type options.
+- Tested the All regions menu and confirmed extended geography options.
+- Typed `Bangalore`, waited for the asynchronous suggestion, selected `Bengaluru, Karnataka`, and confirmed the matching package results.
+- Switched between Packages and Proposals and verified zero horizontal overflow in both tables.
+- Resized to 820 × 900 and verified the responsive card layout, one-row viewport pagination, and zero horizontal overflow.
+- Browser console errors and uncaught page errors: none.
+- Production TypeScript/Vite build: passed.
+- Design-system shell duplication check: passed.
+- T3 collaborative preview was unavailable in this environment, so browser verification used the repository's installed Playwright/Chromium runtime.
+
+### Comparison history
+
+- P1: fixed 1080 px table minimums created horizontal scrolling and rendered every filtered row, forcing table/page scrolling on shorter viewports.
+  - Fix: removed fixed table minimum widths, used zero-minimum fractional tracks, hid table overflow, and calculated page size from the live viewport and table position.
+  - Post-fix evidence: package and proposal scroll widths equal their client widths; the 1655 × 977 Packages view paginates after row 7.
+- P1: region discovery was plain text matching and did not provide a selectable backend suggestion flow for aliases such as Bangalore/Bengaluru.
+  - Fix: added debounced region autocomplete with an API endpoint boundary, alias-aware local fallback, clear location metadata, and selection-driven filtering.
+  - Post-fix evidence: `design-qa-region-suggestions.png`; selecting Bengaluru returns two records.
+- P2: package/service taxonomy and geography were incomplete, while the sort and result-count controls contradicted the requested toolbar.
+  - Fix: expanded the service and region filters and removed `Recently updated` plus the trailing result count; records remain sorted by update date by default.
+- P2: the dense nine-column table could not remain legible on a narrow viewport.
+  - Fix: retained every record field in a responsive card layout below 900 px and paginated based on the taller row footprint.
+  - Post-fix evidence: `design-qa-list-narrow.png`.
+
+### Findings
+
+No actionable P0, P1, or P2 issues remain in the verified Packages, Proposals, region-suggestion, and narrow responsive states. The implementation intentionally keeps the current row-click and overflow-menu action pattern rather than duplicating the older source's separate Open button; opening remains keyboard accessible.
+
+final result: passed
+
+---
+
+## Vendor CRM language alignment — 2026-09-26
+
+- Reference: Vendor CRM commit `a20fa66563cd3a7d05ca6058a5f2aaf7403f57ed` and its package list, package detail, vendor header, and activity QA captures. Full audit: `vendor-design-language-audit.md`.
+- Shell: the Paryatech lockup, pink active navigation, pink notes and credit meter, unlabeled divider-separated navigation groups, sidebar Settings, and 280 px top-bar search now match the reference treatment.
+- Tables: Packages and Proposals now use interactive rows with one overflow action, 40 px thumbnails, status dots, and Vendor CRM's neutral package Draft tone.
+- Detail: the package thumbnail, record-header surface, primary Edit action, and overflow actions use the same visual hierarchy as Vendor CRM package records.
+- Responsive: six package composition metrics reflow into two columns on phones. The verified mobile detail has no document-level horizontal overflow.
+- Evidence: `design-qa-implementation.png`, `design-qa-proposals.png`, `design-qa-builder-foundation.png`, `design-qa-detail-top.png`, and `design-qa-detail-mobile.png`, reviewed against the reference captures.
+- `npm run build` and `npm run verify:ui` passed. UI verification covered seven package records, list filters, creation, row menu, keyboard row opening, desktop/mobile views, complete images, and zero console errors.
+
+final result: passed
+
+---
+
+## Booking module integration — 2026-09-26
+
+- Imported the complete current user-facing booking document from `yakosasam797/new-direction-03` at commit `a55ca6c` into `public/booking/booking-redesign.html`. Its list, detail, nine populated detail tabs, notes, filters, and dialogs are present locally.
+- The shared `@paryatech/ui` shell owns sidebar and top bar. The Booking document supplies only its module content through `src/BookingModule.tsx`; its duplicate shell chrome is hidden by `public/booking/booking-embed.css`.
+- Sidebar navigation works in both directions. `/?module=bookings` opens Bookings directly, and the browser back/forward history tracks module changes. Booking detail updates the host breadcrumb and Back button.
+- Desktop booking list fits within a 998 px module viewport. Under 800 px it becomes full-information cards; the mobile detail keeps its source's responsive summary and More tab menu.
+- Live preview checks: seven booking records present; opening a row shows a populated Overview and nine populated tab panels; Vouchers activates; mobile More exposes the other eight tabs; list search narrows to XYZ; Direct booking and Booking notes open; host Back returns to the list; clicking Packages returns to the unchanged package list.
+- `npm run build`, `npm run verify:ui`, and the shared-shell duplication check passed. Preview showed no browser console errors.
 
 final result: passed

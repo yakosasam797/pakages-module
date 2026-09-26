@@ -287,6 +287,7 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
   const [status, setStatus] = useState(record.status.toLowerCase());
   const [addOpen, setAddOpen] = useState(false);
   const [addType, setAddType] = useState("activity");
+  const [headerActionsOpen, setHeaderActionsOpen] = useState(false);
 
   const toggleDay = (id: string) => {
     setOpenDays((current) => current.has(id) ? new Set() : new Set([id]));
@@ -300,14 +301,27 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
   return (
     <DetailPage
       className="package-detail"
-      title={record.name}
+      title={
+        <span className="package-record-title">
+          <img
+            className="package-record-title__thumb"
+            src={record.image}
+            alt=""
+            width={52}
+            height={52}
+            fetchPriority="high"
+            style={{ objectPosition: record.imagePosition }}
+          />
+          <span>{record.name}</span>
+        </span>
+      }
       status={
         <StatusSelect
           value={status}
           label="Package status"
           options={[
             { value: "published", label: "Published", tone: "done" },
-            { value: "draft", label: "Draft", tone: "progress" },
+            { value: "draft", label: "Draft", tone: "open" },
             { value: "archived", label: "Archived", tone: "open" },
           ]}
           onChange={(value) => {
@@ -338,11 +352,31 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
         </span>
       }
       actions={
-        <>
-          <Button variant="ghost" size="sm" leadingIcon={<Icon name="copy" size="sm" />} onClick={() => onToast("Package duplicated as a draft")}>Duplicate</Button>
-          <Button variant="ghost" size="sm" leadingIcon={<Icon name="export" size="sm" />} onClick={() => onToast("Share link copied")}>Share</Button>
+        <div className="package-detail-actions">
           <Button variant="primary" size="sm" leadingIcon={<Icon name="edit" size="sm" />} onClick={() => onToast("Package editor opened")}>Edit package</Button>
-        </>
+          <div className="package-detail-actions__more">
+            <Button
+              variant="ghost"
+              size="sm"
+              iconOnly
+              aria-label={`More actions for ${record.name}`}
+              aria-haspopup="menu"
+              aria-expanded={headerActionsOpen}
+              leadingIcon={<Icon name="more" size="sm" />}
+              onClick={() => setHeaderActionsOpen((open) => !open)}
+            />
+            {headerActionsOpen ? (
+              <div className="package-row-menu package-detail-actions__menu" role="menu" aria-label={`Actions for ${record.name}`}>
+                <button type="button" role="menuitem" onClick={() => { setHeaderActionsOpen(false); onToast("Package duplicated as a draft"); }}>
+                  <Icon name="copy" size="sm" /> Duplicate
+                </button>
+                <button type="button" role="menuitem" onClick={() => { setHeaderActionsOpen(false); onToast("Share link copied"); }}>
+                  <Icon name="export" size="sm" /> Share
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </div>
       }
       tabs={<TabBar items={detailTabs} value={tab} onValueChange={setTab} aria-label="Package sections" />}
     >

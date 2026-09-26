@@ -290,6 +290,7 @@ export function PackageBuilder({ onCancel, onComplete, onToast }: PackageBuilder
       startingPrice: Math.round(sellingPrice / Math.max(1, Number(adults))),
       updated: "Sep 22, 2026",
       status: "Draft",
+      packageType: "complete",
       source: "Your catalog",
       image: baliImage,
       highlights: story.split("\n").map((item) => item.trim()).filter(Boolean),

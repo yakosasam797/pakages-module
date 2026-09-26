@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AppShell,
   BackButton,
@@ -25,6 +25,7 @@ import {
   pageCountFor,
   rangeLabel,
 } from "@paryatech/ui";
+import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
 import type { CheckboxState, IconName, NavGroupData, StatusTone, TabItem } from "@paryatech/ui";
 import baliImage from "./assets/package-images/bali.jpg";
 import dubaiImage from "./assets/package-images/dubai.jpg";
@@ -33,8 +34,25 @@ import keralaImage from "./assets/package-images/kerala.jpg";
 import rajasthanImage from "./assets/package-images/rajasthan.jpg";
 import { PackageDetail } from "./PackageDetail";
 import { PackageBuilder } from "./PackageBuilder";
+import { BookingModule } from "./BookingModule";
+import { VendorModule } from "./VendorModule";
+import { searchRegions } from "./regionSearch";
+import type { RegionSuggestion } from "./regionSearch";
 
 type PackageStatus = "Published" | "Draft" | "Archived";
+type PackageType =
+  | "complete"
+  | "accommodation"
+  | "transport"
+  | "activities"
+  | "visa"
+  | "flights"
+  | "meals"
+  | "guides"
+  | "insurance"
+  | "cruises"
+  | "rail";
+type ProposalStatus = "Draft" | "Shared" | "Approved";
 
 export interface PackageRecord {
   id: string;
@@ -45,6 +63,7 @@ export interface PackageRecord {
   startingPrice?: number;
   updated: string;
   status: PackageStatus;
+  packageType: PackageType;
   source: "Your catalog" | "Paryatech";
   image: string;
   imagePosition?: string;
@@ -61,6 +80,7 @@ const packages: PackageRecord[] = [
     startingPrice: 145000,
     updated: "Aug 14, 2026",
     status: "Published",
+    packageType: "complete",
     source: "Your catalog",
     image: baliImage,
   },
@@ -73,58 +93,126 @@ const packages: PackageRecord[] = [
     startingPrice: 145000,
     updated: "Aug 4, 2026",
     status: "Draft",
+    packageType: "complete",
     source: "Your catalog",
     image: baliImage,
     imagePosition: "center 62%",
   },
   {
     id: "PKG-0232",
-    name: "Delight Himachal",
+    name: "Himachal stays",
     destination: "Himachal Pradesh, India",
     region: "North India",
     duration: "6 days · 5 nights",
     startingPrice: 62000,
     updated: "Aug 1, 2026",
     status: "Draft",
+    packageType: "accommodation",
     source: "Your catalog",
     image: himachalImage,
   },
   {
     id: "PKG-0226",
-    name: "Rajasthan Heritage Trail",
+    name: "Rajasthan heritage experiences",
     destination: "Rajasthan, India",
     region: "Western India",
     duration: "8 days · 7 nights",
     startingPrice: 78000,
     updated: "Jul 25, 2026",
-    status: "Draft",
+    status: "Published",
+    packageType: "activities",
     source: "Your catalog",
     image: rajasthanImage,
   },
   {
     id: "PKG-0219",
-    name: "Dubai City Break",
+    name: "Dubai visa assistance",
     destination: "Dubai, UAE",
     region: "Middle East",
     duration: "5 days · 4 nights",
     startingPrice: 96000,
     updated: "Jul 18, 2026",
     status: "Draft",
+    packageType: "visa",
     source: "Paryatech",
     image: dubaiImage,
   },
   {
     id: "PKG-0204",
-    name: "Kerala Slow Escape",
+    name: "Kerala private transfers",
     destination: "Kerala, India",
     region: "South India",
     duration: "6 days · 5 nights",
     startingPrice: 54000,
     updated: "Jun 30, 2026",
     status: "Archived",
+    packageType: "transport",
     source: "Your catalog",
     image: keralaImage,
   },
+  {
+    id: "PKG-0198",
+    name: "Delhi to Denpasar flight plan",
+    destination: "Bali, Indonesia",
+    region: "Southeast Asia",
+    duration: "Return journey",
+    startingPrice: 42000,
+    updated: "Jun 24, 2026",
+    status: "Draft",
+    packageType: "flights",
+    source: "Paryatech",
+    image: baliImage,
+    imagePosition: "center 72%",
+  },
+  {
+    id: "PKG-0192",
+    name: "Bangalore city discovery",
+    destination: "Bangalore, India",
+    region: "South India",
+    duration: "4 days · 3 nights",
+    startingPrice: 36000,
+    updated: "Jun 18, 2026",
+    status: "Published",
+    packageType: "complete",
+    source: "Your catalog",
+    image: keralaImage,
+    imagePosition: "center 42%",
+  },
+  {
+    id: "PKG-0189",
+    name: "Bangalore airport transfers",
+    destination: "Bengaluru, Karnataka",
+    region: "South India",
+    duration: "Private transfer",
+    startingPrice: 4800,
+    updated: "Jun 12, 2026",
+    status: "Draft",
+    packageType: "transport",
+    source: "Paryatech",
+    image: keralaImage,
+    imagePosition: "center 55%",
+  },
+];
+
+interface ProposalRecord {
+  id: string;
+  name: string;
+  customer: string;
+  packageName: string;
+  packageType: PackageType;
+  destination: string;
+  region: string;
+  travel: string;
+  value: number;
+  updated: string;
+  status: ProposalStatus;
+}
+
+const proposals: ProposalRecord[] = [
+  { id: "PRP-1084", name: "Mehta family Bali", customer: "Ananya Mehta", packageName: "Bali Indonesia", packageType: "complete", destination: "Bali, Indonesia", region: "Southeast Asia", travel: "05–11 Nov 2026", value: 290000, updated: "Sep 25, 2026", status: "Shared" },
+  { id: "PRP-1081", name: "Dubai visa support", customer: "Rohan Shah", packageName: "Dubai visa assistance", packageType: "visa", destination: "Dubai, UAE", region: "Middle East", travel: "Travel date pending", value: 18500, updated: "Sep 24, 2026", status: "Draft" },
+  { id: "PRP-1076", name: "Himachal hotel plan", customer: "Ira Kapoor", packageName: "Himachal stays", packageType: "accommodation", destination: "Himachal Pradesh, India", region: "North India", travel: "18–23 Dec 2026", value: 78000, updated: "Sep 21, 2026", status: "Approved" },
+  { id: "PRP-1072", name: "Bali flights for Khannas", customer: "Samar Khanna", packageName: "Delhi to Denpasar flight plan", packageType: "flights", destination: "Bali, Indonesia", region: "Southeast Asia", travel: "02–09 Jan 2027", value: 168000, updated: "Sep 19, 2026", status: "Draft" },
 ];
 
 const navIcon = (name: IconName) => <Icon name={name} size="nav" />;
@@ -165,21 +253,118 @@ const navGroups: NavGroupData[] = [
       { id: "team", label: "Team", tip: "Team", icon: navIcon("team") },
       { id: "automations", label: "Automations", tip: "Automations", icon: navIcon("zap") },
       { id: "reports", label: "Reports", tip: "Reports", icon: navIcon("chart") },
+      { id: "settings", label: "Settings", tip: "Settings", icon: navIcon("settings") },
     ],
   },
 ];
 
-const tabs: TabItem[] = [
-  { id: "all", label: "All", count: 6 },
-  { id: "published", label: "Published", count: 1 },
-  { id: "draft", label: "Draft", count: 4 },
-  { id: "archived", label: "Archived", count: 1 },
+const vendorCrmCommit = "a20fa66563cd3a7d05ca6058a5f2aaf7403f57ed";
+const vendorCrmAssetRoot = `https://raw.githubusercontent.com/yakosasam797/Vendor-CRM/${vendorCrmCommit}/public/brand`;
+
+function ParyatechBrand() {
+  return (
+    <>
+      <img
+        className="package-brand-logo package-brand-logo--full"
+        src={`${vendorCrmAssetRoot}/paryatech-lockup.png`}
+        alt="Paryatech"
+        width={145}
+        height={30}
+        fetchPriority="high"
+      />
+      <img
+        className="package-brand-logo package-brand-logo--compact"
+        src={`${vendorCrmAssetRoot}/paryatech-mark.png`}
+        alt="Paryatech"
+        width={28}
+        height={28}
+        fetchPriority="high"
+      />
+    </>
+  );
+}
+
+function StatusWithDot({ tone, children }: { tone: StatusTone; children: ReactNode }) {
+  return (
+    <StatusChip tone={tone}>
+      <span className="package-status-dot" aria-hidden="true" />
+      {children}
+    </StatusChip>
+  );
+}
+
+const packageTypeOptions: Array<{ value: "all" | PackageType; label: string }> = [
+  { value: "all", label: "All package types" },
+  { value: "complete", label: "Complete trips" },
+  { value: "accommodation", label: "Accommodation" },
+  { value: "transport", label: "Transport" },
+  { value: "activities", label: "Activities" },
+  { value: "visa", label: "Visa" },
+  { value: "flights", label: "Flights" },
+  { value: "meals", label: "Meals & dining" },
+  { value: "guides", label: "Guides" },
+  { value: "insurance", label: "Travel insurance" },
+  { value: "cruises", label: "Cruises" },
+  { value: "rail", label: "Rail" },
 ];
+
+const regionOptions = [
+  { value: "all", label: "All regions" },
+  { value: "North India", label: "North India" },
+  { value: "South India", label: "South India" },
+  { value: "Western India", label: "Western India" },
+  { value: "Central India", label: "Central India" },
+  { value: "East India", label: "East India" },
+  { value: "Northeast India", label: "Northeast India" },
+  { value: "South Asia", label: "South Asia" },
+  { value: "Southeast Asia", label: "Southeast Asia" },
+  { value: "East Asia", label: "East Asia" },
+  { value: "Middle East", label: "Middle East" },
+  { value: "Europe", label: "Europe" },
+  { value: "Africa", label: "Africa" },
+  { value: "North America", label: "North America" },
+  { value: "South America", label: "South America" },
+  { value: "Oceania", label: "Oceania" },
+];
+
+const packageTypeLabel: Record<PackageType, string> = {
+  complete: "Complete trip",
+  accommodation: "Accommodation",
+  transport: "Transport",
+  activities: "Activities",
+  visa: "Visa",
+  flights: "Flights",
+  meals: "Meals & dining",
+  guides: "Guides",
+  insurance: "Travel insurance",
+  cruises: "Cruises",
+  rail: "Rail",
+};
+
+const packageTypeIcon: Record<PackageType, IconName> = {
+  complete: "bookings",
+  accommodation: "hotel",
+  transport: "bus",
+  activities: "camera",
+  visa: "passport",
+  flights: "plane",
+  meals: "ticket",
+  guides: "user",
+  insurance: "clipboardCheck",
+  cruises: "bus",
+  rail: "bus",
+};
 
 const statusTone: Record<PackageStatus, StatusTone> = {
   Published: "done",
-  Draft: "progress",
+  Draft: "open",
   Archived: "open",
+};
+
+const proposalStatusTone: Record<ProposalStatus, StatusTone> = {
+  Draft: "progress",
+  Shared: "open",
+  Approved: "done",
 };
 
 const money = new Intl.NumberFormat("en-IN", {
@@ -188,43 +373,150 @@ const money = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 0,
 });
 
+type WorkspaceModule = "packages" | "bookings" | "vendors";
+
+function moduleFromUrl(): WorkspaceModule {
+  const module = new URLSearchParams(window.location.search).get("module");
+  return module === "bookings" || module === "vendors" ? module : "packages";
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeModule, setActiveModule] = useState<WorkspaceModule>(moduleFromUrl);
+  const [workspaceView, setWorkspaceView] = useState<"packages" | "proposals">("packages");
+  const [typeFilter, setTypeFilter] = useState<"all" | PackageType>("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState("all");
-  const [sort, setSort] = useState("updated");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [selectedSearchRegion, setSelectedSearchRegion] = useState<RegionSuggestion | null>(null);
+  const [regionSuggestions, setRegionSuggestions] = useState<RegionSuggestion[]>([]);
+  const [regionSearchOpen, setRegionSearchOpen] = useState(false);
+  const [regionSearchLoading, setRegionSearchLoading] = useState(false);
   const [creatingPackage, setCreatingPackage] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [selectedPackage, setSelectedPackage] = useState<PackageRecord | null>(null);
   const [packageRecords, setPackageRecords] = useState<PackageRecord[]>(packages);
+  const [openRowMenu, setOpenRowMenu] = useState<string | null>(null);
+  const tableViewportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onPopState = () => {
+      setActiveModule(moduleFromUrl());
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, []);
+
+  useEffect(() => {
+    document.title = activeModule === "vendors"
+      ? "Vendors · Paryatech"
+      : activeModule === "bookings"
+      ? "Bookings · Paryatech"
+      : "Packages · Paryatech";
+  }, [activeModule]);
+
+  useEffect(() => {
+    if (selectedSearchRegion || query.trim().length < 2) {
+      setRegionSuggestions([]);
+      setRegionSearchLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setRegionSearchLoading(true);
+      try {
+        const suggestions = await searchRegions(query, controller.signal);
+        setRegionSuggestions(suggestions);
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === "AbortError")) setRegionSuggestions([]);
+      } finally {
+        if (!controller.signal.aborted) setRegionSearchLoading(false);
+      }
+    }, 140);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query, selectedSearchRegion]);
+
+  useEffect(() => {
+    const updatePageSize = () => {
+      const tableTop = tableViewportRef.current?.getBoundingClientRect().top;
+      if (tableTop == null) return;
+
+      const compactCards = window.innerWidth < 900;
+      const rowHeight = compactCards ? 336 : 80;
+      const headerHeight = compactCards ? 0 : 48;
+      const footerAllowance = 76;
+      const available = window.innerHeight - tableTop - footerAllowance - headerHeight;
+      setPageSize(Math.max(1, Math.floor(available / rowHeight)));
+    };
+
+    const frame = window.requestAnimationFrame(updatePageSize);
+    window.addEventListener("resize", updatePageSize);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updatePageSize);
+    };
+  }, [workspaceView, query, region, statusFilter, typeFilter]);
 
   const filteredPackages = useMemo(() => {
     const normalized = query.trim().toLowerCase();
+    const selectedTerms = selectedSearchRegion?.packageTerms.map((term) => term.toLowerCase());
     const rows = packageRecords.filter((item) => {
-      const matchesTab = activeTab === "all" || item.status.toLowerCase() === activeTab;
+      const matchesType = typeFilter === "all" || item.packageType === typeFilter;
+      const matchesStatus = statusFilter === "all" || item.status.toLowerCase() === statusFilter;
       const matchesRegion = region === "all" || item.region === region;
-      const matchesQuery =
-        normalized.length === 0 ||
-        `${item.name} ${item.destination} ${item.region} ${item.id}`.toLowerCase().includes(normalized);
-      return matchesTab && matchesRegion && matchesQuery;
+      const searchable = `${item.name} ${item.destination} ${item.region} ${item.id} ${packageTypeLabel[item.packageType]}`.toLowerCase();
+      const matchesQuery = selectedTerms
+        ? selectedTerms.some((term) => searchable.includes(term))
+        : normalized.length === 0 || searchable.includes(normalized);
+      return matchesType && matchesStatus && matchesRegion && matchesQuery;
     });
 
-    return [...rows].sort((a, b) => {
-      if (sort === "name") return a.name.localeCompare(b.name);
-      if (sort === "price") return (b.startingPrice ?? 0) - (a.startingPrice ?? 0);
-      return packageRecords.indexOf(a) - packageRecords.indexOf(b);
-    });
-  }, [activeTab, packageRecords, query, region, sort]);
+    return [...rows].sort((a, b) => Date.parse(b.updated) - Date.parse(a.updated));
+  }, [packageRecords, query, region, selectedSearchRegion, statusFilter, typeFilter]);
 
-  const listTabs = useMemo(() => tabs.map((item) => ({
-    ...item,
-    count: item.id === "all" ? packageRecords.length : packageRecords.filter((record) => record.status.toLowerCase() === item.id).length,
-  })), [packageRecords]);
+  const filteredProposals = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    const selectedTerms = selectedSearchRegion?.packageTerms.map((term) => term.toLowerCase());
+    return proposals.filter((item) => {
+      const matchesType = typeFilter === "all" || item.packageType === typeFilter;
+      const matchesStatus = statusFilter === "all" || item.status.toLowerCase() === statusFilter;
+      const matchesRegion = region === "all" || item.region === region;
+      const searchable = `${item.name} ${item.customer} ${item.packageName} ${item.destination} ${item.region} ${item.id}`.toLowerCase();
+      const matchesQuery = selectedTerms
+        ? selectedTerms.some((term) => searchable.includes(term))
+        : !normalized || searchable.includes(normalized);
+      return matchesType && matchesStatus && matchesRegion && matchesQuery;
+    }).sort((a, b) => Date.parse(b.updated) - Date.parse(a.updated));
+  }, [query, region, selectedSearchRegion, statusFilter, typeFilter]);
 
-  const visibleSelectedCount = filteredPackages.filter((item) => selectedIds.has(item.id)).length;
-  const allVisibleSelected = filteredPackages.length > 0 && visibleSelectedCount === filteredPackages.length;
+  const workspaceTabs: TabItem[] = [
+    { id: "packages", label: "Packages", count: packageRecords.length },
+    { id: "proposals", label: "Proposals", count: proposals.length },
+  ];
+
+  const totalRecords = workspaceView === "packages" ? filteredPackages.length : filteredProposals.length;
+  const totalPages = pageCountFor(totalRecords, pageSize);
+  const startIndex = (page - 1) * pageSize;
+  const pagedPackages = filteredPackages.slice(startIndex, startIndex + pageSize);
+  const pagedProposals = filteredProposals.slice(startIndex, startIndex + pageSize);
+  const visibleRecords = workspaceView === "packages" ? pagedPackages : pagedProposals;
+  const visibleIds = visibleRecords.map((item) => item.id);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(Math.max(1, totalPages));
+  }, [page, totalPages]);
+
+  const visibleSelectedCount = visibleIds.filter((id) => selectedIds.has(id)).length;
+  const allVisibleSelected = visibleIds.length > 0 && visibleSelectedCount === visibleIds.length;
   const selectionState: CheckboxState = allVisibleSelected
     ? "on"
     : visibleSelectedCount > 0
@@ -234,9 +526,9 @@ export default function App() {
   const toggleVisibleRows = (nextState: CheckboxState) => {
     setSelectedIds((current) => {
       const next = new Set(current);
-      filteredPackages.forEach((item) => {
-        if (nextState === "on") next.add(item.id);
-        else next.delete(item.id);
+      visibleIds.forEach((id) => {
+        if (nextState === "on") next.add(id);
+        else next.delete(id);
       });
       return next;
     });
@@ -256,16 +548,72 @@ export default function App() {
     window.setTimeout(() => setToast(null), 2400);
   };
 
-  const clearAndSetTab = (id: string) => {
-    setActiveTab(id);
+  const selectModule = (module: WorkspaceModule) => {
+    if (module === activeModule) {
+      if (module === "packages") {
+        setCreatingPackage(false);
+        setSelectedPackage(null);
+      }
+      return;
+    }
+    if (module === "packages") {
+      setCreatingPackage(false);
+      setSelectedPackage(null);
+    }
+    setActiveModule(module);
+    const url = new URL(window.location.href);
+    if (module !== "packages") url.searchParams.set("module", module);
+    else url.searchParams.delete("module");
+    window.history.pushState({ module }, "", `${url.pathname}${url.search}${url.hash}`);
+  };
+
+  const shellNavGroups = navGroups.map((group) => ({
+    ...group,
+    items: group.items.map((item) => ({
+      ...item,
+      active: item.id === activeModule,
+      onSelect: () => {
+        if (item.id === "packages") {
+          selectModule("packages");
+          return;
+        }
+        if (item.id === "bookings") {
+          selectModule("bookings");
+          return;
+        }
+        if (item.id === "vendors") {
+          selectModule("vendors");
+          return;
+        }
+        showToast(`${item.label} opened`);
+      },
+    })),
+  }));
+
+  const rowRequestedOpen = (event: MouseEvent<HTMLElement>) =>
+    !(event.target as HTMLElement).closest("button, a, input, [role='checkbox'], [role='menu']");
+
+  const keyboardRequestedOpen = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.target !== event.currentTarget) return false;
+    if (event.key !== "Enter" && event.key !== " ") return false;
+    event.preventDefault();
+    return true;
+  };
+
+  const changeWorkspace = (id: string) => {
+    setWorkspaceView(id as "packages" | "proposals");
+    setTypeFilter("all");
+    setStatusFilter("all");
+    setQuery("");
+    setRegion("all");
+    setSelectedSearchRegion(null);
+    setRegionSuggestions([]);
+    setSelectedIds(new Set());
     setPage(1);
   };
 
   const topbarActions = (
     <>
-      <IconButton label="Settings" onClick={() => showToast("Settings opened")}>
-        <Icon name="settings" size="nav" />
-      </IconButton>
       <IconButton label="Help and support" onClick={() => showToast("Help centre opened")}>
         <Icon name="help" size="nav" />
       </IconButton>
@@ -275,11 +623,21 @@ export default function App() {
     </>
   );
 
+  if (activeModule === "vendors") {
+    return <VendorModule onNavigate={selectModule} />;
+  }
+
+  if (activeModule === "bookings") {
+    return <BookingModule onNavigate={selectModule} />;
+  }
+
   if (creatingPackage) {
     return (
       <AppShell
         variant="detail"
-        navGroups={navGroups}
+        brandName=""
+        brandMark={<ParyatechBrand />}
+        navGroups={shellNavGroups}
         breadcrumbs={[{ label: "Sales", href: "#" }, { label: "Packages", href: "#" }, { label: "New package" }]}
         onBack={() => setCreatingPackage(false)}
         backLabel="Back to packages"
@@ -318,7 +676,9 @@ export default function App() {
     return (
       <AppShell
         variant="detail"
-        navGroups={navGroups}
+        brandName=""
+        brandMark={<ParyatechBrand />}
+        navGroups={shellNavGroups}
         breadcrumbs={[
           { label: "Sales", href: "#" },
           { label: "Packages", href: "#" },
@@ -344,7 +704,9 @@ export default function App() {
   return (
     <AppShell
       variant="detail"
-      navGroups={navGroups}
+      brandName=""
+      brandMark={<ParyatechBrand />}
+      navGroups={shellNavGroups}
       leading={<BackButton label="Back to Sales" onClick={() => showToast("Back to Sales")} />}
       breadcrumbs={[{ label: "Sales", href: "#" }, { label: "Packages" }]}
       search={{ placeholder: "Search anything", "aria-label": "Search Paryatech" }}
@@ -354,98 +716,146 @@ export default function App() {
       actions={topbarActions}
     >
       <ListPage
-        title="Packages"
+        title={workspaceView === "packages" ? "Packages" : "Proposals"}
         actions={
           <>
             <Button
               variant="ghost"
               size="toolbar"
-              leadingIcon={<Icon name="fileText" size="sm" />}
-              onClick={() => showToast("Proposal workspace opened")}
+              leadingIcon={<Icon name={workspaceView === "packages" ? "bookmark" : "package"} size="sm" />}
+              onClick={() => showToast(workspaceView === "packages" ? "Paryatech catalog opened" : "Package picker opened")}
             >
-              Proposals
-            </Button>
-            <Button
-              variant="ghost"
-              size="toolbar"
-              leadingIcon={<Icon name="bookmark" size="sm" />}
-              onClick={() => showToast("Paryatech catalog opened")}
-            >
-              From Paryatech
+              {workspaceView === "packages" ? "From Paryatech" : "Create from package"}
             </Button>
             <Button
               variant="primary"
               size="toolbar"
               leadingIcon={<Icon name="plus" size="sm" />}
-              onClick={() => setCreatingPackage(true)}
+              onClick={() => workspaceView === "packages" ? setCreatingPackage(true) : showToast("New proposal opened")}
             >
-              New package
+              {workspaceView === "packages" ? "New package" : "New proposal"}
             </Button>
           </>
         }
-        tabs={listTabs}
-        tabValue={activeTab}
-        onTabChange={clearAndSetTab}
+        tabs={workspaceTabs}
+        tabValue={workspaceView}
+        onTabChange={changeWorkspace}
         toolbar={
-          <SheetToolbar
-            search={
-              <SearchField
-                fullWidth
-                value={query}
-                onChange={(event) => {
-                  setQuery(event.target.value);
-                  setPage(1);
-                }}
-                placeholder="Search packages"
-                aria-label="Search packages"
-              />
-            }
-            filters={
-              <>
-                <FilterSelect
-                  label="Region"
-                  value={region}
-                  onChange={(value) => {
-                    setRegion(value);
-                    setPage(1);
-                  }}
-                  options={[
-                    { value: "all", label: "All regions" },
-                    { value: "Southeast Asia", label: "Southeast Asia" },
-                    { value: "North India", label: "North India" },
-                    { value: "Western India", label: "Western India" },
-                    { value: "South India", label: "South India" },
-                    { value: "Middle East", label: "Middle East" },
-                  ]}
-                />
-                <FilterSelect
-                  label="Sort"
-                  value={sort}
-                  onChange={setSort}
-                  options={[
-                    { value: "updated", label: "Recently updated" },
-                    { value: "name", label: "Package name" },
-                    { value: "price", label: "Highest price" },
-                  ]}
-                />
-              </>
-            }
-            actions={<span className="package-result-count">{filteredPackages.length} packages</span>}
-          />
+          <div className="package-list-controls">
+            <SheetToolbar
+              search={
+                <div className="package-region-search">
+                  <SearchField
+                    fullWidth
+                    value={query}
+                    onChange={(event) => {
+                      setQuery(event.target.value);
+                      setSelectedSearchRegion(null);
+                      setRegionSearchOpen(true);
+                      setPage(1);
+                    }}
+                    onFocus={() => setRegionSearchOpen(true)}
+                    onBlur={() => window.setTimeout(() => setRegionSearchOpen(false), 120)}
+                    placeholder={workspaceView === "packages" ? "Search packages or regions" : "Search proposals, customers or regions"}
+                    aria-label={workspaceView === "packages" ? "Search packages or regions" : "Search proposals, customers or regions"}
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded={regionSearchOpen && query.trim().length >= 2}
+                    aria-controls="package-region-suggestions"
+                  />
+                  {regionSearchOpen && query.trim().length >= 2 ? (
+                    <div className="package-region-search__menu" id="package-region-suggestions" role="listbox" aria-label="Suggested regions">
+                      {regionSearchLoading ? (
+                        <div className="package-region-search__state" role="status">Searching regions…</div>
+                      ) : regionSuggestions.length > 0 ? (
+                        <>
+                          <div className="package-region-search__label">Suggested regions</div>
+                          {regionSuggestions.map((suggestion) => (
+                            <button
+                              key={suggestion.id}
+                              type="button"
+                              role="option"
+                              aria-selected={selectedSearchRegion?.id === suggestion.id}
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() => {
+                                setQuery(suggestion.label);
+                                setSelectedSearchRegion(suggestion);
+                                setRegionSearchOpen(false);
+                                setRegionSuggestions([]);
+                                setPage(1);
+                              }}
+                            >
+                              <span className="package-region-search__pin"><Icon name="pin" size="sm" /></span>
+                              <span>
+                                <strong>{suggestion.label}</strong>
+                                <small>{suggestion.country} · {suggestion.group}</small>
+                              </span>
+                              <span className="package-region-search__select">Show packages</span>
+                            </button>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="package-region-search__state">No matching regions. Package names are still searched.</div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              }
+              filters={
+                <>
+                  <FilterSelect
+                    label="Package type"
+                    value={typeFilter}
+                    onChange={(value) => {
+                      setTypeFilter(value as "all" | PackageType);
+                      setPage(1);
+                      setSelectedIds(new Set());
+                    }}
+                    options={packageTypeOptions}
+                  />
+                  <FilterSelect
+                    label="Region"
+                    value={region}
+                    onChange={(value) => {
+                      setRegion(value);
+                      setPage(1);
+                    }}
+                    options={regionOptions}
+                  />
+                  <FilterSelect
+                    label="Status"
+                    value={statusFilter}
+                    onChange={(value) => { setStatusFilter(value); setPage(1); }}
+                    options={workspaceView === "packages" ? [
+                      { value: "all", label: "All statuses" },
+                      { value: "published", label: "Published" },
+                      { value: "draft", label: "Draft" },
+                      { value: "archived", label: "Archived" },
+                    ] : [
+                      { value: "all", label: "All statuses" },
+                      { value: "draft", label: "Draft" },
+                      { value: "shared", label: "Shared" },
+                      { value: "approved", label: "Approved" },
+                    ]}
+                  />
+                </>
+              }
+            />
+          </div>
         }
         footer={
-          filteredPackages.length > 0 ? (
+          totalRecords > 0 ? (
             <Pagination
-              rangeLabel={rangeLabel(page, 10, filteredPackages.length)}
+              rangeLabel={rangeLabel(page, pageSize, totalRecords)}
               page={page}
-              pageCount={pageCountFor(filteredPackages.length, 10)}
+              pageCount={totalPages}
               onPageChange={setPage}
             />
           ) : undefined
         }
         bulk={
           selectedIds.size > 0 ? (
-            <ListBulkBar label={`${selectedIds.size} ${selectedIds.size === 1 ? "package" : "packages"} selected`}>
+            <ListBulkBar label={`${selectedIds.size} ${selectedIds.size === 1 ? workspaceView.slice(0, -1) : workspaceView} selected`}>
               <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
                 Clear selection
               </Button>
@@ -454,17 +864,18 @@ export default function App() {
                 size="sm"
                 onClick={() =>
                   showToast(
-                    `${selectedIds.size} ${selectedIds.size === 1 ? "package" : "packages"} ready to archive`,
+                    `${selectedIds.size} ${selectedIds.size === 1 ? workspaceView.slice(0, -1) : workspaceView} ready for bulk action`,
                   )
                 }
               >
-                Archive
+                {workspaceView === "packages" ? "Archive" : "Export"}
               </Button>
             </ListBulkBar>
           ) : undefined
         }
       >
-        {filteredPackages.length > 0 ? (
+        <div className="package-table-viewport" ref={tableViewportRef}>
+        {workspaceView === "packages" ? (filteredPackages.length > 0 ? (
           <DataSheet className="packages-sheet" aria-label="Package catalog">
             <DataSheetHeader>
               <DataSheetCell check>
@@ -475,17 +886,27 @@ export default function App() {
                 />
               </DataSheetCell>
               <DataSheetCell>Package</DataSheetCell>
+              <DataSheetCell>Package type</DataSheetCell>
               <DataSheetCell>Destination</DataSheetCell>
               <DataSheetCell>Duration</DataSheetCell>
               <DataSheetCell>Starting from</DataSheetCell>
               <DataSheetCell>Last updated</DataSheetCell>
               <DataSheetCell>Status</DataSheetCell>
-              <DataSheetCell aria-label="Actions" />
+              <DataSheetCell>Action</DataSheetCell>
             </DataSheetHeader>
-            {filteredPackages.map((item) => (
+            {pagedPackages.map((item) => (
               <DataSheetRow
                 key={item.id}
-                className={selectedIds.has(item.id) ? "packages-sheet__row--selected" : ""}
+                className={`package-data-row${selectedIds.has(item.id) ? " packages-sheet__row--selected" : ""}`}
+                role="link"
+                tabIndex={0}
+                aria-label={`Open ${item.name}`}
+                onClick={(event) => {
+                  if (rowRequestedOpen(event)) setSelectedPackage(item);
+                }}
+                onKeyDown={(event) => {
+                  if (keyboardRequestedOpen(event)) setSelectedPackage(item);
+                }}
               >
                 <DataSheetCell check>
                   <Checkbox
@@ -502,6 +923,10 @@ export default function App() {
                           className="package-thumbnail"
                           src={item.image}
                           alt=""
+                          width={40}
+                          height={40}
+                          loading="lazy"
+                          decoding="async"
                           style={{ objectPosition: item.imagePosition }}
                         />
                         {item.source === "Paryatech" ? (
@@ -514,6 +939,11 @@ export default function App() {
                     title={item.name}
                     subtitle={item.id}
                   />
+                </DataSheetCell>
+                <DataSheetCell>
+                  <StackLine icon={<Icon name={packageTypeIcon[item.packageType]} size="sm" />}>
+                    {packageTypeLabel[item.packageType]}
+                  </StackLine>
                 </DataSheetCell>
                 <DataSheetCell>
                   <StackCell>
@@ -536,26 +966,33 @@ export default function App() {
                   </StackCell>
                 </DataSheetCell>
                 <DataSheetCell>
-                  <StatusChip tone={statusTone[item.status]}>{item.status}</StatusChip>
+                  <StatusWithDot tone={statusTone[item.status]}>{item.status}</StatusWithDot>
                 </DataSheetCell>
-                <DataSheetCell>
-                  <RowActions>
-                    <Button
-                      variant="brand"
-                      size="sm"
-                      leadingIcon={<Icon name="openExternal" size="sm" />}
-                      onClick={() => setSelectedPackage(item)}
-                    >
-                      Open
-                    </Button>
+                <DataSheetCell className="package-row-actions-cell">
+                  <RowActions className="package-row-actions">
                     <Button
                       variant="ghost"
                       size="sm"
                       iconOnly
                       aria-label={`More actions for ${item.name}`}
+                      aria-haspopup="menu"
+                      aria-expanded={openRowMenu === item.id}
                       leadingIcon={<Icon name="more" size={15} />}
-                      onClick={() => showToast(`More actions for ${item.name}`)}
+                      onClick={() => setOpenRowMenu((current) => current === item.id ? null : item.id)}
                     />
+                    {openRowMenu === item.id ? (
+                      <div className="package-row-menu" role="menu" aria-label={`Actions for ${item.name}`}>
+                        <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); setSelectedPackage(item); }}>
+                          <Icon name="openExternal" size="sm" /> Open package
+                        </button>
+                        <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); showToast(`${item.name} duplicated as a draft`); }}>
+                          <Icon name="copy" size="sm" /> Duplicate
+                        </button>
+                        <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); setPackageRecords((current) => current.map((record) => record.id === item.id ? { ...record, status: "Archived" } : record)); showToast(`${item.name} archived`); }}>
+                          <Icon name="fileMinus" size="sm" /> Archive
+                        </button>
+                      </div>
+                    ) : null}
                   </RowActions>
                 </DataSheetCell>
               </DataSheetRow>
@@ -571,14 +1008,113 @@ export default function App() {
               size="sm"
               onClick={() => {
                 setQuery("");
+                setSelectedSearchRegion(null);
                 setRegion("all");
-                setActiveTab("all");
+                setTypeFilter("all");
+                setStatusFilter("all");
               }}
             >
               Clear filters
             </Button>
           </div>
-        )}
+        )) : (filteredProposals.length > 0 ? (
+          <DataSheet className="proposals-sheet" aria-label="Proposal workspace">
+            <DataSheetHeader>
+              <DataSheetCell check>
+                <Checkbox
+                  state={selectionState}
+                  onCheckedChange={toggleVisibleRows}
+                  label={allVisibleSelected ? "Deselect all visible proposals" : "Select all visible proposals"}
+                />
+              </DataSheetCell>
+              <DataSheetCell>Proposal</DataSheetCell>
+              <DataSheetCell>Customer</DataSheetCell>
+              <DataSheetCell>Package type</DataSheetCell>
+              <DataSheetCell>Travel</DataSheetCell>
+              <DataSheetCell>Value</DataSheetCell>
+              <DataSheetCell>Last updated</DataSheetCell>
+              <DataSheetCell>Status</DataSheetCell>
+              <DataSheetCell>Action</DataSheetCell>
+            </DataSheetHeader>
+            {pagedProposals.map((item) => (
+              <DataSheetRow
+                key={item.id}
+                className={`package-data-row${selectedIds.has(item.id) ? " packages-sheet__row--selected" : ""}`}
+                role="link"
+                tabIndex={0}
+                aria-label={`Open ${item.name}`}
+                onClick={(event) => {
+                  if (rowRequestedOpen(event)) showToast(`${item.name} opened`);
+                }}
+                onKeyDown={(event) => {
+                  if (keyboardRequestedOpen(event)) showToast(`${item.name} opened`);
+                }}
+              >
+                <DataSheetCell check>
+                  <Checkbox
+                    state={selectedIds.has(item.id) ? "on" : "off"}
+                    onCheckedChange={(nextState) => toggleRow(item.id, nextState)}
+                    label={`Select ${item.name}`}
+                  />
+                </DataSheetCell>
+                <DataSheetCell>
+                  <LeadCell
+                    icon={<span className="proposal-record-icon"><Icon name="fileText" size="sm" /></span>}
+                    title={item.name}
+                    subtitle={item.id}
+                  />
+                </DataSheetCell>
+                <DataSheetCell>
+                  <StackCell><StackLine>{item.customer}</StackLine><StackLine muted>{item.packageName}</StackLine></StackCell>
+                </DataSheetCell>
+                <DataSheetCell>
+                  <StackLine icon={<Icon name={packageTypeIcon[item.packageType]} size="sm" />}>{packageTypeLabel[item.packageType]}</StackLine>
+                </DataSheetCell>
+                <DataSheetCell>
+                  <StackCell><StackLine icon={<Icon name="calendar" size="sm" />}>{item.travel}</StackLine><StackLine muted>{item.destination}</StackLine></StackCell>
+                </DataSheetCell>
+                <DataSheetCell><MoneyCell amount={money.format(item.value)} /></DataSheetCell>
+                <DataSheetCell><StackCell><StackLine>{item.updated}</StackLine><StackLine muted>by Vrushabh Jain</StackLine></StackCell></DataSheetCell>
+                <DataSheetCell><StatusWithDot tone={proposalStatusTone[item.status]}>{item.status}</StatusWithDot></DataSheetCell>
+                <DataSheetCell className="package-row-actions-cell">
+                  <RowActions className="package-row-actions">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconOnly
+                      aria-label={`More actions for ${item.name}`}
+                      aria-haspopup="menu"
+                      aria-expanded={openRowMenu === item.id}
+                      leadingIcon={<Icon name="more" size={15} />}
+                      onClick={() => setOpenRowMenu((current) => current === item.id ? null : item.id)}
+                    />
+                    {openRowMenu === item.id ? (
+                      <div className="package-row-menu" role="menu" aria-label={`Actions for ${item.name}`}>
+                        <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); showToast(`${item.name} opened`); }}>
+                          <Icon name="openExternal" size="sm" /> Open proposal
+                        </button>
+                        <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); showToast(`${item.name} duplicated`); }}>
+                          <Icon name="copy" size="sm" /> Duplicate
+                        </button>
+                        <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); showToast(`${item.name} exported`); }}>
+                          <Icon name="export" size="sm" /> Export
+                        </button>
+                      </div>
+                    ) : null}
+                  </RowActions>
+                </DataSheetCell>
+              </DataSheetRow>
+            ))}
+          </DataSheet>
+        ) : (
+          <div className="package-empty">
+            <span className="package-empty__icon"><Icon name="fileText" size="lg" /></span>
+            <h2>No proposals found</h2>
+            <p>Try another package type, status, region or search.</p>
+            <Button variant="primary" size="sm" onClick={() => { setQuery(""); setSelectedSearchRegion(null); setRegion("all"); setTypeFilter("all"); setStatusFilter("all"); }}>Clear filters</Button>
+          </div>
+        ))}
+        </div>
       </ListPage>
 
       <div className={`package-toast ${toast ? "package-toast--show" : ""}`} role="status" aria-live="polite">

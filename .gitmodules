@@ -1,0 +1,6 @@
+[submodule "vendor-crm"]
+	path = vendor-crm
+	url = https://github.com/yakosasam797/Vendor-CRM.git
+[submodule "booking-module"]
+	path = booking-module
+	url = https://github.com/yakosasam797/new-direction-03.git

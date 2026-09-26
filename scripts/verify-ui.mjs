@@ -15,29 +15,58 @@ await page.getByRole("heading", { name: "Packages", exact: true }).waitFor();
 await page.getByRole("button", { name: "Back to Sales" }).waitFor();
 await page.getByRole("button", { name: /Package notes/ }).waitFor();
 await page.getByRole("button", { name: "Write a note" }).waitFor();
+await page.locator(".package-brand-logo--full").waitFor();
+await page.getByRole("button", { name: "Settings", exact: true }).waitFor();
+if ((await page.locator(".pt-topbar__actions").getByRole("button", { name: "Settings" }).count()) !== 0) {
+  throw new Error("Settings belongs in the sidebar, not in the top bar");
+}
+if ((await page.locator(".pt-nav-group__label:visible").count()) !== 0) {
+  throw new Error("Sidebar group labels should be visually suppressed to match Vendor CRM");
+}
 const callLogButtonCount = await page.getByRole("button", { name: "Call logs" }).count();
 if (callLogButtonCount !== 0) throw new Error(`Expected no call-log button, found ${callLogButtonCount}`);
 
-await page.getByRole("tab", { name: /Draft/ }).click();
-const draftRows = await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head)").count();
-if (draftRows !== 4) throw new Error(`Expected 4 draft rows, found ${draftRows}`);
+if ((await page.getByRole("tab", { name: /Packages/ }).count()) !== 1) throw new Error("Expected Packages as a primary workspace tab");
+if ((await page.getByRole("tab", { name: /Proposals/ }).count()) !== 1) throw new Error("Expected Proposals as a primary workspace tab");
+if ((await page.getByRole("tab", { name: /Published/ }).count()) !== 0) throw new Error("Package lifecycle states should not render as workspace tabs");
+if ((await page.locator(".package-type-tabs").count()) !== 0) throw new Error("Package types should not render as a second tab selector");
+await page.screenshot({ path: "design-qa-package-types.png", fullPage: true });
 
-await page.getByRole("tab", { name: /All/ }).click();
-await page.getByRole("searchbox", { name: "Search packages" }).fill("Southeast Asia");
+await page.getByRole("button", { name: "All package types" }).click();
+await page.getByRole("option", { name: "Accommodation", exact: true }).click();
+await page.getByText("Himachal stays", { exact: true }).waitFor();
+if ((await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head)").count()) !== 1) throw new Error("Expected one accommodation package");
+await page.getByRole("button", { name: "Accommodation", exact: true }).click();
+await page.getByRole("option", { name: "All package types" }).click();
+
+await page.getByRole("button", { name: "All statuses" }).click();
+await page.getByRole("option", { name: "Draft", exact: true }).click();
+const draftRows = await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head)").count();
+if (draftRows < 1) throw new Error("Expected the Draft status filter to return packages");
+if ((await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head) .status-chip:not(:has-text('Draft'))").count()) !== 0) {
+  throw new Error("Draft status filter returned a non-draft package");
+}
+await page.getByRole("button", { name: "Draft", exact: true }).click();
+await page.getByRole("option", { name: "All statuses" }).click();
+
+await page.locator('input[aria-label="Search packages or regions"]').fill("Southeast Asia");
 const searchRows = await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head)").count();
-if (searchRows !== 2) throw new Error(`Expected 2 Southeast Asia rows from search, found ${searchRows}`);
-await page.getByRole("searchbox", { name: "Search packages" }).fill("");
+if (searchRows !== 3) throw new Error(`Expected 3 Southeast Asia rows from search, found ${searchRows}`);
+await page.locator('input[aria-label="Search packages or regions"]').fill("");
 
 await page.getByRole("button", { name: "All regions" }).click();
 await page.getByRole("option", { name: "Southeast Asia" }).click();
 const regionRows = await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head)").count();
-if (regionRows !== 2) throw new Error(`Expected 2 Southeast Asia rows from filter, found ${regionRows}`);
+if (regionRows !== 3) throw new Error(`Expected 3 Southeast Asia rows from filter, found ${regionRows}`);
 await page.getByRole("button", { name: "Southeast Asia" }).click();
 await page.getByRole("option", { name: "All regions" }).click();
 
 const checkboxes = page.getByRole("checkbox");
 const checkboxCount = await checkboxes.count();
-if (checkboxCount !== 7) throw new Error(`Expected 7 package checkboxes, found ${checkboxCount}`);
+const visiblePackageRows = await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head)").count();
+if (checkboxCount !== visiblePackageRows + 1) {
+  throw new Error(`Expected one checkbox per visible package plus select-all, found ${checkboxCount}`);
+}
 
 await checkboxes.nth(1).click();
 if ((await checkboxes.first().getAttribute("aria-checked")) !== "mixed") {
@@ -46,14 +75,24 @@ if ((await checkboxes.first().getAttribute("aria-checked")) !== "mixed") {
 
 await checkboxes.first().click();
 const selectedCheckboxes = await page.locator('[role="checkbox"][aria-checked="true"]').count();
-if (selectedCheckboxes !== 7) throw new Error(`Expected all 7 checkboxes selected, found ${selectedCheckboxes}`);
-await page.getByText("6 packages selected").waitFor();
+if (selectedCheckboxes !== checkboxCount) throw new Error(`Expected all ${checkboxCount} checkboxes selected, found ${selectedCheckboxes}`);
+await page.getByText(`${visiblePackageRows} packages selected`).waitFor();
 await page.screenshot({ path: "design-qa-selection.png", fullPage: true });
 
 await checkboxes.first().click();
 if ((await page.locator('[role="checkbox"][aria-checked="true"]').count()) !== 0) {
   throw new Error("Expected select-all checkbox to clear every package selection");
 }
+
+await page.getByRole("tab", { name: /Proposals/ }).click();
+await page.getByRole("heading", { name: "Proposals", exact: true }).waitFor();
+if ((await page.locator(".proposals-sheet .pt-sheet__row:not(.pt-sheet__head)").count()) !== 4) throw new Error("Expected four proposals");
+await page.screenshot({ path: "design-qa-proposals.png", fullPage: true });
+await page.getByRole("button", { name: "All package types" }).click();
+await page.getByRole("option", { name: "Visa", exact: true }).click();
+await page.getByText("Dubai visa support", { exact: true }).waitFor();
+await page.getByRole("tab", { name: /Packages/ }).click();
+await page.getByRole("heading", { name: "Packages", exact: true }).waitFor();
 
 await page.getByRole("button", { name: "New package" }).click();
 await page.getByRole("heading", { name: "Set the trip foundation", exact: true }).waitFor();
@@ -122,7 +161,11 @@ await page.getByText("Bali family discovery", { exact: true }).waitFor();
 
 await page.screenshot({ path: "design-qa-implementation.png", fullPage: true });
 
-await page.locator(".packages-sheet .pt-sheet__row", { hasText: "Bali Indonesia" }).getByRole("button", { name: "Open" }).click();
+await page.getByRole("button", { name: "More actions for Bali Indonesia" }).click();
+await page.getByRole("menu", { name: "Actions for Bali Indonesia" }).getByRole("menuitem", { name: "Open package" }).waitFor();
+await page.getByRole("button", { name: "More actions for Bali Indonesia" }).click();
+await page.getByRole("link", { name: "Open Bali Indonesia" }).focus();
+await page.keyboard.press("Enter");
 await page.getByRole("heading", { name: "Bali Indonesia", exact: true }).waitFor();
 await page.getByRole("tab", { name: "Itinerary", exact: true }).waitFor();
 const itineraryDays = await page.locator(".itinerary-day").count();
@@ -159,16 +202,17 @@ await page.getByRole("button", { name: "Cancel" }).click();
 await page.getByRole("button", { name: "Back to packages" }).click();
 await page.getByRole("heading", { name: "Packages", exact: true }).waitFor();
 
-const packageNames = ["Bali Indonesia", "Bali Honeymoon", "Delight Himachal", "Rajasthan Heritage Trail", "Dubai City Break", "Kerala Slow Escape"];
+const packageNames = ["Bali Indonesia", "Bali Honeymoon", "Himachal stays", "Rajasthan heritage experiences", "Dubai visa assistance", "Kerala private transfers", "Delhi to Denpasar flight plan"];
 for (const packageName of packageNames) {
-  const row = page.locator(".packages-sheet .pt-sheet__row", { hasText: packageName });
-  await row.getByRole("button", { name: "Open" }).click();
+  await page.locator('input[aria-label="Search packages or regions"]').fill(packageName);
+  await page.getByRole("link", { name: `Open ${packageName}` }).click();
   await page.getByRole("heading", { name: packageName, exact: true }).waitFor();
   if ((await page.locator(".itinerary-day").count()) !== 6) {
     throw new Error(`Expected 6 itinerary days for ${packageName}`);
   }
   await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete && image.naturalWidth > 0));
   await page.getByRole("button", { name: "Back to packages" }).click();
+  await page.locator('input[aria-label="Search packages or regions"]').fill("");
 }
 const detailPagesVerified = packageNames.length;
 
@@ -180,9 +224,15 @@ await page.getByRole("button", { name: "New package" }).click();
 await page.getByRole("heading", { name: "Set the trip foundation", exact: true }).waitFor();
 await page.screenshot({ path: "design-qa-builder-mobile.png", fullPage: true });
 await page.getByRole("button", { name: "Back to packages" }).click();
-await page.locator(".packages-sheet .pt-sheet__row", { hasText: "Bali Indonesia" }).getByRole("button", { name: "Open" }).click();
+await page.getByRole("link", { name: "Open Bali Indonesia" }).click();
 await page.getByRole("heading", { name: "Bali Indonesia", exact: true }).waitFor();
 await page.screenshot({ path: "design-qa-detail-mobile.png", fullPage: true });
+if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)) {
+  throw new Error("Mobile detail should not overflow horizontally");
+}
+if ((await page.locator(".package-composition__item").count()) !== 6) {
+  throw new Error("Mobile detail should expose all six composition metrics");
+}
 
 if (consoleErrors.length > 0) {
   throw new Error(`Console errors:\n${consoleErrors.join("\n")}`);
@@ -190,6 +240,8 @@ if (consoleErrors.length > 0) {
 
 console.log(JSON.stringify({
   desktop: "design-qa-implementation.png",
+  packageTypes: "design-qa-package-types.png",
+  proposals: "design-qa-proposals.png",
   builderFoundation: "design-qa-builder-foundation.png",
   builderRoute: "design-qa-builder-route.png",
   builderService: "design-qa-builder-service.png",
