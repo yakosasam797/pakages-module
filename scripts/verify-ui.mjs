@@ -30,20 +30,15 @@ if ((await page.getByRole("tab", { name: /Packages/ }).count()) !== 1) throw new
 if ((await page.getByRole("tab", { name: /Proposals/ }).count()) !== 1) throw new Error("Expected Proposals as a primary workspace tab");
 if ((await page.getByRole("tab", { name: /Published/ }).count()) !== 0) throw new Error("Package lifecycle states should not render as workspace tabs");
 if ((await page.locator(".package-type-tabs").count()) !== 0) throw new Error("Package types should not render as a second tab selector");
-await page.screenshot({ path: "design-qa-package-types.png", fullPage: true });
-
-await page.getByRole("button", { name: "All package types" }).click();
-await page.getByRole("option", { name: "Accommodation", exact: true }).click();
-await page.getByText("Himachal stays", { exact: true }).waitFor();
-if ((await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head)").count()) !== 1) throw new Error("Expected one accommodation package");
-await page.getByRole("button", { name: "Accommodation", exact: true }).click();
-await page.getByRole("option", { name: "All package types" }).click();
+if ((await page.getByRole("button", { name: "All package types" }).count()) !== 0) throw new Error("Package type filter should be removed");
+if ((await page.locator(".packages-sheet .pt-sheet__head .pt-sheet__cell").count()) !== 8) throw new Error("Package table should have eight columns");
+await page.screenshot({ path: "design-qa-package-table.png", fullPage: true });
 
 await page.getByRole("button", { name: "All statuses" }).click();
 await page.getByRole("option", { name: "Draft", exact: true }).click();
 const draftRows = await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head)").count();
 if (draftRows < 1) throw new Error("Expected the Draft status filter to return packages");
-if ((await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head) .status-chip:not(:has-text('Draft'))").count()) !== 0) {
+if ((await page.locator(".packages-sheet .pt-sheet__row:not(.pt-sheet__head) .pt-st:not(:has-text('Draft'))").count()) !== 0) {
   throw new Error("Draft status filter returned a non-draft package");
 }
 await page.getByRole("button", { name: "Draft", exact: true }).click();
@@ -87,10 +82,8 @@ if ((await page.locator('[role="checkbox"][aria-checked="true"]').count()) !== 0
 await page.getByRole("tab", { name: /Proposals/ }).click();
 await page.getByRole("heading", { name: "Proposals", exact: true }).waitFor();
 if ((await page.locator(".proposals-sheet .pt-sheet__row:not(.pt-sheet__head)").count()) !== 4) throw new Error("Expected four proposals");
+if ((await page.locator(".proposals-sheet .pt-sheet__head .pt-sheet__cell").count()) !== 8) throw new Error("Proposal table should have eight columns");
 await page.screenshot({ path: "design-qa-proposals.png", fullPage: true });
-await page.getByRole("button", { name: "All package types" }).click();
-await page.getByRole("option", { name: "Visa", exact: true }).click();
-await page.getByText("Dubai visa support", { exact: true }).waitFor();
 await page.getByRole("tab", { name: /Packages/ }).click();
 await page.getByRole("heading", { name: "Packages", exact: true }).waitFor();
 
@@ -193,6 +186,14 @@ await page.screenshot({ path: "design-qa-detail-day-4.png", fullPage: true });
 
 await page.getByRole("tab", { name: "Inclusions", exact: true }).click();
 await page.getByRole("heading", { name: "Included in the trip", exact: true }).waitFor();
+await page.getByRole("tab", { name: /Activity/ }).click();
+await page.getByRole("heading", { name: "Recent activities", exact: true }).waitFor();
+if ((await page.locator(".package-activity-sheet .pt-sheet__row:not(.pt-sheet__head)").count()) !== 6) throw new Error("Expected six profile activity rows");
+if ((await page.locator(".package-activity .itinerary-line__marker").count()) !== 0) throw new Error("Activity history should not use process dots or connecting lines");
+await page.getByRole("searchbox", { name: "Search recent activity" }).fill("pricing");
+if ((await page.locator(".package-activity-sheet .pt-sheet__row:not(.pt-sheet__head)").count()) !== 1) throw new Error("Expected activity search to filter the table");
+await page.getByRole("searchbox", { name: "Search recent activity" }).fill("");
+await page.screenshot({ path: "design-qa-detail-activity.png", fullPage: true });
 await page.getByRole("tab", { name: "Itinerary", exact: true }).click();
 await page.getByRole("button", { name: "Add item" }).first().click();
 await page.getByRole("dialog").waitFor();
@@ -254,6 +255,7 @@ console.log(JSON.stringify({
   selection: "design-qa-selection.png",
   mobile: "design-qa-mobile.png",
   detailTop: "design-qa-detail-top.png",
+  detailActivity: "design-qa-detail-activity.png",
   detailCollapsed: "design-qa-detail-collapsed.png",
   detailDay4: "design-qa-detail-day-4.png",
   detailMobile: "design-qa-detail-mobile.png",

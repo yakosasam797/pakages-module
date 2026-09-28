@@ -1,21 +1,27 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from "react";
-import { connectDestinationNav } from "./destinationNavigation";
 import { connectEmbeddedModuleFrame, connectFrameTabHistory } from "./embeddedModuleFrame";
 import type { EmbeddedModuleHandle } from "./embeddedModuleFrame";
 
-interface BookingModuleProps {
-  onNavigate: (module: "packages" | "vendors" | "destination" | "finance") => void;
+interface FinanceModuleProps {
+  onNavigate: (module: "packages" | "bookings" | "vendors" | "destination") => void;
 }
 
-export const BookingModule = forwardRef<EmbeddedModuleHandle, BookingModuleProps>(function BookingModule({ onNavigate }, ref) {
+const crossModuleNav: Record<string, Parameters<FinanceModuleProps["onNavigate"]>[0]> = {
+  Packages: "packages",
+  Bookings: "bookings",
+  Vendors: "vendors",
+  Destination: "destination",
+};
+
+export const FinanceModule = forwardRef<EmbeddedModuleHandle, FinanceModuleProps>(function FinanceModule({ onNavigate }, ref) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
   const goBackLocalRef = useRef<() => boolean>(() => false);
 
   useEffect(() => () => cleanupRef.current?.(), []);
   useImperativeHandle(ref, () => ({
-    openNotes: (mode) => frameRef.current?.contentDocument?.querySelector<HTMLElement>(mode === "compose" ? ".notes-add" : ".notes-main")?.click(),
-    clickChrome: (label) => frameRef.current?.contentDocument?.querySelector<HTMLElement>(`.topbar [aria-label^="${label}"]`)?.click(),
+    openNotes: (mode) => frameRef.current?.contentDocument?.querySelector<HTMLElement>(mode === "compose" ? ".pt-notes__add" : ".pt-notes__main")?.click(),
+    clickChrome: (label) => frameRef.current?.contentDocument?.querySelector<HTMLElement>(`.pt-topbar [aria-label^="${label}"]`)?.click(),
     goBackLocal: () => goBackLocalRef.current(),
   }), []);
 
@@ -23,21 +29,21 @@ export const BookingModule = forwardRef<EmbeddedModuleHandle, BookingModuleProps
     const document = frameRef.current?.contentDocument;
     if (!document) return;
     cleanupRef.current?.();
-    const disconnectEmbedded = connectEmbeddedModuleFrame(document, "booking");
+    const disconnectEmbedded = connectEmbeddedModuleFrame(document, "finance");
     const tabHistory = connectFrameTabHistory(document);
     goBackLocalRef.current = tabHistory.goBack;
-    const disconnectDestination = connectDestinationNav(document, "booking", () => onNavigate("destination"));
 
-    // Keep the upstream Booking page untouched; only intercept links to other modules.
+    // Finance stays an unchanged app in its own frame. Only cross-module
+    // sidebar selections are handled by the surrounding workspace.
     const navigate = (event: Event) => {
       const target = event.target as Element | null;
-      const item = target?.closest<HTMLElement>(".side .nav-item[data-tip]");
-      const destination = item?.dataset.tip;
-      if (destination !== "Packages" && destination !== "Vendors" && destination !== "All finances") return;
+      const item = target?.closest<HTMLElement>(".pt-side .pt-nav-item[data-tip]");
+      const module = item && crossModuleNav[item.dataset.tip ?? ""];
+      if (!module) return;
 
       event.preventDefault();
       event.stopImmediatePropagation();
-      onNavigate(destination === "Packages" ? "packages" : destination === "Vendors" ? "vendors" : "finance");
+      onNavigate(module);
     };
 
     document.addEventListener("click", navigate, { capture: true });
@@ -45,7 +51,6 @@ export const BookingModule = forwardRef<EmbeddedModuleHandle, BookingModuleProps
       disconnectEmbedded();
       tabHistory.disconnect();
       goBackLocalRef.current = () => false;
-      disconnectDestination();
       document.removeEventListener("click", navigate, { capture: true });
     };
   }, [onNavigate]);
@@ -53,9 +58,9 @@ export const BookingModule = forwardRef<EmbeddedModuleHandle, BookingModuleProps
   return (
     <iframe
       ref={frameRef}
-      className="booking-module__frame"
-      src="/booking/index.html"
-      title="Bookings module"
+      className="finance-module__frame"
+      src="/finance/index.html"
+      title="Finance module"
       loading="eager"
       onLoad={connectNavigation}
     />

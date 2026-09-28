@@ -1,0 +1,5 @@
+/* Keep the two directory tab rows at their intended height when the table fills the viewport. */
+.vendors-page .directory-view-tabs,
+.vendors-page .service-category-tabs {
+  flex: none;
+}

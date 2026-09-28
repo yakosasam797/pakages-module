@@ -3,5 +3,6 @@ dist/
 public/vendor-crm/
 public/booking/
 public/brand/
+public/finance/
 *.log
 .DS_Store

@@ -1,0 +1,42 @@
+.workspace-notes-drawer .pt-nd {
+  top: 58px;
+  left: 270px;
+  width: min(390px, calc(100vw - 24px));
+  max-height: min(640px, calc(100vh - 72px));
+}
+
+body:has(.pt-frame--collapsed) .workspace-notes-drawer .pt-nd { left: 86px; }
+
+.workspace-notes-drawer .pt-nd__search input,
+.workspace-notes-drawer .pt-nd__compose-body textarea,
+.workspace-notes-related select {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  padding: 10px 12px;
+}
+
+.workspace-notes-drawer .pt-nd__compose-body textarea { min-height: 140px; resize: vertical; }
+.workspace-notes-related { display: block; margin-top: 16px; color: var(--ink-2); font-size: 12px; font-weight: 600; }
+.workspace-notes-related select { display: block; margin-top: 7px; font-size: 13px; font-weight: 400; }
+.workspace-notes-pin { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; color: var(--ink); }
+.workspace-notes-pin input { accent-color: var(--pink); }
+.workspace-note { padding: 13px 0; border-top: 1px solid var(--line-2); }
+.workspace-note:first-child { border-top: 0; }
+.workspace-note p { margin: 0; color: var(--ink); font-size: 13px; line-height: 1.5; }
+.workspace-note-pin { color: var(--pink); }
+.workspace-note-meta { margin-top: 7px; color: var(--ink-2); font-size: 11px; }
+.workspace-note-meta span { color: var(--pink-ink); }
+.workspace-note-actions { display: flex; gap: 12px; margin-top: 9px; }
+.workspace-note-actions button { padding: 0; border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 11px; cursor: pointer; }
+.workspace-note-actions button:hover { color: var(--pink-ink); }
+.workspace-note-actions button:disabled { cursor: default; opacity: .6; }
+.workspace-note-empty { padding: 24px 4px; color: var(--ink-3); font-size: 13px; }
+
+@media (max-width: 700px) {
+  .workspace-notes-drawer .pt-nd { left: 12px; top: 12px; max-height: calc(100vh - 24px); }
+}

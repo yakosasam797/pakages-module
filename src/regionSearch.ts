@@ -25,6 +25,38 @@ const fallbackRegions: RegionSuggestion[] = [
     packageTerms: ["Bali", "Denpasar", "Indonesia"],
   },
   {
+    id: "bangkok-thailand",
+    label: "Bangkok",
+    country: "Thailand",
+    group: "Southeast Asia",
+    aliases: ["Bangkok", "Thailand", "BKK"],
+    packageTerms: ["Bangkok", "Thailand"],
+  },
+  {
+    id: "bhopal-india",
+    label: "Bhopal, Madhya Pradesh",
+    country: "India",
+    group: "Central India",
+    aliases: ["Bhopal", "Madhya Pradesh"],
+    packageTerms: ["Bhopal", "Madhya Pradesh"],
+  },
+  {
+    id: "bhubaneswar-india",
+    label: "Bhubaneswar, Odisha",
+    country: "India",
+    group: "East India",
+    aliases: ["Bhubaneswar", "Bhubaneshwar", "Odisha"],
+    packageTerms: ["Bhubaneswar", "Bhubaneshwar", "Odisha"],
+  },
+  {
+    id: "barcelona-spain",
+    label: "Barcelona",
+    country: "Spain",
+    group: "Europe",
+    aliases: ["Barcelona", "Spain"],
+    packageTerms: ["Barcelona", "Spain"],
+  },
+  {
     id: "dubai-uae",
     label: "Dubai",
     country: "United Arab Emirates",
@@ -68,17 +100,24 @@ const fallbackRegions: RegionSuggestion[] = [
 
 function localSearch(query: string) {
   const normalized = query.trim().toLowerCase();
-  if (normalized.length < 2) return [];
+  if (!normalized) return [];
 
   return fallbackRegions
-    .filter((region) =>
-      [region.label, region.country, region.group, ...region.aliases]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalized),
-    )
-    .slice(0, 6);
+    .map((region) => {
+      const values = [region.label, region.country, region.group, ...region.aliases].map((value) => value.toLowerCase());
+      const prefixMatch = values.some((value) => value.split(/[\s,/-]+/).some((part) => part.startsWith(normalized)));
+      const containsMatch = normalized.length > 1 && values.some((value) => value.includes(normalized));
+      return { region, rank: prefixMatch ? 0 : containsMatch ? 1 : 2 };
+    })
+    .filter((result) => result.rank < 2)
+    .sort((a, b) => a.rank - b.rank)
+    .slice(0, 8)
+    .map(({ region }) => region);
 }
+
+export const featuredRegions = fallbackRegions.filter((region) =>
+  ["bengaluru-karnataka", "kerala-india", "bali-indonesia", "dubai-uae"].includes(region.id),
+);
 
 /**
  * Searches the configured backend region endpoint when available. The local

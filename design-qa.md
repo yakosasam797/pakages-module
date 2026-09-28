@@ -159,11 +159,27 @@ The content hierarchy has been translated into one continuous working document:
 - P1: the package-type row copied the Services taxonomy too literally and introduced a second tab selector that does not reflect how package users move between Packages and Proposals.
 - Fix: removed the complete-trip, accommodation, transport, activity, visa, and flight tabs; these are now values in a single Package type filter in the list toolbar.
 
+### Pass 9 â€” profile activity history
+
+- P1: package activity history needed to read as an auditable record, not as another itinerary or process timeline.
+- Fix: added an Activity profile tab using the platform's full activity-table language: searchable rows with date, time, event context, and member; no process dots or connecting line.
+- Post-fix evidence: `design-qa-detail-activity.png`; activity search, selection, six-row history, production build, and the complete UI verification suite pass without console errors.
+
 ## Findings
 
 No actionable P0, P1, or P2 issues remain in the verified list, detail, modal, and responsive states.
 
 final result: passed
+
+---
+
+## Activity actions alignment — 2026-09-26
+
+- Vendor Activity and Overview Recent activities now use the same six-column sheet: checkbox, date, event, member, role, action. The Overview's process timeline is no longer rendered.
+- Row actions open View Activity and Remove Activity. The detail dialog shows the available event fields and links to the related section; the Example Lake Resort event opens that service profile.
+- Removal is confirmed and updates the Activity tab and Overview immediately during the session. The package profile Activity tab follows the same columns and actions, with links into the related package section.
+- Verified in the browser: Vendor Overview removal, Vendor service navigation, package detail navigation, package removal and count update. The production build passes.
+- The broader `verify:ui` script currently stops on its stale `All package types` selector after a separate package-list change removed that filter; the activity interactions were verified directly in the browser.
 
 ---
 

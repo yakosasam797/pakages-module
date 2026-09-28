@@ -1,17 +1,30 @@
-import { useMemo, useState } from "react";
+import { forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Avatar,
   Button,
+  Checkbox,
+  DataSheet,
+  DataSheetCell,
+  DataSheetHeader,
+  DataSheetRow,
   DetailPage,
   FilterSelect,
   Icon,
+  IconButton,
   Modal,
+  SearchField,
   StatusSelect,
+  StackCell,
+  StackLine,
   TabBar,
   TextField,
 } from "@paryatech/ui";
 import type { IconName, TabItem } from "@paryatech/ui";
 import type { PackageRecord } from "./App";
+import type { ProposalDay, ProposalRecord } from "./proposalModel";
+import { useStepNavigation } from "./useStepNavigation";
+import type { StepNavigationHandle, StepNavigationSnapshot } from "./useStepNavigation";
 import baliHero from "./assets/bali/bali-rice-terraces-hero.jpg";
 import baliHotel from "./assets/bali/ubud-resort-suite.jpg";
 import baliTemple from "./assets/bali/ubud-temple.jpg";
@@ -23,7 +36,7 @@ import rajasthanHero from "./assets/destinations/rajasthan.jpg";
 import dubaiHero from "./assets/destinations/dubai.jpg";
 import keralaHero from "./assets/destinations/kerala.jpg";
 
-type ItemKind = "flight" | "transfer" | "stay" | "activity" | "meal";
+type ItemKind = "flight" | "transfer" | "stay" | "activity" | "meal" | "other";
 
 interface ItineraryItem {
   id: string;
@@ -42,6 +55,9 @@ interface ItineraryDay {
   date: string;
   title: string;
   place: string;
+  description?: string;
+  highlights?: string[];
+  image?: string;
   items: ItineraryItem[];
 }
 
@@ -139,9 +155,12 @@ const profiles: Record<string, Profile> = {
 
 const detailTabs: TabItem[] = [
   { id: "itinerary", label: "Itinerary" },
+  { id: "preview", label: "Preview" },
+  { id: "proposals", label: "Proposals" },
   { id: "inclusions", label: "Inclusions" },
   { id: "policies", label: "Policies" },
   { id: "commercials", label: "Commercials" },
+  { id: "activity", label: "Activity" },
 ];
 
 const iconFor: Record<ItemKind, IconName> = {
@@ -150,6 +169,7 @@ const iconFor: Record<ItemKind, IconName> = {
   stay: "hotel",
   activity: "camera",
   meal: "sun",
+  other: "package",
 };
 
 const labelFor: Record<ItemKind, string> = {
@@ -158,6 +178,7 @@ const labelFor: Record<ItemKind, string> = {
   stay: "Accommodation",
   activity: "Activity",
   meal: "Meal",
+  other: "Other service",
 };
 
 function makeDays(profile: Profile): ItineraryDay[] {
@@ -278,32 +299,76 @@ function makeDays(profile: Profile): ItineraryDay[] {
   ];
 }
 
-export function PackageDetail({ record, onToast }: { record: PackageRecord; onToast: (message: string) => void }) {
-  const profile = profiles[record.id] ?? profiles["PKG-0241"];
-  const days = useMemo(() => makeDays(profile), [profile]);
-  const [tab, setTab] = useState("itinerary");
-  const [openDays, setOpenDays] = useState<Set<string>>(() => new Set(["day-1"]));
+export function packageDaysForProposal(record: PackageRecord): ProposalDay[] {
+  if (record.proposalDays) return record.proposalDays.map((day) => ({ ...day, highlights: [...(day.highlights ?? [])], services: day.services.map((service) => ({ ...service, supplements: service.supplements?.map((item) => ({ ...item })) })) }));
+  const profile = profiles[record.templateId ?? record.id] ?? profiles["PKG-0241"];
+  return makeDays(profile).map((day) => ({
+    id: day.id,
+    title: day.title,
+    place: day.place,
+    description: day.description,
+    highlights: day.highlights,
+    image: day.image,
+    services: day.items.map((item) => ({
+      id: item.id,
+      kind: item.kind,
+      title: item.title,
+      detail: (item.detail ? `${item.meta} · ${item.detail}` : item.meta).replaceAll(" · 2 adults", ""),
+    })),
+  }));
+}
+
+export const PackageDetail = forwardRef<StepNavigationHandle, { record: PackageRecord; relatedProposals?: ProposalRecord[]; onOpenProposal?: (proposal: ProposalRecord) => void; onToast: (message: string) => void; onUseInProposal: () => void; onEdit?: () => void; onStatusChange?: (status: PackageRecord["status"]) => boolean; initialNavigation?: StepNavigationSnapshot | null }>(function PackageDetail({ record, relatedProposals = [], onOpenProposal, onToast, onUseInProposal, onEdit, onStatusChange, initialNavigation }, ref) {
+  const profile = profiles[record.templateId ?? record.id] ?? profiles["PKG-0241"];
+  const days = useMemo(() => record.proposalDays?.map((day, index): ItineraryDay => ({
+    id: day.id,
+    day: index + 1,
+    date: record.departureType === "fixed" && record.fixedStart ? new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" }).format(new Date(Date.parse(`${record.fixedStart}T00:00:00Z`) + index * 86400000)) : "Flexible date",
+    title: day.title,
+    place: day.place,
+    description: day.description,
+    highlights: day.highlights,
+    image: day.image,
+    items: day.services.map((service) => ({ id: service.id, kind: service.kind, title: service.title, meta: service.detail, detail: service.vendor ? `Supplier: ${service.vendor}${service.cost != null ? ` · ${new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(service.cost)} cost` : ""}` : undefined })),
+  })) ?? makeDays(profile), [profile, record.proposalDays, record.departureType, record.fixedStart]);
+  const { current: tab, navigate: setTab, goBack, snapshot } = useStepNavigation<string>("itinerary", initialNavigation);
+  useImperativeHandle(ref, () => ({ goBack, snapshot }), [goBack, snapshot]);
+  const [openDays, setOpenDays] = useState<Set<string>>(() => new Set([record.proposalDays?.[0]?.id ?? "day-1"]));
   const [storyExpanded, setStoryExpanded] = useState(false);
   const [status, setStatus] = useState(record.status.toLowerCase());
   const [addOpen, setAddOpen] = useState(false);
   const [addType, setAddType] = useState("activity");
   const [headerActionsOpen, setHeaderActionsOpen] = useState(false);
+  const [activityRecords, setActivityRecords] = useState<PackageActivityEvent[]>(record.proposalDays ? [] : activityEvents);
+  const [jumpDayId, setJumpDayId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (tab !== "itinerary" || !jumpDayId) return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(jumpDayId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setJumpDayId(null);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [tab, jumpDayId]);
 
   const toggleDay = (id: string) => {
     setOpenDays((current) => current.has(id) ? new Set() : new Set([id]));
   };
 
-  const gallery = record.id === "PKG-0241" ? [profile.hero, baliHotel, baliTemple, baliIsland] : [profile.hero];
+  const gallery = record.proposalDays
+    ? (record.image ? [record.image] : [])
+    : record.id === "PKG-0241" ? [profile.hero, baliHotel, baliTemple, baliIsland] : [profile.hero];
   const highlights = record.highlights?.length ? record.highlights : profile.highlights;
   const visibleHighlights = storyExpanded ? highlights : highlights.slice(0, 2);
   const allDaysOpen = openDays.size === days.length;
+  const serviceCount = (kind: ItemKind) => days.reduce((count, day) => count + day.items.filter((item) => item.kind === kind).length, 0);
 
   return (
     <DetailPage
       className="package-detail"
       title={
         <span className="package-record-title">
-          <img
+          {record.image ? <img
             className="package-record-title__thumb"
             src={record.image}
             alt=""
@@ -311,7 +376,7 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
             height={52}
             fetchPriority="high"
             style={{ objectPosition: record.imagePosition }}
-          />
+          /> : <span className="package-record-title__thumb package-record-title__placeholder"><Icon name="package" size="md" /></span>}
           <span>{record.name}</span>
         </span>
       }
@@ -325,6 +390,8 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
             { value: "archived", label: "Archived", tone: "open" },
           ]}
           onChange={(value) => {
+            if (record.source === "Paryatech") { onToast("Create an agency copy to change this platform template"); return; }
+            if (onStatusChange?.(value as PackageRecord["status"]) === false) return;
             setStatus(value);
             onToast(`Package status changed to ${value}`);
           }}
@@ -337,6 +404,7 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
           <span className="package-detail__meta-item">{record.region}</span>
           <span className="package-detail__meta-sep" aria-hidden="true">·</span>
           <span className="package-detail__meta-item"><Icon name="calendar" size="sm" />{record.duration}</span>
+          <span className="package-detail__meta-item">{record.source === "Paryatech" ? "Paryatech" : "Agency"} · Advanced itinerary</span>
           <span className="package-detail__meta-sep" aria-hidden="true">·</span>
           <span className="package-id-chip"><span className="package-id-chip__value pt-mono">{record.id}</span></span>
         </>
@@ -353,7 +421,7 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
       }
       actions={
         <div className="package-detail-actions">
-          <Button variant="primary" size="sm" leadingIcon={<Icon name="edit" size="sm" />} onClick={() => onToast("Package editor opened")}>Edit package</Button>
+          <Button variant="primary" size="sm" leadingIcon={<Icon name="edit" size="sm" />} onClick={onEdit ?? (() => onToast("Package editor opened"))}>{record.source === "Paryatech" ? "Customize as agency copy" : "Edit package"}</Button>
           <div className="package-detail-actions__more">
             <Button
               variant="ghost"
@@ -378,24 +446,24 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
           </div>
         </div>
       }
-      tabs={<TabBar items={detailTabs} value={tab} onValueChange={setTab} aria-label="Package sections" />}
+      tabs={<TabBar items={detailTabs.map((item) => item.id === "activity" ? { ...item, count: activityRecords.length } : item.id === "proposals" ? { ...item, count: relatedProposals.length } : item)} value={tab} onValueChange={setTab} aria-label="Package sections" />}
     >
       {tab === "itinerary" ? (
         <>
-          <section className={`package-gallery ${gallery.length === 1 ? "package-gallery--single" : ""}`} aria-label="Package gallery">
+          {gallery.length ? <section className={`package-gallery ${gallery.length === 1 ? "package-gallery--single" : ""}`} aria-label="Package gallery">
             {gallery.map((image, index) => (
               <img key={`${image}-${index}`} src={image} alt={index === 0 ? `${record.name} destination` : `${record.name} package view ${index + 1}`} />
             ))}
             <Button className="package-gallery__action" variant="ghost" size="sm" leadingIcon={<Icon name="camera" size="sm" />} onClick={() => onToast("Gallery opened")}>View gallery</Button>
-          </section>
+          </section> : null}
 
           <section className="package-composition" aria-label="Package composition">
-            <CompositionStat icon="calendar" value="6 days" label="Plan" />
-            <CompositionStat icon="plane" value="2 flight sectors" label="To confirm" />
-            <CompositionStat icon="bus" value="3 transfers" label="On ground" />
-            <CompositionStat icon="hotel" value="2 stays" label="Accommodation" />
-            <CompositionStat icon="camera" value="3 activities" label="Experiences" />
-            <CompositionStat icon="sun" value="5 meals" label="Included" />
+            <CompositionStat icon="calendar" value={record.proposalDays ? `${days.length} days` : "6 days"} label="Plan" />
+            <CompositionStat icon="plane" value={record.proposalDays ? `${serviceCount("flight")} flight sectors` : "2 flight sectors"} label="To confirm" />
+            <CompositionStat icon="bus" value={record.proposalDays ? `${serviceCount("transfer")} transfers` : "3 transfers"} label="On ground" />
+            <CompositionStat icon="hotel" value={record.proposalDays ? `${serviceCount("stay")} stays` : "2 stays"} label="Accommodation" />
+            <CompositionStat icon="camera" value={record.proposalDays ? `${serviceCount("activity")} activities` : "3 activities"} label="Experiences" />
+            <CompositionStat icon="sun" value={record.proposalDays ? `${serviceCount("meal")} meals` : "5 meals"} label="Included" />
           </section>
 
           <section className={`package-story ${storyExpanded ? "is-expanded" : ""}`} aria-labelledby="package-story-title">
@@ -446,6 +514,9 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
                   </header>
                   {isOpen ? (
                     <div className="itinerary-day__items" id={`${day.id}-services`}>
+                      {day.image ? <img className="itinerary-day__image" src={day.image} alt="" /> : null}
+                      {day.description ? <p className="itinerary-day__description">{day.description}</p> : null}
+                      {day.highlights?.length ? <ul className="itinerary-day__highlights">{day.highlights.map((item, index) => <li key={index}>{item}</li>)}</ul> : null}
                       {day.items.map((item) => <ItineraryLine key={item.id} item={item} onToast={onToast} />)}
                     </div>
                   ) : null}
@@ -458,35 +529,50 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
               <section>
                 <p className="package-rail__label">Starting price</p>
                 <strong>{record.startingPrice ? new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(record.startingPrice) : "Not set"}</strong>
-                <span>per adult · taxes included</span>
+                <span>{record.proposalDays ? (record.startingPrice ? "per adult · confirm before publishing" : "Set a reusable price before publishing") : "per adult · taxes included"}</span>
               </section>
               <section>
                 <p className="package-rail__label">Travellers</p>
-                <p className="package-rail__line"><Icon name="user" size="sm" />2 adults · 1 room</p>
-                <p className="package-rail__line"><Icon name="calendar" size="sm" />05–10 Nov 2026</p>
+                {record.proposalDays ? <>
+                  <p className="package-rail__line"><Icon name="user" size="sm" />Set traveller basis for this reusable package</p>
+                  <p className="package-rail__line"><Icon name="calendar" size="sm" />{days.length} day itinerary · dates flexible</p>
+                </> : <>
+                  <p className="package-rail__line"><Icon name="user" size="sm" />2 adults · 1 room</p>
+                  <p className="package-rail__line"><Icon name="calendar" size="sm" />05–10 Nov 2026</p>
+                </>}
               </section>
               <section>
                 <p className="package-rail__label">Coverage</p>
-                <RailState icon="hotel" label="Accommodation" value="Included" positive />
-                <RailState icon="bus" label="Transfers" value="Included" positive />
-                <RailState icon="passport" label="Visa" value="Separate" />
-                <RailState icon="briefcase" label="Insurance" value="Optional" />
+                <RailState icon="hotel" label="Accommodation" value={record.proposalDays ? (serviceCount("stay") ? "In plan" : "Not in plan") : "Included"} positive={!record.proposalDays || serviceCount("stay") > 0} />
+                <RailState icon="bus" label="Transfers" value={record.proposalDays ? (serviceCount("transfer") ? "In plan" : "Not in plan") : "Included"} positive={!record.proposalDays || serviceCount("transfer") > 0} />
+                {record.proposalDays ? null : <><RailState icon="passport" label="Visa" value="Separate" /><RailState icon="briefcase" label="Insurance" value="Optional" /></>}
               </section>
               <section>
                 <p className="package-rail__label">Commercials</p>
-                <div className="package-rail__money"><span>Supplier cost</span><span className="pt-mono">₹1,06,400</span></div>
-                <div className="package-rail__money"><span>Markup</span><span className="pt-mono">₹18,600</span></div>
-                <div className="package-rail__money package-rail__money--total"><span>Selling price</span><span className="pt-mono">₹1,25,000</span></div>
+                {record.proposalDays ? <div className="package-rail__money package-rail__money--total"><span>Price basis</span><span>Review needed</span></div> : <>
+                  <div className="package-rail__money"><span>Supplier cost</span><span className="pt-mono">₹1,06,400</span></div>
+                  <div className="package-rail__money"><span>Markup</span><span className="pt-mono">₹18,600</span></div>
+                  <div className="package-rail__money package-rail__money--total"><span>Selling price</span><span className="pt-mono">₹1,25,000</span></div>
+                </>}
               </section>
-              <Button className="package-rail__cta" variant="brand" size="md" leadingIcon={<Icon name="fileText" size="sm" />} onClick={() => onToast("Proposal created from package")}>Use in proposal</Button>
+              <Button className="package-rail__cta" variant="brand" size="md" leadingIcon={<Icon name="fileText" size="sm" />} onClick={onUseInProposal}>Use in proposal</Button>
             </aside>
           </div>
         </>
       ) : null}
 
-      {tab === "inclusions" ? <Inclusions /> : null}
-      {tab === "policies" ? <Policies /> : null}
-      {tab === "commercials" ? <Commercials /> : null}
+      {tab === "preview" ? <div className="package-customer-preview"><p className="package-customer-preview__note">Customer-facing preview · {record.status === "Published" ? "Published package" : "Not published"}</p>{record.image ? <img className="package-customer-preview__cover" src={record.image} alt="" /> : null}<section className="package-customer-preview__intro"><span>{record.destination} · {record.duration}</span><h2>{record.name}</h2><p>{record.highlights?.[0] ?? "A reusable journey ready to personalize."}</p><strong>{record.startingPrice ? `From ${new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(record.startingPrice)}` : "Price on request"}</strong><small>{record.priceBasis ?? "Final price depends on dates, travellers and availability"}</small></section><section className="package-customer-preview__days"><h3>Day-by-day journey</h3>{days.map((day) => <details key={day.id}><summary>Day {day.day} · {day.title}<span>{day.place}</span></summary><div>{record.itineraryMode !== "simple" && day.image ? <img src={day.image} alt="" /> : null}{day.description ? <p>{day.description}</p> : null}{day.highlights?.length ? <ul>{day.highlights.map((item, index) => <li key={index}>{item}</li>)}</ul> : null}{record.itineraryMode !== "simple" ? day.items.map((item) => <p key={item.id} className="package-customer-preview__service"><Icon name={iconFor[item.kind]} size="sm" /><span>{item.title}</span></p>) : null}</div></details>)}</section><section className="package-customer-preview__terms"><h3>Trip details</h3>{record.inclusions ? <p><strong>Included</strong>{record.inclusions}</p> : null}{record.exclusions ? <p><strong>Not included</strong>{record.exclusions}</p> : null}{record.importantNotes ? <p><strong>Important notes</strong>{record.importantNotes}</p> : null}{record.paymentTerms ? <p><strong>Payment terms</strong>{record.paymentTerms}</p> : null}{record.cancellationPolicy ? <p><strong>Cancellation</strong>{record.cancellationPolicy}</p> : null}</section><div className="package-customer-preview__actions"><Button variant="primary" size="sm" onClick={() => onToast("Enquiry action previewed; no message was sent")}>Enquire about this trip</Button><Button variant="ghost" size="sm" onClick={() => onToast("Customization request previewed; no message was sent")}>Request customization</Button></div></div> : null}
+      {tab === "proposals" ? <section className="package-related-proposals"><header><div><h2>Proposals created from this package</h2><p>Each is an independent customer copy. Editing this package will not change an existing proposal.</p></div><Button variant="primary" size="sm" onClick={onUseInProposal}>Create proposal</Button></header>{relatedProposals.length ? <div className="package-related-proposals__rows">{relatedProposals.map((proposal) => <button type="button" key={proposal.id} onClick={() => onOpenProposal?.(proposal)}><span><strong>{proposal.name}</strong><small>{proposal.customer} · {proposal.travel} · {proposal.travellers}</small></span><span>{proposal.itineraryMode === "simple" ? "Simple" : "Advanced"}</span><span>{proposal.status}</span><Icon name="chevronRight" size="sm" /></button>)}</div> : <p>No proposals have been created from this package yet.</p>}</section> : null}
+      {tab === "inclusions" ? record.proposalDays ? <div className="package-document"><DocumentSection title="Services in this itinerary" icon="checkCircle" items={days.flatMap((day) => day.items.map((item) => `${day.title}: ${item.title}`))} /></div> : <Inclusions /> : null}
+      {tab === "policies" ? record.proposalDays ? <div className="package-document"><DocumentSection title="Policy setup" icon="info" items={[record.createdFromProposal ? "This package was saved from a customer proposal." : "This package was built from service blocks.", "Confirm supplier cancellation and date-change terms before publishing it as a reusable package."]} /></div> : <Policies /> : null}
+      {tab === "commercials" ? record.proposalDays ? <div className="package-document"><DocumentSection title="Price setup" icon="wallet" items={[record.createdFromProposal ? "The customer-specific quote was not carried into this reusable package." : (record.startingPrice ? `Starting price: ${new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(record.startingPrice)} per adult.` : "Set a starting price for this reusable package."), "Review traveller basis, supplier costs and markup before offering it to another customer."]} /></div> : <Commercials /> : null}
+      {tab === "activity" ? <ActivityLog record={record} rows={activityRecords} onRemove={(id) => setActivityRecords((current) => current.filter((event) => event.id !== id))} onNavigate={(event) => {
+        setTab(event.section);
+        if (event.dayId) {
+          setOpenDays(new Set([event.dayId]));
+          setJumpDayId(event.dayId);
+        }
+      }} /> : null}
 
       <Modal
         open={addOpen}
@@ -506,7 +592,7 @@ export function PackageDetail({ record, onToast }: { record: PackageRecord; onTo
       </Modal>
     </DetailPage>
   );
-}
+});
 
 function CompositionStat({ icon, value, label }: { icon: IconName; value: string; label: string }) {
   return <div className="package-composition__item"><Icon name={icon} size="md" /><span><strong>{value}</strong><small>{label}</small></span></div>;
@@ -625,6 +711,180 @@ function Policies() {
 
 function Commercials() {
   return <div className="package-document"><DocumentSection title="Price build-up" icon="wallet" items={["Flights: ₹42,000", "Accommodation: ₹38,400", "Transfers and activities: ₹26,000", "Markup: ₹18,600", "Selling price: ₹1,25,000"]} /><DocumentSection title="Commercial notes" icon="info" items={["Price basis: 2 adults sharing 1 room", "Supplier rates last checked Aug 14, 2026", "Commission is included in the displayed markup"]} /></div>;
+}
+
+type PackageActivityEvent = {
+  id: string;
+  date: string;
+  time: string;
+  title: string;
+  context: string;
+  member: string;
+  role: string;
+  initials: string;
+  tone?: "pink";
+  section: string;
+  dayId?: string;
+  actionLabel: string;
+};
+
+const activityEvents: PackageActivityEvent[] = [
+  { id: "activity-1", date: "17 Sep", time: "15:20", title: "Pricing reviewed", context: "Commercials · Margin and selling price", member: "Priya Nair", role: "Staff member", initials: "PN", tone: "pink", section: "commercials", actionLabel: "Go to commercials" },
+  { id: "activity-2", date: "11 Sep", time: "10:45", title: "Route allocation updated", context: "Itinerary · Nights and destinations", member: "Vrushabh Jain", role: "Owner", initials: "VJ", section: "itinerary", actionLabel: "Go to itinerary" },
+  { id: "activity-3", date: "04 Sep", time: "12:30", title: "Accommodation replaced", context: "Itinerary · Day 1 accommodation", member: "Priya Nair", role: "Staff member", initials: "PN", tone: "pink", section: "itinerary", dayId: "day-1", actionLabel: "Go to accommodation" },
+  { id: "activity-4", date: "29 Aug", time: "16:10", title: "Cover image changed", context: "Itinerary · Package gallery", member: "Mira Iyer", role: "Content manager", initials: "MI", section: "itinerary", actionLabel: "Go to gallery" },
+  { id: "activity-5", date: "22 Aug", time: "11:40", title: "Package published", context: "Package profile · Published", member: "Vrushabh Jain", role: "Owner", initials: "VJ", section: "itinerary", actionLabel: "Go to package" },
+  { id: "activity-6", date: "14 Aug", time: "09:15", title: "Package created", context: "Package profile · Draft created", member: "Vrushabh Jain", role: "Owner", initials: "VJ", section: "itinerary", actionLabel: "Go to package" },
+];
+
+function ActivityLog({ record, rows: activityRows, onRemove, onNavigate }: { record: PackageRecord; rows: PackageActivityEvent[]; onRemove: (id: string) => void; onNavigate: (event: PackageActivityEvent) => void }) {
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  const [openMenu, setOpenMenu] = useState<{ id: string; top: number; left: number } | null>(null);
+  const [viewing, setViewing] = useState<PackageActivityEvent | null>(null);
+  const [removing, setRemoving] = useState<PackageActivityEvent | null>(null);
+  const titleId = useId();
+  const normalized = query.trim().toLowerCase();
+  const rows = activityRows.filter((event) =>
+    !normalized || `${event.date} ${event.time} ${event.title} ${event.context} ${event.member} ${event.role}`.toLowerCase().includes(normalized),
+  );
+  const allSelected = rows.length > 0 && rows.every((event) => selected.has(event.id));
+  const someSelected = rows.some((event) => selected.has(event.id));
+
+  const toggleAll = (state: "on" | "off" | "indeterminate") => {
+    setSelected((current) => {
+      const next = new Set(current);
+      rows.forEach((event) => state === "on" ? next.add(event.id) : next.delete(event.id));
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (!openMenu) return;
+    const close = () => setOpenMenu(null);
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") close(); };
+    document.addEventListener("pointerdown", close);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", close, true);
+    return () => {
+      document.removeEventListener("pointerdown", close);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", close, true);
+    };
+  }, [openMenu]);
+
+  useEffect(() => {
+    if (!viewing && !removing) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setViewing(null); setRemoving(null); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [viewing, removing]);
+
+  const showMenu = (id: string, anchor: HTMLElement) => {
+    const rect = anchor.getBoundingClientRect();
+    setOpenMenu((current) => current?.id === id ? null : {
+      id,
+      top: Math.min(rect.bottom + 5, window.innerHeight - 92),
+      left: Math.max(12, Math.min(rect.right - 172, window.innerWidth - 184)),
+    });
+  };
+
+  return (
+    <section className="package-activity" aria-labelledby="package-activity-title">
+      <header className="package-activity__header">
+        <div>
+          <h2 id="package-activity-title">Recent activities</h2>
+          <p>Changes made to {record.name}</p>
+        </div>
+        <span>{activityRows.length} recent events</span>
+      </header>
+      <div className="package-activity__search">
+        <SearchField
+          fullWidth
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search recent activity"
+          aria-label="Search recent activity"
+        />
+      </div>
+      <DataSheet className="package-activity-sheet" aria-label={`Recent activity for ${record.name}`}>
+        <DataSheetHeader>
+          <DataSheetCell check>
+            <Checkbox
+              state={allSelected ? "on" : someSelected ? "indeterminate" : "off"}
+              onCheckedChange={toggleAll}
+              label={allSelected ? "Deselect all activities" : "Select all activities"}
+            />
+          </DataSheetCell>
+          <DataSheetCell>Date</DataSheetCell>
+          <DataSheetCell>Event</DataSheetCell>
+          <DataSheetCell>Member</DataSheetCell>
+        </DataSheetHeader>
+        {rows.map((event) => (
+          <DataSheetRow key={event.id}>
+            <DataSheetCell check>
+              <Checkbox
+                state={selected.has(event.id) ? "on" : "off"}
+                onCheckedChange={(state) => setSelected((current) => {
+                  const next = new Set(current);
+                  if (state === "on") next.add(event.id);
+                  else next.delete(event.id);
+                  return next;
+                })}
+                label={`Select ${event.title}`}
+              />
+            </DataSheetCell>
+            <DataSheetCell>
+              <StackCell>
+                <StackLine icon={<Icon name="calendar" size="sm" />}>{event.date}</StackLine>
+                <StackLine icon={<Icon name="clock" size="sm" />} muted>{event.time}</StackLine>
+              </StackCell>
+            </DataSheetCell>
+            <DataSheetCell>
+              <StackCell>
+                <StackLine>{event.title}</StackLine>
+                <StackLine icon={<Icon name="package" size="sm" />} muted>{event.context}</StackLine>
+              </StackCell>
+            </DataSheetCell>
+            <DataSheetCell className="package-activity__member-cell">
+              <div className="package-activity__member">
+                <Avatar tone={event.tone} size={34}>{event.initials}</Avatar>
+                <span className="package-activity__member-text">
+                  <strong>{event.member}</strong>
+                  <span className="package-activity__role">{event.role}</span>
+                </span>
+              </div>
+              <IconButton label={`More actions for ${event.title}`} aria-haspopup="menu" aria-expanded={openMenu?.id === event.id} onClick={(clickEvent) => showMenu(event.id, clickEvent.currentTarget)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /></svg>
+              </IconButton>
+            </DataSheetCell>
+          </DataSheetRow>
+        ))}
+      </DataSheet>
+      {rows.length === 0 ? <p className="package-activity__empty">No activities match your search.</p> : null}
+      {openMenu ? createPortal(<div className="package-activity__menu" role="menu" aria-label="Activity actions" style={{ top: openMenu.top, left: openMenu.left }} onPointerDown={(event) => event.stopPropagation()}>
+        <button type="button" role="menuitem" onClick={() => { setViewing(activityRows.find((event) => event.id === openMenu.id) ?? null); setOpenMenu(null); }}>View Activity</button>
+        <button type="button" role="menuitem" className="is-danger" onClick={() => { setRemoving(activityRows.find((event) => event.id === openMenu.id) ?? null); setOpenMenu(null); }}>Remove Activity</button>
+      </div>, document.body) : null}
+      {viewing ? createPortal(<div className="package-activity__overlay" role="presentation" onClick={() => setViewing(null)}><div className="package-activity__dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
+        <header><h2 id={titleId}>{viewing.title}</h2><Button variant="ghost" size="sm" iconOnly aria-label="Close activity details" leadingIcon={<Icon name="clear" size="sm" />} onClick={() => setViewing(null)} /></header>
+        <dl className="package-activity__facts">
+          <div><dt>Activity</dt><dd>{viewing.title}</dd></div><div><dt>Date and time</dt><dd>{viewing.date} · {viewing.time}</dd></div>
+          <div><dt>Related to</dt><dd>{viewing.context}</dd></div><div><dt>Package</dt><dd>{record.name}</dd></div>
+          <div><dt>Member</dt><dd>{viewing.member}</dd></div><div><dt>Role</dt><dd>{viewing.role}</dd></div>
+          <div><dt>Activity ID</dt><dd className="pt-mono">{viewing.id}</dd></div>
+        </dl>
+        <footer><Button variant="ghost" size="sm" onClick={() => setViewing(null)}>Close</Button><Button variant="primary" size="sm" onClick={() => { onNavigate(viewing); setViewing(null); }}>{viewing.actionLabel}</Button></footer>
+      </div></div>, document.body) : null}
+      {removing ? createPortal(<div className="package-activity__overlay" role="presentation" onClick={() => setRemoving(null)}><div className="package-activity__dialog" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
+        <header><h2 id={titleId}>Remove Activity</h2><Button variant="ghost" size="sm" iconOnly aria-label="Close remove activity" leadingIcon={<Icon name="clear" size="sm" />} onClick={() => setRemoving(null)} /></header>
+        <p className="package-activity__confirm">Remove “{removing.title}” from this package’s activity history?</p>
+        <footer><Button variant="ghost" size="sm" onClick={() => setRemoving(null)}>Keep Activity</Button><Button variant="primary" size="sm" onClick={() => { onRemove(removing.id); setSelected((current) => { const next = new Set(current); next.delete(removing.id); return next; }); setRemoving(null); }}>Remove Activity</Button></footer>
+      </div></div>, document.body) : null}
+    </section>
+  );
 }
 
 function DocumentSection({ title, icon, items }: { title: string; icon: IconName; items: string[] }) {
