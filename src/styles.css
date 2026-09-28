@@ -325,16 +325,44 @@ button,
   grid-auto-columns: unset;
   grid-template-columns:
     calc(var(--page-pad) + 46px)
-    minmax(0, 1.4fr)
-    minmax(0, 1.1fr)
-    minmax(0, 1.25fr)
-    minmax(0, 0.8fr)
+    minmax(0, 1.45fr)
     minmax(0, 1fr)
-    166px
-    72px;
+    minmax(0, 0.7fr)
+    minmax(0, 1.2fr)
+    minmax(0, 0.76fr)
+    minmax(0, 0.98fr)
+    142px
+    64px;
   width: 100%;
-  min-width: 1180px;
+  min-width: 0;
 }
+
+.proposal-query-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 0 7px;
+  border: 1px solid #d5e7e3;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.proposal-query-link:hover { border-color: var(--accent); }
+.proposal-query-link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.proposal-query-preview { display: grid; gap: 0; margin: 0; }
+.proposal-query-preview > div { display: grid; grid-template-columns: 105px minmax(0, 1fr); gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.proposal-query-preview dt { color: var(--ink-3); font-size: 12px; }
+.proposal-query-preview dd { margin: 0; color: var(--ink); font-size: 13px; line-height: 1.5; }
+.proposal-query-preview__empty { margin: 0; color: var(--ink-3); font-size: 13px; }
 
 .packages-sheet .pt-sheet__scroll,
 .proposals-sheet .pt-sheet__scroll {
@@ -744,6 +772,74 @@ button,
     border-top: 1px solid var(--line-2);
   }
 
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) {
+    grid-template-rows: repeat(7, auto);
+  }
+
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(7) {
+    grid-column: 2 / -1;
+    grid-row: 6;
+    justify-content: flex-start;
+  }
+
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(8) {
+    grid-column: 3;
+    grid-row: 5;
+    justify-content: flex-end;
+    border-top: 0;
+  }
+
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(9) {
+    grid-column: 2 / -1;
+    grid-row: 7;
+    justify-content: flex-end;
+    padding-right: 8px;
+    border-top: 1px solid var(--line-2);
+  }
+
+}
+
+@media (min-width: 901px) and (max-width: 1299px) {
+  .pt-content:has(> .pt-list .package-list-controls) .package-table-viewport > .proposals-sheet > .pt-sheet__scroll {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 10px;
+    padding: 0 var(--page-pad);
+  }
+
+  .proposals-sheet .pt-sheet__head,
+  .proposals-sheet .package-sheet-fill { display: none !important; }
+
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    grid-template-rows: repeat(7, auto);
+    width: auto;
+    min-width: 0;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--blockShadow);
+  }
+
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell {
+    min-height: 0;
+    padding: 6px 8px;
+    border: 0;
+  }
+
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(1) { grid-column: 1; grid-row: 1; padding-left: 2px; }
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(2) { grid-column: 2 / -1; grid-row: 1; }
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(3) { grid-column: 2 / -1; grid-row: 2; }
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(4) { grid-column: 2 / -1; grid-row: 3; }
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(5) { grid-column: 2 / -1; grid-row: 4; }
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(6) { grid-column: 2; grid-row: 5; }
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(7) { grid-column: 2 / -1; grid-row: 6; }
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(8) { grid-column: 3; grid-row: 5; justify-content: flex-end; }
+  .proposals-sheet .pt-sheet__row:not(.pt-sheet__head) > .pt-sheet__cell:nth-child(9) { grid-column: 2 / -1; grid-row: 7; justify-content: flex-end; padding-right: 8px; border-top: 1px solid var(--line-2); }
 }
 
 @media (max-width: 620px) {

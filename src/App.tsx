@@ -14,6 +14,7 @@ import {
   LeadCell,
   ListBulkBar,
   ListPage,
+  Modal,
   MoneyCell,
   Pagination,
   RowActions,
@@ -45,8 +46,8 @@ import { DestinationPage } from "./DestinationPage";
 import { WorkspaceNotes } from "./WorkspaceNotes";
 import { searchRegions } from "./regionSearch";
 import type { RegionSuggestion } from "./regionSearch";
-import type { ItineraryMode, ProposalRecord, ProposalStatus } from "./proposalModel";
-import { itineraryCosting } from "./proposalModel";
+import type { ItineraryMode, ProposalQueryContext, ProposalRecord, ProposalStatus } from "./proposalModel";
+import { formatProposalTravel, itineraryCosting } from "./proposalModel";
 import type { StepNavigationHandle, StepNavigationSnapshot } from "./useStepNavigation";
 
 export type { ProposalRecord } from "./proposalModel";
@@ -198,16 +199,25 @@ const packages: PackageRecord[] = [
   },
 ];
 
+const linkedQueries: Record<string, ProposalQueryContext> = {
+  "QRY-2042": { id: "QRY-2042", customer: "Aditi Sharma", customerEmail: "aditi.sharma@example.com", destination: "Rajasthan, India", region: "Western India", travelStart: "2027-01-14", travelEnd: "2027-01-21", adults: 2, children: 0, requirements: "Heritage stays, a relaxed Jaipur day and private transfers." },
+  "QRY-2038": { id: "QRY-2038", customer: "Devika Menon", customerEmail: "devika.menon@example.com", destination: "Kerala, India", region: "South India", travelStart: "2027-02-08", travelEnd: "2027-02-10", adults: 2, children: 1, requirements: "A gentle first visit with time in Kochi and the backwaters." },
+  "QRY-2029": { id: "QRY-2029", customer: "Ananya Mehta", customerEmail: "ananya.mehta@example.com", destination: "Bali, Indonesia", region: "Southeast Asia", adults: 2, children: 1, requirements: "A relaxed family pace, private airport transfers, cultural experiences and two comfortable stays." },
+  "QRY-2018": { id: "QRY-2018", customer: "Ira Kapoor", customerEmail: "ira.kapoor@example.com", destination: "Himachal Pradesh, India", region: "North India", adults: 4, children: 0, requirements: "Mountain views, a comfortable hotel in each stop, private car and light sightseeing." },
+};
+
 const proposals: ProposalRecord[] = [
-  { id: "PRP-1088", name: "Menon family Kerala", customer: "Devika Menon", customerEmail: "devika.menon@example.com", packageName: "Custom itinerary", itineraryMode: "simple", sharingMode: "itinerary", version: 1, destination: "Kerala, India", region: "South India", travel: "08–10 Feb 2027", travelStart: "2027-02-08", travelEnd: "2027-02-10", travellers: "2 adults · 1 child", requirements: "A gentle first visit with time in Kochi and the backwaters.", note: "A short Kerala journey to review together before choosing the final stays.", inclusions: "Private airport pickup; accommodation basis to confirm.", exclusions: "Flights; personal expenses.", days: [
+  { id: "PRP-1092", name: "Sharma Rajasthan journey", customer: "Aditi Sharma", customerEmail: "aditi.sharma@example.com", queryId: "QRY-2042", sourcePackageId: packages[3].id, packageName: packages[3].name, itineraryMode: "advanced", sharingMode: "priced", version: 2, acceptedVersion: 2, destination: packages[3].destination, region: packages[3].region, travel: "14–21 Jan 2027", travelStart: "2027-01-14", travelEnd: "2027-01-21", travellers: "2 adults", requirements: "Heritage stays, a relaxed Jaipur day and private transfers.", note: "A comfortable Rajasthan route with time for local experiences.", days: packageDaysForProposal(packages[3]), value: 184000, updated: "Sep 28, 2026", status: "Approved" },
+  { id: "PRP-1090", name: "Fernandes Bali escape", customer: "Maya Fernandes", customerEmail: "maya.fernandes@example.com", sourcePackageId: packages[1].id, packageName: packages[1].name, itineraryMode: "advanced", sharingMode: "priced", version: 1, acceptedVersion: 1, destination: packages[1].destination, region: packages[1].region, travel: "09–15 Mar 2027", travelStart: "2027-03-09", travelEnd: "2027-03-15", travellers: "2 adults", requirements: "A quiet beach stay with private experiences.", note: "A relaxed Bali escape adapted from the honeymoon package.", days: packageDaysForProposal(packages[1]), value: 298000, updated: "Sep 28, 2026", status: "Approved" },
+  { id: "PRP-1088", name: "Menon family Kerala", customer: "Devika Menon", customerEmail: "devika.menon@example.com", queryId: "QRY-2038", packageName: "Custom itinerary", itineraryMode: "simple", sharingMode: "itinerary", version: 1, destination: "Kerala, India", region: "South India", travel: "08–10 Feb 2027", travelStart: "2027-02-08", travelEnd: "2027-02-10", travellers: "2 adults · 1 child", requirements: "A gentle first visit with time in Kochi and the backwaters.", note: "A short Kerala journey to review together before choosing the final stays.", inclusions: "Private airport pickup; accommodation basis to confirm.", exclusions: "Flights; personal expenses.", days: [
     { id: "menon-day-1", title: "Arrive in Kochi", place: "Kochi", description: "Arrive in Kochi and meet your private transfer. Settle in, then spend the evening at your own pace.", highlights: ["Easy arrival", "Evening at leisure"], services: [{ id: "menon-transfer", kind: "transfer", title: "Kochi airport transfer", detail: "Private vehicle, timing to follow flight confirmation.", priceState: "unpriced", routeFrom: "Kochi airport", routeTo: "Kochi stay", vehicleType: "SUV", vehicleCapacity: 4 }] },
     { id: "menon-day-2", title: "Kochi & the backwaters", place: "Kochi", description: "Discover the old harbour and local streets before an unhurried afternoon near the backwaters.", highlights: ["Fort Kochi walk", "Backwater views"], services: [] },
     { id: "menon-day-3", title: "Departure", place: "Kochi", description: "Enjoy breakfast and transfer onward. The final departure time will follow the booked service.", highlights: [], services: [] },
   ], value: 0, updated: "Sep 27, 2026", status: "Itinerary shared" },
   { id: "PRP-1087", name: "Rao family Bali", customer: "Nisha Rao", customerEmail: "nisha.rao@example.com", sourcePackageId: packages[0].id, packageName: packages[0].name, itineraryMode: "advanced", version: 1, destination: packages[0].destination, region: packages[0].region, travel: "12–17 Jan 2027", travelStart: "2027-01-12", travelEnd: "2027-01-17", travellers: "4 adults", requirements: "A family-paced route with more time in Ubud, two rooms and private transport.", note: "Bali at a gentler pace, tailored for the Rao family.", days: packageDaysForProposal(packages[0]).map((day) => ({ ...day, services: day.services.map((service) => ({ ...service, rooms: service.kind === "stay" ? 2 : service.rooms })) })), value: 360000, updated: "Sep 26, 2026", status: "Draft" },
-  { id: "PRP-1084", name: "Mehta family Bali", customer: "Ananya Mehta", customerEmail: "ananya.mehta@example.com", sourcePackageId: packages[0].id, packageName: packages[0].name, destination: packages[0].destination, region: packages[0].region, travel: "05–10 Nov 2026", travellers: "2 adults · 1 child", requirements: "A relaxed family pace, private airport transfers, cultural experiences and two comfortable stays.", note: "We've balanced guided days with time to explore Bali together.", days: packageDaysForProposal(packages[0]), value: 290000, updated: "Sep 25, 2026", status: "Sent" },
+  { id: "PRP-1084", name: "Mehta family Bali", customer: "Ananya Mehta", customerEmail: "ananya.mehta@example.com", queryId: "QRY-2029", sourcePackageId: packages[0].id, packageName: packages[0].name, sharingMode: "priced", destination: packages[0].destination, region: packages[0].region, travel: "05–10 Nov 2026", travellers: "2 adults · 1 child", requirements: "A relaxed family pace, private airport transfers, cultural experiences and two comfortable stays.", note: "We've balanced guided days with time to explore Bali together.", days: packageDaysForProposal(packages[0]), value: 290000, updated: "Sep 25, 2026", status: "Itinerary shared" },
   { id: "PRP-1081", name: "Shah family Dubai", customer: "Rohan Shah", customerEmail: "rohan.shah@example.com", sourcePackageId: packages[4].id, packageName: packages[4].name, destination: packages[4].destination, region: packages[4].region, travel: "12–17 Dec 2026", travellers: "2 adults · 2 children", requirements: "A family-friendly Dubai trip with a desert experience, private transfers and visa assistance.", note: "A city escape built around easy travel days and family time.", days: packageDaysForProposal(packages[4]), value: 235000, updated: "Sep 24, 2026", status: "Draft" },
-  { id: "PRP-1076", name: "Kapoor family Himachal", customer: "Ira Kapoor", customerEmail: "ira.kapoor@example.com", sourcePackageId: packages[2].id, packageName: packages[2].name, destination: packages[2].destination, region: packages[2].region, travel: "18–23 Dec 2026", travellers: "4 adults", requirements: "Mountain views, a comfortable hotel in each stop, private car and light sightseeing.", note: "A mountain journey with space to enjoy each stop.", days: packageDaysForProposal(packages[2]), value: 312000, updated: "Sep 21, 2026", status: "Accepted" },
+  { id: "PRP-1076", name: "Kapoor family Himachal", customer: "Ira Kapoor", customerEmail: "ira.kapoor@example.com", queryId: "QRY-2018", sourcePackageId: packages[2].id, packageName: packages[2].name, sharingMode: "priced", destination: packages[2].destination, region: packages[2].region, travel: "18–23 Dec 2026", travellers: "4 adults", requirements: "Mountain views, a comfortable hotel in each stop, private car and light sightseeing.", note: "A mountain journey with space to enjoy each stop.", days: packageDaysForProposal(packages[2]), value: 312000, updated: "Sep 21, 2026", status: "Approved" },
   { id: "PRP-1072", name: "Khanna Bali honeymoon", customer: "Samar Khanna", customerEmail: "samar.khanna@example.com", sourcePackageId: packages[1].id, packageName: packages[1].name, destination: packages[1].destination, region: packages[1].region, travel: "02–07 Jan 2027", travellers: "2 adults", requirements: "Quiet stays, private experiences and more time by the coast.", note: "A personal Bali journey with a calm pace and memorable shared experiences.", days: packageDaysForProposal(packages[1]), value: 268000, updated: "Sep 19, 2026", status: "Changes requested" },
 ];
 
@@ -323,9 +333,8 @@ const statusTone: Record<PackageStatus, StatusTone> = {
 const proposalStatusTone: Record<ProposalStatus, StatusTone> = {
   Draft: "progress",
   "Itinerary shared": "open",
-  Sent: "open",
   "Changes requested": "progress",
-  Accepted: "done",
+  Approved: "done",
   Declined: "open",
 };
 
@@ -362,6 +371,7 @@ export default function App() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [selectedPackage, setSelectedPackage] = useState<PackageRecord | null>(null);
   const [selectedProposal, setSelectedProposal] = useState<ProposalRecord | null>(null);
+  const [queryPreview, setQueryPreview] = useState<ProposalRecord | null>(null);
   const [packageRecords, setPackageRecords] = useState<PackageRecord[]>(packages);
   const [proposalRecords, setProposalRecords] = useState<ProposalRecord[]>(proposals);
   const [openRowMenu, setOpenRowMenu] = useState<string | null>(null);
@@ -442,12 +452,13 @@ export default function App() {
       const tableTop = tableViewportRef.current?.getBoundingClientRect().top;
       if (tableTop == null) return;
 
-      const compactCards = window.innerWidth < 900;
+      const compactCards = window.innerWidth < 900 || (workspaceView === "proposals" && window.innerWidth < 1300);
+      const cardsPerRow = workspaceView === "proposals" && window.innerWidth > 900 && window.innerWidth < 1300 ? 2 : 1;
       const rowHeight = compactCards ? 336 : 80;
       const headerHeight = compactCards ? 0 : 48;
       const footerAllowance = 76;
       const available = window.innerHeight - tableTop - footerAllowance - headerHeight;
-      setPageSize(Math.max(1, Math.floor(available / rowHeight)));
+      setPageSize(Math.max(1, Math.floor(available / rowHeight)) * cardsPerRow);
     };
 
     const frame = window.requestAnimationFrame(updatePageSize);
@@ -481,7 +492,7 @@ export default function App() {
     return proposalRecords.filter((item) => {
       const matchesStatus = statusFilter === "all" || item.status.toLowerCase() === statusFilter;
       const matchesRegion = region === "all" || item.region === region;
-      const searchable = `${item.name} ${item.customer} ${item.packageName} ${item.destination} ${item.region} ${item.id}`.toLowerCase();
+      const searchable = `${item.name} ${item.customer} ${item.packageName} ${item.destination} ${item.region} ${item.id} ${item.queryId ?? ""}`.toLowerCase();
       const matchesQuery = selectedTerms
         ? selectedTerms.some((term) => searchable.includes(term))
         : !normalized || searchable.includes(normalized);
@@ -824,7 +835,7 @@ export default function App() {
             setQuery("");
             setRegion("all");
             setPage(1);
-            showToast(record.status === "Sent" ? "Priced proposal saved as sent" : record.status === "Itinerary shared" ? "Itinerary marked as shared for review" : "Draft proposal saved");
+            showToast(record.status === "Itinerary shared" ? "Itinerary marked as shared" : "Draft proposal saved");
           }}
         />
       </AppShell>
@@ -838,7 +849,7 @@ export default function App() {
         brandName=""
         brandMark={<ParyatechBrand />}
         navGroups={shellNavGroups}
-        breadcrumbs={[{ label: "Sales", href: "#" }, { label: "Packages", href: "#" }, { label: selectedPackage?.source === "Paryatech" ? "Customize template" : selectedPackage ? "Edit package" : "New package" }]}
+        breadcrumbs={[{ label: "Sales", href: "#" }, { label: "Packages", href: "#" }, { label: selectedPackage?.source === "Paryatech" ? "Customize template" : selectedPackage ? "Edit package" : "Add package" }]}
         onBack={() => setCreatingPackage(false)}
         backLabel="Back to packages"
         search={{ placeholder: "Search anything", "aria-label": "Search Paryatech" }}
@@ -896,7 +907,7 @@ export default function App() {
         notes={packageNotes}
         actions={topbarActions}
       >
-        <PackageDetail key={selectedPackage.id} ref={packageDetailRef} record={selectedPackage} relatedProposals={proposalRecords.filter((item) => item.sourcePackageId === selectedPackage.id)} onOpenProposal={(proposal) => { recordTrailRef.current.push({ kind: "package", id: selectedPackage.id, navigation: packageDetailRef.current?.snapshot() }); setSelectedPackage(null); setSelectedProposal(proposal); }} initialNavigation={packageInitialNavigation} onToast={showToast} onUseInProposal={() => beginProposal(selectedPackage)} onEdit={() => setCreatingPackage(true)} onStatusChange={(status) => { if (status === "Published" && selectedPackage.proposalDays) { const days = selectedPackage.proposalDays; if (days.some((day) => !day.description?.trim() && !day.services.length && !day.highlights?.length) || !selectedPackage.startingPrice || !selectedPackage.priceBasis || itineraryCosting(days).unpriced > 0) { showToast("Complete each day, price all included services and set a price basis before publishing"); return false; } } const updated = { ...selectedPackage, status }; setPackageRecords((current) => current.map((item) => item.id === updated.id ? updated : item)); setSelectedPackage(updated); return true; }} />
+        <PackageDetail key={selectedPackage.id} ref={packageDetailRef} record={selectedPackage} relatedProposals={proposalRecords.filter((item) => item.sourcePackageId === selectedPackage.id)} onOpenProposal={(proposal) => { recordTrailRef.current.push({ kind: "package", id: selectedPackage.id, navigation: packageDetailRef.current?.snapshot() }); setSelectedPackage(null); setSelectedProposal(proposal); }} initialNavigation={packageInitialNavigation} onToast={showToast} onUseInProposal={() => beginProposal(selectedPackage)} onEdit={() => setCreatingPackage(true)} onStatusChange={(status) => { if (status === "Published" && selectedPackage.proposalDays) { const days = selectedPackage.proposalDays; if (days.some((day) => day.services.length < Math.max(day.plannedBlockCount ?? 1, 1)) || !selectedPackage.startingPrice || !selectedPackage.priceBasis || itineraryCosting(days).unpricedRequired > 0) { showToast("Fill planned blocks, price included services, and set a starting price before publishing"); return false; } } const updated = { ...selectedPackage, status }; setPackageRecords((current) => current.map((item) => item.id === updated.id ? updated : item)); setSelectedPackage(updated); return true; }} />
         <div className={`package-toast ${toast ? "package-toast--show" : ""}`} role="status" aria-live="polite">
           <Icon name="checkCircle" size="sm" />
           {toast}
@@ -935,7 +946,7 @@ export default function App() {
           sourcePackage={sourcePackage}
           onEdit={() => { setProposalSource(sourcePackage ?? null); setCreatingProposal(true); }}
           onStatusChange={(status, changeRequest) => {
-            const updated = { ...selectedProposal, status, acceptedVersion: status === "Accepted" ? selectedProposal.version ?? 1 : selectedProposal.acceptedVersion, changeRequest: changeRequest || selectedProposal.changeRequest };
+            const updated = { ...selectedProposal, status, acceptedVersion: status === "Approved" ? selectedProposal.version ?? 1 : selectedProposal.acceptedVersion, changeRequest: changeRequest || selectedProposal.changeRequest };
             setProposalRecords((current) => current.map((item) => item.id === updated.id ? updated : item));
             setSelectedProposal(updated);
             showToast(`Proposal ${status.toLowerCase()}`);
@@ -987,6 +998,8 @@ export default function App() {
       </AppShell>
     );
   }
+
+  const previewQuery = queryPreview?.queryContext ?? (queryPreview?.queryId ? linkedQueries[queryPreview.queryId] : undefined);
 
   return (
     <AppShell
@@ -1045,8 +1058,8 @@ export default function App() {
                     }}
                     onFocus={() => setRegionSearchOpen(true)}
                     onBlur={() => window.setTimeout(() => setRegionSearchOpen(false), 120)}
-                    placeholder={workspaceView === "packages" ? "Search packages or regions" : "Search proposals, customers or regions"}
-                    aria-label={workspaceView === "packages" ? "Search packages or regions" : "Search proposals, customers or regions"}
+                    placeholder={workspaceView === "packages" ? "Search packages or regions" : "Search proposals, customers, queries or regions"}
+                    aria-label={workspaceView === "packages" ? "Search packages or regions" : "Search proposals, customers, queries or regions"}
                     role="combobox"
                     aria-autocomplete="list"
                     aria-expanded={regionSearchOpen && query.trim().length >= 2}
@@ -1126,9 +1139,8 @@ export default function App() {
                       { value: "all", label: "All statuses" },
                       { value: "draft", label: "Draft" },
                       { value: "itinerary shared", label: "Itinerary shared" },
-                      { value: "sent", label: "Sent" },
                       { value: "changes requested", label: "Changes requested" },
-                      { value: "accepted", label: "Accepted" },
+                      { value: "approved", label: "Approved" },
                       { value: "declined", label: "Declined" },
                     ]}
                   />
@@ -1312,7 +1324,8 @@ export default function App() {
                 />
               </DataSheetCell>
               <DataSheetCell>Proposal</DataSheetCell>
-              <DataSheetCell>Customer / Query</DataSheetCell>
+              <DataSheetCell>Customer</DataSheetCell>
+              <DataSheetCell>Query</DataSheetCell>
               <DataSheetCell>Travel / party</DataSheetCell>
               <DataSheetCell>Quoted total</DataSheetCell>
               <DataSheetCell>Last updated</DataSheetCell>
@@ -1348,7 +1361,10 @@ export default function App() {
                   />
                 </DataSheetCell>
                 <DataSheetCell>
-                  <StackCell><StackLine>{item.customer}</StackLine><StackLine muted>{item.queryId ? `Query ${item.queryId}` : "Independent proposal"}</StackLine></StackCell>
+                  <StackCell><StackLine>{item.customer}</StackLine><StackLine muted>{item.customerEmail || "Email not set"}</StackLine></StackCell>
+                </DataSheetCell>
+                <DataSheetCell className="proposal-query-cell">
+                  {item.queryId ? <button type="button" className="proposal-query-link" onClick={() => setQueryPreview(item)} aria-label={`Open query ${item.queryId} for ${item.customer}`}><Icon name="fileText" size="sm" />{item.queryId}</button> : <span className="pt-muted" aria-label="No linked query">—</span>}
                 </DataSheetCell>
                 <DataSheetCell>
                   <StackCell><StackLine icon={<Icon name="calendar" size="sm" />}>{item.travel}</StackLine><StackLine muted>{item.travellers}</StackLine></StackCell>
@@ -1369,7 +1385,7 @@ export default function App() {
                         <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); recordTrailRef.current = []; setProposalInitialNavigation(null); setSelectedProposal(item); }}>
                           <Icon name="openExternal" size="sm" /> Open proposal
                         </button>
-                        <button type="button" role="menuitem" onClick={() => { const duplicate: ProposalRecord = { ...item, id: `PRP-${Math.floor(1000 + Math.random() * 8999)}`, name: `${item.name} (copy)`, days: item.days.map((day) => ({ ...day, highlights: [...(day.highlights ?? [])], services: day.services.map((service) => ({ ...service, supplements: service.supplements?.map((supplement) => ({ ...supplement })) })) })), status: "Draft", version: 1, acceptedVersion: undefined, changeRequest: undefined, updated: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date()) }; setProposalRecords((current) => [duplicate, ...current]); setOpenRowMenu(null); setSelectedProposal(duplicate); showToast("Draft proposal duplicated; edit its customer details before sharing"); }}>
+                        <button type="button" role="menuitem" onClick={() => { const duplicate: ProposalRecord = { ...item, id: `PRP-${Math.floor(1000 + Math.random() * 8999)}`, name: `${item.name} (copy)`, queryId: undefined, queryContext: undefined, days: item.days.map((day) => ({ ...day, highlights: [...(day.highlights ?? [])], services: day.services.map((service) => ({ ...service, supplements: service.supplements?.map((supplement) => ({ ...supplement })) })) })), status: "Draft", version: 1, acceptedVersion: undefined, changeRequest: undefined, updated: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date()) }; setProposalRecords((current) => [duplicate, ...current]); setOpenRowMenu(null); setSelectedProposal(duplicate); showToast("Draft proposal duplicated; edit its customer details before sharing"); }}>
                           <Icon name="copy" size="sm" /> Duplicate proposal
                         </button>
                         <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); showToast(`${item.name} exported`); }}>
@@ -1381,7 +1397,7 @@ export default function App() {
                 </DataSheetCell>
               </DataSheetRow>
             ))}
-            <DataSheetFill columns={8} />
+            <DataSheetFill columns={9} />
           </DataSheet>
         ) : (
           <div className="package-empty">
@@ -1398,6 +1414,9 @@ export default function App() {
         <Icon name="checkCircle" size="sm" />
         {toast}
       </div>
+      <Modal open={Boolean(queryPreview)} onClose={() => setQueryPreview(null)} title={queryPreview?.queryId ?? "Linked query"} eyebrow="Linked query" footer={<Button variant="ghost" size="sm" onClick={() => setQueryPreview(null)}>Close</Button>}>
+        {previewQuery ? <dl className="proposal-query-preview"><div><dt>Customer</dt><dd>{previewQuery.customer}</dd></div><div><dt>Destination</dt><dd>{previewQuery.destination ?? "Not set"}</dd></div><div><dt>Travel dates</dt><dd>{formatProposalTravel(previewQuery.travelStart ?? "", previewQuery.travelEnd ?? "")}</dd></div><div><dt>Party</dt><dd>{previewQuery.adults ?? 0} adults{previewQuery.children ? ` · ${previewQuery.children} children` : ""}</dd></div><div><dt>Requirements</dt><dd>{previewQuery.requirements ?? "Not recorded"}</dd></div></dl> : <p className="proposal-query-preview__empty">The original query details are not available in this workspace.</p>}
+      </Modal>
     </AppShell>
   );
 }

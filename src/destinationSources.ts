@@ -6,6 +6,8 @@ import { VENDOR_SERVICES } from "../vendor-crm/src/data/services";
 import type { VendorService } from "../vendor-crm/src/data/services";
 import { VENDOR_PACKAGES } from "../vendor-crm/src/data/packages";
 import type { VendorPackage } from "../vendor-crm/src/data/packages";
+import { packageDaysForDestination } from "./PackageDetail";
+import type { ProposalDay, ProposalServiceKind } from "./proposalModel";
 import type { RegionSuggestion } from "./regionSearch";
 
 export interface DestinationPackage {
@@ -17,6 +19,8 @@ export interface DestinationPackage {
   image: string;
   duration?: string;
   startingPrice?: number;
+  templateId?: string;
+  proposalDays?: ProposalDay[];
 }
 
 export interface DestinationProposal {
@@ -28,7 +32,19 @@ export interface DestinationProposal {
   region: string;
   status: string;
   value: number;
-  days?: Array<{ place: string; title?: string; services: Array<{ kind: string; title: string; detail?: string }> }>;
+  sourcePackageId?: string;
+  days?: Array<{ place: string; title?: string; image?: string; services: Array<{ kind: string; title: string; detail?: string; vendor?: string }> }>;
+}
+
+export interface DestinationItineraryService {
+  key: string;
+  title: string;
+  category: string;
+  detail: string;
+  place: string;
+  image?: string;
+  vendor?: string;
+  sources: Array<{ kind: "package" | "proposal"; id: string; name: string }>;
 }
 
 export interface DestinationBooking {
@@ -46,7 +62,64 @@ export interface DestinationSnapshot {
   proposals: Array<{ record: DestinationProposal; package?: DestinationPackage }>;
   bookings: DestinationBooking[];
   services: Array<{ record: DirectoryService; vendors: Vendor[]; profile?: VendorService }>;
+  itineraryServices: DestinationItineraryService[];
   vendors: Array<{ record: Vendor; services: DirectoryService[]; basedHere: boolean }>;
+}
+
+const categoryByKind: Record<ProposalServiceKind, string> = {
+  stay: "Accommodation", transfer: "Transport", activity: "Activities",
+  flight: "Flights", meal: "Meals", other: "Other service",
+};
+
+function itineraryServiceKey(kind: string, title: string) {
+  return `${kind}:${normalize(title.replace(/\s*[·•]\s*\d+\s*nights?\b.*$/i, ""))}`;
+}
+
+function itineraryServicesFor(
+  matchingPackages: DestinationPackage[],
+  matchingProposals: DestinationProposal[],
+  directoryServices: DirectoryService[],
+): DestinationItineraryService[] {
+  const byKey = new Map<string, DestinationItineraryService>();
+  const crmNames = new Set(directoryServices.map((service) => normalize(service.name)));
+  const packageById = new Map(matchingPackages.map((item) => [item.id, item]));
+  const addDays = (
+    days: NonNullable<DestinationProposal["days"]>,
+    source: DestinationItineraryService["sources"][number],
+    image?: string,
+  ) => {
+    for (const day of days) for (const service of day.services) {
+      const title = service.title.trim();
+      if (!title || !Object.hasOwn(categoryByKind, service.kind)) continue;
+      // These describe time or an unselected option, not a bookable service.
+      if (/^checkout\b|^breakfast at\b|^open time\b|^flight required\b/i.test(title)) continue;
+      const key = itineraryServiceKey(service.kind, title);
+      if (crmNames.has(normalize(title.replace(/\s*[·•]\s*\d+\s*nights?\b.*$/i, "")))) continue;
+      const existing = byKey.get(key);
+      if (existing) {
+        if (!existing.sources.some((item) => item.kind === source.kind && item.id === source.id)) existing.sources.push(source);
+        if (!existing.vendor && service.vendor) existing.vendor = service.vendor;
+        continue;
+      }
+      byKey.set(key, {
+        key, title, category: categoryByKind[service.kind as ProposalServiceKind],
+        detail: service.detail ?? "Included in the itinerary", place: day.place,
+        image: day.image ?? image, vendor: service.vendor, sources: [source],
+      });
+    }
+  };
+
+  for (const record of matchingPackages) {
+    addDays(packageDaysForDestination(record), { kind: "package", id: record.id, name: record.name }, record.image);
+  }
+  for (const record of matchingProposals) {
+    if (!record.days) continue;
+    const sourcePackage = record.sourcePackageId ? packageById.get(record.sourcePackageId) : undefined;
+    addDays(record.days, sourcePackage
+      ? { kind: "package", id: sourcePackage.id, name: sourcePackage.name }
+      : { kind: "proposal", id: record.id, name: record.name }, sourcePackage?.image);
+  }
+  return [...byKey.values()];
 }
 
 // These are location relationships visible in the current module data. The
@@ -136,6 +209,7 @@ export function buildDestinationSnapshot(
   };
 
   const services = matchingServices.map((record) => ({ record, vendors: providersFor(record), profile: serviceProfileById.get(record.serviceId) }));
+  const itineraryServices = itineraryServicesFor(matchingPackages, matchingProposals, matchingServices);
   const vendors = SEED_VENDORS.flatMap((record) => {
     const relatedServices = services.filter((service) => service.vendors.some((vendor) => vendor.id === record.id)).map((service) => service.record);
     const basedHere = belongsToRegion(record.location, region);
@@ -151,6 +225,7 @@ export function buildDestinationSnapshot(
     proposals: matchingProposals.map((record) => ({ record, package: packageByName.get(normalize(record.packageName)) })),
     bookings: bookings.filter((item) => belongsToRegion(item.destination, region)),
     services,
+    itineraryServices,
     vendors,
   };
 }

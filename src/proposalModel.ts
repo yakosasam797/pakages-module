@@ -1,4 +1,6 @@
-export type ProposalStatus = "Draft" | "Itinerary shared" | "Sent" | "Changes requested" | "Accepted" | "Declined";
+import { serviceCostBreakdown, type CostContext } from "./serviceCosting";
+
+export type ProposalStatus = "Draft" | "Itinerary shared" | "Changes requested" | "Approved" | "Declined";
 export type ProposalServiceKind = "flight" | "transfer" | "stay" | "activity" | "meal" | "other";
 export type ItineraryMode = "simple" | "advanced";
 export type ServicePriceState = "priced" | "included" | "unpriced";
@@ -23,13 +25,34 @@ export interface ServiceSupplement {
   unitCost: number;
 }
 
+export interface ServiceCostComponent {
+  id: string;
+  label: string;
+  quantity: number;
+  unitCost: number;
+  unit: string;
+}
+
+export interface StayChild {
+  age: number;
+  bed: boolean;
+}
+
 export interface ProposalService {
   id: string;
   kind: ProposalServiceKind;
   title: string;
   detail: string;
   vendor?: string;
+  supplierQuoteReference?: string;
+  supplierRateValidUntil?: string;
+  costNote?: string;
+  image?: string;
+  sourceType?: "vendor-crm" | "api";
+  sourceId?: string;
+  serviceCategory?: string;
   cost?: number;
+  costComponents?: ServiceCostComponent[];
   priceState?: ServicePriceState;
   quantity?: number;
   unit?: string;
@@ -37,12 +60,37 @@ export interface ProposalService {
   rooms?: number;
   nights?: number;
   mealPlan?: string;
+  rateCardId?: string;
+  roomTypeId?: string;
+  mealPlanCode?: string;
+  stayCheckIn?: string;
+  stayAdults?: number;
+  stayChildren?: StayChild[];
   supplements?: ServiceSupplement[];
   routeFrom?: string;
   routeTo?: string;
+  serviceDate?: string;
   vehicleType?: string;
+  vehicleTier?: "standard" | "premium" | "luxury";
   vehicleCapacity?: number;
+  transportPricingMode?: "transfer" | "local" | "outstation";
   driverIncluded?: boolean;
+  transportUnits?: number;
+  plannedKm?: number;
+  includedKm?: number;
+  extraKmRate?: number;
+  plannedHours?: number;
+  includedHours?: number;
+  extraHourRate?: number;
+  minimumKmPerDay?: number;
+  transportChargesStatus?: "to_confirm" | "included" | "entered";
+  waitingHours?: number;
+  waitingRate?: number;
+  tolls?: number;
+  parking?: number;
+  permitFees?: number;
+  supplierTax?: number;
+  driverAllowance?: number;
   guideCost?: number;
   admissionCost?: number;
   participants?: number;
@@ -55,7 +103,9 @@ export interface ProposalDay {
   description?: string;
   highlights?: string[];
   image?: string;
+  images?: string[];
   services: ProposalService[];
+  plannedBlockCount?: number;
 }
 
 export interface ProposalRecord {
@@ -65,6 +115,7 @@ export interface ProposalRecord {
   customerEmail: string;
   sourcePackageId?: string;
   queryId?: string;
+  queryContext?: ProposalQueryContext;
   packageName: string;
   itineraryMode?: ItineraryMode;
   sharingMode?: "itinerary" | "priced";
@@ -94,7 +145,7 @@ export interface ProposalRecord {
 }
 
 export function servicePriceState(service: ProposalService): ServicePriceState {
-  return service.priceState ?? (service.cost == null ? "unpriced" : service.cost === 0 ? "included" : "priced");
+  return serviceCostBreakdown(service).status;
 }
 
 export function serviceQuantity(service: ProposalService): number {
@@ -102,23 +153,21 @@ export function serviceQuantity(service: ProposalService): number {
   return Math.max(1, service.quantity ?? 1);
 }
 
-export function serviceTotalCost(service: ProposalService): number {
-  if (servicePriceState(service) === "unpriced") return 0;
-  const base = (service.cost ?? 0) * serviceQuantity(service);
-  const supplements = service.supplements?.reduce((sum, item) => sum + item.quantity * item.unitCost, 0) ?? 0;
-  const activityExtras = service.kind === "activity" ? (service.guideCost ?? 0) + (service.admissionCost ?? 0) * Math.max(1, service.participants ?? 1) : 0;
-  return Math.round(base + supplements + activityExtras);
+export function serviceTotalCost(service: ProposalService, context?: CostContext): number {
+  return serviceCostBreakdown(service, context).total;
 }
 
-export function itineraryCosting(days: ProposalDay[]) {
+export function itineraryCosting(days: ProposalDay[], context: Omit<CostContext, "dayIndex"> = {}) {
   const services = days.flatMap((day) => day.services);
+  const quotes = days.flatMap((day, dayIndex) => day.services.map((service) => ({ service, quote: serviceCostBreakdown(service, { ...context, dayIndex }) })));
   return {
     services,
     stays: services.filter((service) => service.kind === "stay").length,
-    unpriced: services.filter((service) => servicePriceState(service) === "unpriced").length,
-    unpricedCount: services.filter((service) => servicePriceState(service) === "unpriced").length,
-    baseCost: services.reduce((sum, service) => sum + (service.optional ? 0 : serviceTotalCost(service) ?? 0), 0),
-    optionalCost: services.reduce((sum, service) => sum + (service.optional ? serviceTotalCost(service) ?? 0 : 0), 0),
+    unpriced: quotes.filter(({ quote }) => quote.status === "unpriced").length,
+    unpricedCount: quotes.filter(({ quote }) => quote.status === "unpriced").length,
+    unpricedRequired: quotes.filter(({ service, quote }) => !service.optional && quote.status === "unpriced").length,
+    baseCost: quotes.reduce((sum, { service, quote }) => sum + (service.optional ? 0 : quote.total), 0),
+    optionalCost: quotes.reduce((sum, { service, quote }) => sum + (service.optional ? quote.total : 0), 0),
   };
 }
 

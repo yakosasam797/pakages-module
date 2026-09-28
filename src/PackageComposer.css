@@ -1,0 +1,123 @@
+.package-composer { --pc-pad: clamp(18px, 2.2vw, 32px); margin: 0 calc(var(--page-pad, 28px) * -1); color: var(--ink); background: var(--surface); }
+.package-composer .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.package-composer__head { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px var(--pc-pad); border-bottom: 1px solid var(--line); }
+.package-composer__head h1 { margin: 0; font-size: 22px; letter-spacing: -.025em; }
+.package-composer__eyebrow { display: block; margin-bottom: 5px; color: #126f62; font-size: 10px; font-weight: 750; letter-spacing: .09em; }
+.package-composer__head p { margin: 5px 0 0; color: var(--ink-2); font-size: 13px; }
+.package-composer__stages { display: flex; gap: 28px; padding: 0 var(--pc-pad); border-bottom: 1px solid var(--line); }
+.package-composer__stages button { display: flex; align-items: center; gap: 9px; min-height: 52px; padding: 0 7px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; cursor: pointer; }
+.package-composer__stages button span { display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 11px; }
+.package-composer__stages button.is-active { border-bottom-color: var(--pink); color: var(--pink-ink); font-weight: 700; }
+.package-composer__summary { flex: none; padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-2); font-size: 12px; font-weight: 650; }
+.package-composer__summary b { margin: 0 5px; color: var(--ink-3); }
+.package-composer__error { margin: 0; padding: 12px var(--pc-pad); border-bottom: 1px solid var(--bad); background: color-mix(in srgb, var(--bad) 7%, var(--surface)); color: var(--bad); font-size: 13px; }
+.package-composer__section { display: grid; grid-template-columns: minmax(215px, 270px) minmax(0, 1fr); border-bottom: 1px solid var(--line); }
+.package-composer--details .package-composer__section { min-height: 470px; }
+.package-composer__section--itinerary { display: block; min-height: 65vh; }
+.package-composer__section--itinerary > .package-composer__section-label { align-items: center; padding: 23px var(--pc-pad); border-right: 0; border-bottom: 1px solid var(--line); background: #fbfcfc; }
+.package-composer__section--itinerary > .package-composer__section-label p { max-width: none; }
+.package-composer__section--itinerary > .package-composer__section-content { max-width: 1280px; margin: 0 auto; padding: 24px var(--pc-pad) 48px; }
+.package-composer__section-label { display: flex; align-items: flex-start; gap: 12px; padding: 26px 20px 26px var(--pc-pad); border-right: 1px solid var(--line); background: var(--side); }
+.package-composer__section-label > span { display: grid; flex: none; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent); }
+.package-composer__section-label h2 { margin: 2px 0 0; font-size: 15px; line-height: 1.3; }
+.package-composer__section-label p { max-width: 200px; margin: 6px 0 0; color: var(--ink-3); font-size: 12px; line-height: 1.5; }
+.package-composer__section-content { min-width: 0; padding: 26px var(--pc-pad); }
+.package-composer__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.package-composer__grid label { display: grid; min-width: 0; gap: 7px; align-content: start; }
+.package-composer__grid label > span, .package-composer__day-count > label { font-size: 13px; font-weight: 650; }
+.package-composer__grid input, .package-composer__grid textarea, .package-composer__day-head input, .package-composer__day-count input { box-sizing: border-box; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; }
+.package-composer__grid textarea { min-height: 84px; resize: vertical; }
+.package-composer__grid input:focus-visible, .package-composer__grid textarea:focus-visible, .package-composer__day-head input:focus-visible, .package-composer__day-count input:focus-visible, .package-composer__picker-search:focus-within { outline: 2px solid var(--focus); outline-offset: 1px; }
+.package-composer__wide { grid-column: 1 / -1; }
+.package-composer__day-count { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.package-composer__day-count > div { display: flex; align-items: center; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+.package-composer__day-count button { width: 36px; height: 40px; border: 0; background: var(--surface-2); color: var(--ink); font: inherit; font-size: 20px; cursor: pointer; }
+.package-composer__day-count button:hover { background: var(--accent-soft); }
+.package-composer__day-count input { width: 58px; min-height: 40px; padding: 0 4px; border: 0; border-right: 1px solid var(--line); border-left: 1px solid var(--line); border-radius: 0; text-align: center; appearance: textfield; }
+.package-composer__day-count input::-webkit-inner-spin-button, .package-composer__day-count input::-webkit-outer-spin-button { appearance: none; }
+.package-composer__day-count small { color: var(--ink-3); font-size: 12px; }
+.package-composer__days { display: grid; gap: 12px; }
+.package-composer__day { min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-md); overflow: hidden; }
+.package-composer__day-head { display: grid; grid-template-columns: auto minmax(160px, 1fr) auto auto; gap: 14px; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.package-composer__day-head > span { font-size: 13px; font-weight: 700; white-space: nowrap; }
+.package-composer__day-head input { min-height: 34px; background: var(--surface); }
+.package-composer__day-head small { color: var(--ink-3); font-size: 11px; white-space: nowrap; }
+.package-composer__block-count { display: flex; align-items: center; gap: 6px; color: var(--ink-2); font-size: 11px; font-weight: 650; }
+.package-composer__block-count input { width: 54px; min-height: 34px; padding: 4px 6px; text-align: center; }
+.package-composer__blocks { padding: 0 15px 12px; }
+.package-composer__block { display: grid; grid-template-columns: 32px minmax(0, 1fr) 28px; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+.package-composer__block-icon, .package-composer__result-icon { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 7px; background: var(--accent-soft); color: var(--accent); }
+.package-composer__result-icon { width: 48px; height: 48px; overflow: hidden; }
+.package-composer__result-icon img { width: 100%; height: 100%; object-fit: cover; }
+.package-composer__block-icon { overflow: hidden; }
+.package-composer__block-icon img { width: 100%; height: 100%; object-fit: cover; }
+.package-composer__block strong, .package-composer__block small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.package-composer__block strong { font-size: 13px; }
+.package-composer__block small { margin-top: 3px; color: var(--ink-3); font-size: 11px; }
+.package-composer__block > button { width: 28px; height: 28px; border: 0; border-radius: 6px; background: transparent; color: var(--ink-3); cursor: pointer; }
+.package-composer__block > button:hover { background: var(--surface-2); color: var(--ink); }
+.package-composer__add-block { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 12px; padding: 10px 12px; border: 1px dashed var(--accent); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent); font: inherit; font-size: 12px; font-weight: 650; text-align: left; cursor: pointer; }
+.package-composer__add-block:hover { border-style: solid; }
+.package-composer__add-block small { margin-left: auto; color: var(--ink-3); font-weight: 400; }
+.package-composer__itinerary-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 0 18px; }
+.package-composer__itinerary-toolbar > div { display: flex; align-items: baseline; gap: 12px; }
+.package-composer__itinerary-toolbar strong { font-size: 15px; letter-spacing: -.01em; }
+.package-composer__itinerary-toolbar span { color: var(--ink-3); font-size: 12px; }
+.package-composer__section--itinerary .package-composer__days { gap: 16px; }
+.package-composer__section--itinerary .package-composer__day { display: grid; grid-template-columns: 180px minmax(0, 1fr); border-radius: 10px; background: var(--surface); }
+.package-composer__day-rail { display: flex; flex-direction: column; align-items: flex-start; padding: 22px; border-right: 1px solid var(--line); background: var(--side); }
+.package-composer__day-number { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #cce7e1; border-radius: 8px; background: #eaf5f2; color: #126f62; font-size: 12px; font-weight: 750; }
+.package-composer__day-rail h3 { margin: 15px 0 3px; font-size: 16px; letter-spacing: -.02em; }
+.package-composer__day-rail small { color: var(--ink-3); font-size: 12px; }
+.package-composer__day-rail button { display: inline-flex; align-items: center; gap: 5px; margin: auto 0 0 -5px; padding: 8px 5px 0; border: 0; background: transparent; color: var(--ink-3); font: inherit; font-size: 11px; cursor: pointer; }
+.package-composer__day-rail button:hover { color: var(--bad); }
+.package-composer__day-rail button:disabled { opacity: .45; cursor: default; }
+.package-composer__day-main { min-width: 0; padding: 20px 24px; }
+.package-composer__place-field { display: grid; gap: 8px; }
+.package-composer__place-field > span { font-size: 12px; font-weight: 650; }
+.package-composer__place-field em { margin-left: 4px; color: var(--ink-3); font-size: 11px; font-style: normal; font-weight: 400; }
+.package-composer__place-field input { box-sizing: border-box; width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; }
+.package-composer__place-field input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.package-composer__section--itinerary .package-composer__blocks { margin-top: 16px; padding: 0; border-top: 1px solid var(--line-2); }
+.package-composer__section--itinerary .package-composer__block { grid-template-columns: 44px minmax(0, 1fr) 28px; padding: 11px 0; }
+.package-composer__section--itinerary .package-composer__block-icon { width: 44px; height: 44px; }
+.package-composer__section--itinerary .package-composer__block small { margin: 0 0 3px; color: #126f62; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.package-composer__section--itinerary .package-composer__block em { display: block; overflow: hidden; margin-top: 3px; color: var(--ink-3); font-size: 11px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+.package-composer__day-empty { margin: 0; padding: 14px 0 0; color: var(--ink-3); font-size: 12px; }
+.package-composer__section--itinerary .package-composer__add-block { display: inline-flex; width: auto; margin-top: 15px; padding: 9px 12px; border: 1px solid #b6d8d1; background: var(--surface); }
+.package-composer__section--itinerary .package-composer__add-block:hover { background: var(--accent-soft); border-color: var(--accent); }
+.package-composer__footer { position: sticky; z-index: 3; bottom: 0; display: flex; justify-content: flex-end; gap: 10px; padding: 14px var(--pc-pad); border-top: 1px solid var(--line); background: var(--surface); box-shadow: 0 -8px 18px rgba(20,26,33,.05); }
+.package-composer__picker-source { display: flex; gap: 6px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
+.package-composer__picker-source button { padding: 8px 14px 11px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+.package-composer__picker-source button[aria-selected="true"] { border-color: var(--pink); color: var(--pink-ink); }
+.package-composer__picker-intro { padding: 2px 0 17px; }
+.package-composer__picker-intro strong { font-size: 15px; letter-spacing: -.01em; }
+.package-composer__picker-intro p { margin: 5px 0 0; color: var(--ink-2); font-size: 12px; line-height: 1.5; }
+.package-composer__picker-type-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; padding: 2px 0 12px; }
+.package-composer__picker-type-grid button { display: grid; grid-template-columns: 42px minmax(0,1fr) 18px; grid-template-rows: auto auto; column-gap: 12px; align-items: center; min-height: 75px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.package-composer__picker-type-grid button:hover, .package-composer__picker-type-grid button:focus-visible { border-color: #79b8ac; background: #f3faf8; }
+.package-composer__picker-type-grid button > span { display: grid; grid-row: 1 / 3; place-items: center; width: 42px; height: 42px; border-radius: 8px; background: #eaf5f2; color: #126f62; }
+.package-composer__picker-type-grid strong { align-self: end; font-size: 13px; }
+.package-composer__picker-type-grid small { align-self: start; margin-top: 3px; color: var(--ink-2); font-size: 11px; }
+.package-composer__picker-type-grid button > svg { grid-column: 3; grid-row: 1 / 3; color: var(--ink-3); }
+.package-composer__picker-service-step .package-composer__picker-results { max-height: 355px; margin-top: 15px; }
+.package-composer__picker-categories { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.package-composer__picker-categories button { padding: 7px 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-2); font: inherit; font-size: 11px; cursor: pointer; }
+.package-composer__picker-categories button.is-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 650; }
+.package-composer__picker-search { display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); color: var(--ink-3); }
+.package-composer__picker-search input { width: 100%; min-height: 42px; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: 13px; }
+.package-composer__picker-hint { margin: 9px 0 12px; color: var(--ink-3); font-size: 11px; line-height: 1.5; }
+.package-composer__picker-results { display: grid; align-content: start; gap: 5px; max-height: 320px; overflow-y: auto; }
+.package-composer__picker-results > p { padding: 16px 2px; color: var(--ink-2); font-size: 13px; }
+.package-composer__picker-results > button { display: grid; grid-template-columns: 48px minmax(0, 1fr) 20px; align-items: center; gap: 11px; width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.package-composer__picker-results > button:hover { border-color: var(--accent); background: var(--accent-soft); }
+.package-composer__picker-results > button > span:nth-child(2) { min-width: 0; }
+.package-composer__picker-results strong, .package-composer__picker-results small, .package-composer__picker-results em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.package-composer__picker-results strong { font-size: 12px; }
+.package-composer__picker-results small { margin-top: 3px; color: var(--ink-2); font-size: 11px; }
+.package-composer__picker-results em { margin-top: 3px; color: var(--ink-3); font-size: 11px; font-style: normal; }
+
+@media (max-width: 850px) { .package-composer__section { display: block; } .package-composer__section-label { padding: 17px var(--pc-pad); border-right: 0; border-bottom: 1px solid var(--line); } .package-composer__section-label p { max-width: none; } }
+@media (max-width: 700px) { .package-composer__section--itinerary .package-composer__day { display: block; } .package-composer__day-rail { flex-direction: row; align-items: center; gap: 9px; padding: 12px 16px; border-right: 0; border-bottom: 1px solid var(--line); } .package-composer__day-rail h3 { margin: 0; } .package-composer__day-rail small { margin-left: 3px; } .package-composer__day-rail button { margin: 0 0 0 auto; padding: 7px 0; } .package-composer__day-main { padding: 16px; } }
+@media (max-width: 600px) { .package-composer__head { align-items: flex-start; flex-direction: column; } .package-composer__grid { grid-template-columns: 1fr; } .package-composer__wide { grid-column: auto; } .package-composer__day-head { grid-template-columns: 1fr auto auto; } .package-composer__day-head > label:not(.package-composer__block-count) { grid-column: 1 / -1; grid-row: 2; } .package-composer__add-block small { display: none; } }
+@media (max-width: 600px) { .package-composer__picker-type-grid { grid-template-columns: 1fr; } }

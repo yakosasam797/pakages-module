@@ -119,6 +119,10 @@ export const featuredRegions = fallbackRegions.filter((region) =>
   ["bengaluru-karnataka", "kerala-india", "bali-indonesia", "dubai-uae"].includes(region.id),
 );
 
+export function regionById(id: string | null): RegionSuggestion | undefined {
+  return fallbackRegions.find((region) => region.id === id);
+}
+
 /**
  * Searches the configured backend region endpoint when available. The local
  * catalog keeps the prototype usable until the production endpoint is wired.

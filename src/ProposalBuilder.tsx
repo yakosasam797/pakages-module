@@ -24,6 +24,7 @@ export function ProposalBuilder({ packages, initialPackage, existing, queryConte
       customer: draft.customer,
       customerEmail: draft.customerEmail,
       queryId: existing?.queryId ?? queryContext?.id,
+      queryContext: existing?.queryContext ?? queryContext ?? undefined,
       sourcePackageId: draft.source?.id,
       itineraryMode: draft.itineraryMode,
       sharingMode: draft.sharingMode,

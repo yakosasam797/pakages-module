@@ -1,37 +1,56 @@
 import type { PackageRecord } from "./App";
-import { TripComposer } from "./TripComposer";
+import baliImage from "./assets/package-images/bali.jpg";
+import dubaiImage from "./assets/package-images/dubai.jpg";
+import himachalImage from "./assets/package-images/himachal.jpg";
+import keralaImage from "./assets/package-images/kerala.jpg";
+import rajasthanImage from "./assets/package-images/rajasthan.jpg";
+import { PackageComposer } from "./PackageComposer";
 
-export function PackageBuilder({ existing, initialTemplate, onCancel, onComplete }: { existing?: PackageRecord | null; initialTemplate?: PackageRecord | null; onCancel: () => void; onComplete: (record: PackageRecord) => void; onToast: (message: string) => void }) {
-  return <TripComposer
-    mode="package"
-    existingPackage={existing}
-    initialPackage={initialTemplate}
+function imageFor(destination: string) {
+  const place = destination.toLowerCase();
+  if (place.includes("dubai")) return dubaiImage;
+  if (place.includes("himachal") || place.includes("manali")) return himachalImage;
+  if (place.includes("kerala") || place.includes("kochi")) return keralaImage;
+  if (place.includes("rajasthan") || place.includes("jaipur")) return rajasthanImage;
+  return baliImage;
+}
+
+export function PackageBuilder({ existing, initialTemplate, onCancel, onComplete }: {
+  existing?: PackageRecord | null;
+  initialTemplate?: PackageRecord | null;
+  onCancel: () => void;
+  onComplete: (record: PackageRecord) => void;
+  onToast: (message: string) => void;
+}) {
+  return <PackageComposer
+    existing={existing}
+    initialTemplate={initialTemplate}
     onCancel={onCancel}
-    onSave={(draft) => onComplete({
+    onSave={(outline) => onComplete({
       id: existing?.id ?? `PKG-${Math.floor(1000 + Math.random() * 8999)}`,
-      name: draft.name,
-      destination: draft.destination,
-      region: draft.region,
-      duration: `${draft.days.length} ${draft.days.length === 1 ? "day" : "days"}${draft.days.length > 1 ? ` · ${draft.days.length - 1} nights` : ""}`,
-      startingPrice: draft.price,
-      priceBasis: draft.priceBasis,
-      itineraryMode: "advanced",
-      departureType: draft.departureType,
-      fixedStart: draft.departureType === "fixed" ? draft.startDate : undefined,
-      fixedEnd: draft.departureType === "fixed" ? draft.endDate : undefined,
-      inclusions: draft.inclusions,
-      exclusions: draft.exclusions,
-      importantNotes: draft.importantNotes,
-      paymentTerms: draft.paymentTerms,
-      cancellationPolicy: draft.cancellationPolicy,
-      otherTerms: draft.otherTerms,
-      markupPercent: draft.markupPercent,
+      name: outline.name,
+      destination: outline.destination,
+      region: outline.region,
+      duration: `${outline.days.length} ${outline.days.length === 1 ? "day" : "days"}${outline.days.length > 1 ? ` · ${outline.days.length - 1} nights` : ""}`,
+      startingPrice: outline.startingPrice,
+      priceBasis: outline.priceBasis,
+      itineraryMode: "simple",
+      departureType: existing?.departureType ?? "flexible",
+      fixedStart: existing?.fixedStart,
+      fixedEnd: existing?.fixedEnd,
+      inclusions: outline.inclusions,
+      exclusions: outline.exclusions,
+      importantNotes: existing?.importantNotes ?? initialTemplate?.importantNotes,
+      paymentTerms: existing?.paymentTerms ?? initialTemplate?.paymentTerms,
+      cancellationPolicy: existing?.cancellationPolicy ?? initialTemplate?.cancellationPolicy,
+      otherTerms: existing?.otherTerms ?? initialTemplate?.otherTerms,
+      markupPercent: outline.markupPercent,
       updated: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date()),
       status: existing?.status ?? "Draft",
       source: "Your catalog",
-      image: draft.image,
-      highlights: existing?.highlights ?? [draft.note || "A reusable day-by-day trip.", "Tailor the plan for each traveller without changing this package."],
-      proposalDays: draft.days,
+      image: outline.image || imageFor(outline.destination),
+      highlights: outline.overview ? [outline.overview] : existing?.highlights ?? initialTemplate?.highlights ?? [],
+      proposalDays: outline.days,
       createdFromProposal: existing?.createdFromProposal,
       templateId: existing?.templateId ?? initialTemplate?.id,
     })}

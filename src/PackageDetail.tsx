@@ -299,8 +299,10 @@ function makeDays(profile: Profile): ItineraryDay[] {
   ];
 }
 
-export function packageDaysForProposal(record: PackageRecord): ProposalDay[] {
-  if (record.proposalDays) return record.proposalDays.map((day) => ({ ...day, highlights: [...(day.highlights ?? [])], services: day.services.map((service) => ({ ...service, supplements: service.supplements?.map((item) => ({ ...item })) })) }));
+type PackageItinerarySource = Pick<PackageRecord, "id" | "templateId" | "proposalDays" | "departureType">;
+
+export function packageDaysForProposal(record: PackageItinerarySource): ProposalDay[] {
+  if (record.proposalDays) return record.proposalDays.map((day) => ({ ...day, highlights: [...(day.highlights ?? [])], services: day.services.map((service) => ({ ...service, costComponents: service.costComponents?.map((item) => ({ ...item })), stayCheckIn: record.departureType === "fixed" ? service.stayCheckIn : undefined, serviceDate: record.departureType === "fixed" ? service.serviceDate : undefined, supplements: service.supplements?.map((item) => ({ ...item })), stayChildren: service.stayChildren?.map((child) => ({ ...child })) })) }));
   const profile = profiles[record.templateId ?? record.id] ?? profiles["PKG-0241"];
   return makeDays(profile).map((day) => ({
     id: day.id,
@@ -316,6 +318,11 @@ export function packageDaysForProposal(record: PackageRecord): ProposalDay[] {
       detail: (item.detail ? `${item.meta} · ${item.detail}` : item.meta).replaceAll(" · 2 adults", ""),
     })),
   }));
+}
+
+/** Only expose itinerary blocks when the package actually has saved days or a known legacy template. */
+export function packageDaysForDestination(record: PackageItinerarySource): ProposalDay[] {
+  return record.proposalDays || profiles[record.templateId ?? record.id] ? packageDaysForProposal(record) : [];
 }
 
 export const PackageDetail = forwardRef<StepNavigationHandle, { record: PackageRecord; relatedProposals?: ProposalRecord[]; onOpenProposal?: (proposal: ProposalRecord) => void; onToast: (message: string) => void; onUseInProposal: () => void; onEdit?: () => void; onStatusChange?: (status: PackageRecord["status"]) => boolean; initialNavigation?: StepNavigationSnapshot | null }>(function PackageDetail({ record, relatedProposals = [], onOpenProposal, onToast, onUseInProposal, onEdit, onStatusChange, initialNavigation }, ref) {
