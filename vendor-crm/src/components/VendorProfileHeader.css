@@ -1,0 +1,29 @@
+/* Owner block mirrors ND03 booking `.owner` */
+
+.vendor-header__owner {
+  text-align: right;
+  min-width: 0;
+}
+
+.vendor-header__owner b {
+  display: block;
+  font-family: var(--type-body-emphasis-family, var(--font-sans));
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.vendor-header__owner span {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--type-body-owner-sub-family, var(--font-sans));
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+
+@media (max-width: 1000px) {
+  .vendor-header__owner {
+    text-align: left;
+  }
+}

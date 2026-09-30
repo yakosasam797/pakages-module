@@ -1,0 +1,8 @@
+.edit-vendor-launcher {
+  width: min(560px, calc(100vw - 32px));
+}
+
+.edit-vendor-launcher .settings-launcher__desc strong {
+  font-weight: 700;
+  color: var(--ink);
+}

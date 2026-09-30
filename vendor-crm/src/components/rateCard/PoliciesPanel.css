@@ -1,0 +1,150 @@
+/* Policies — ND03 open DataSheet + readable policy modal */
+
+.pol {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pol-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  flex: none;
+}
+
+.pol-toolbar__search {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.pol-toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+
+.pol-sheet-wrap {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pol-sheet-wrap .pt-sheet__scroll {
+  overflow-y: hidden !important;
+}
+
+.pol-sheet {
+  --pol-check: calc(var(--page-pad, 16px) + 46px);
+  --pol-cols: var(--pol-check) minmax(260px, 1.6fr) minmax(240px, 1.3fr) minmax(130px, 0.7fr);
+}
+
+.pol-sheet .pt-sheet__row {
+  grid-auto-flow: unset;
+  grid-auto-columns: unset;
+  grid-template-columns: var(--pol-cols);
+  min-width: 760px;
+}
+
+.pol-doc-empty {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.pol-modal {
+  width: min(720px, calc(100vw - 32px));
+}
+
+.pol-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pol-modal__head-text {
+  min-width: 0;
+}
+
+.pol-modal__body {
+  gap: 20px;
+}
+
+.pol-modal__text {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-2, var(--surface-3));
+  max-height: min(42vh, 360px);
+  overflow-y: auto;
+}
+
+.pol-modal__text p {
+  margin: 0 0 0.55em;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+.pol-modal__text p:last-child {
+  margin-bottom: 0;
+}
+
+.pol-modal__doc-title {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.pol-modal__doc-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.pol-modal__doc-empty {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+.pol-file {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.pol-textarea {
+  min-height: 160px;
+  resize: vertical;
+  line-height: 1.5;
+  font-family: var(--font-sans, inherit);
+}
+
+@media (max-width: 720px) {
+  .pol-toolbar__search {
+    flex: 1 1 100%;
+  }
+}

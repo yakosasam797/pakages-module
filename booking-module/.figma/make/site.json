@@ -1,0 +1,10 @@
+{
+  "description": "A polished booking module with a refined UI offering Overview and Watchers tabs designed for seamless enterprise-level scheduling management.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

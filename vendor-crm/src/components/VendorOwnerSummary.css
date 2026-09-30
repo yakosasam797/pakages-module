@@ -1,0 +1,33 @@
+.owner-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.owner-summary__copy {
+  min-width: 0;
+  text-align: right;
+}
+
+.owner-summary__name {
+  margin: 0;
+  font-family: var(--type-body-emphasis-family);
+  font-size: var(--type-body-emphasis-size);
+  font-weight: var(--type-body-emphasis-weight);
+  line-height: var(--type-body-emphasis-line);
+  color: var(--ink);
+}
+
+.owner-summary__label {
+  font-weight: var(--type-body-weight);
+  color: var(--ink-2);
+}
+
+.owner-summary__desk {
+  margin: 0;
+  font-family: var(--type-body-owner-sub-family);
+  font-size: var(--type-body-owner-sub-size);
+  font-weight: var(--type-body-owner-sub-weight);
+  color: var(--ink-3);
+}

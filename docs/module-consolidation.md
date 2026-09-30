@@ -46,4 +46,7 @@ docs/                       # consolidation map and verification record
 
 ## Verification results
 
-To be filled after the milestones are checked.
+- Inventory milestone committed before source changes.
+- Flattening: 32 Booking files, 24 Finance files and 206 Vendor files (including the untracked lockfile) were hashed, inserted into the root index and checked against original bytes before removing nested Git pointers and metadata. Metadata was moved outside the project to `D:\_module_git_metadata_archive_2026-09-30`; no module history was imported. The original sibling backup was untouched.
+- Vendor lockfile SHA-256 remains unchanged; `.gitattributes` disables newline conversion for that file.
+- Remaining results will be filled after UI/build verification.

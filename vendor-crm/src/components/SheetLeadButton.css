@@ -1,0 +1,25 @@
+.sheet-lead-btn {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.sheet-lead-btn:hover {
+  color: var(--accent-ink, var(--accent));
+}
+
+.sheet-lead-btn:hover .pt-sheet__title {
+  color: var(--accent-ink, var(--accent));
+  text-decoration: underline;
+}
+
+.sheet-lead-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}

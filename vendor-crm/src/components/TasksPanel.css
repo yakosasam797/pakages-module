@@ -1,0 +1,574 @@
+.tasks-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.tasks-panel__list-tabs {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tasks-panel__list-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  margin-bottom: -1px;
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tasks-panel__list-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--accent-ink, var(--accent));
+  font-weight: 650;
+}
+
+.tasks-panel__list-tabs button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.tasks-panel__list-tabs span {
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink-3);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.tasks-panel__section {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.tasks-panel__section[hidden] {
+  display: none;
+}
+
+.tasks-sheet-wrap {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.tasks-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.tasks-panel__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.tasks-panel__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.tasks-panel__search {
+  flex: 1 1 260px;
+  min-width: 0;
+  max-width: none;
+}
+
+.tasks-panel__create {
+  position: relative;
+  flex: none;
+}
+
+.tasks-sheet {
+  --tsk-check: calc(var(--page-pad, 16px) + 46px);
+  --tsk-cols: var(--tsk-check) minmax(240px, 1.7fr) minmax(180px, 0.95fr) 128px 148px;
+}
+
+/*
+  DataSheet’s .pt-sheet__scroll uses overflow-x: auto, which browsers promote
+  to overflow-y: auto and draws a vertical scrollbar even when all rows fit.
+  Keep page-level scroll only — no vertical scroll inside the task tables.
+*/
+.tasks-sheet .pt-sheet__scroll {
+  overflow-x: auto;
+  overflow-y: hidden !important;
+}
+
+.tasks-sheet .pt-sheet__row {
+  grid-auto-flow: unset;
+  grid-auto-columns: unset;
+  grid-template-columns: var(--tsk-cols);
+  min-width: 850px;
+}
+
+.tasks-sheet__who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tasks-sheet__who-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tasks-sheet__who-name {
+  font-family: var(--type-body-emphasis-family, var(--font-sans));
+  font-size: var(--type-body-size, 13.5px);
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tasks-sheet__who-role {
+  font-family: var(--type-body-secondary-family, var(--font-sans));
+  font-size: var(--type-body-secondary-size, 12.5px);
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tasks-sheet__due {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--type-mono-date-family, var(--font-mono));
+  font-size: 12.5px;
+  color: var(--ink);
+}
+
+.tasks-sheet__due svg {
+  flex: none;
+  color: var(--ink-2);
+}
+
+.tasks-sheet__acts {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tasks-sheet__status-pick {
+  display: inline-flex;
+}
+
+.task-detail-backdrop {
+  z-index: 190;
+}
+
+.rc-modal.task-detail {
+  width: min(620px, 100%);
+  padding: 0;
+  overflow: hidden;
+}
+
+.task-detail__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--side, #fcfbfa);
+}
+
+.task-detail__head .rc-modal__title {
+  margin-bottom: 5px;
+}
+
+.task-detail__head p {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 12.5px;
+}
+
+.task-detail__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.task-detail__meta > div {
+  min-height: 68px;
+  padding: 14px 20px;
+  border-right: 1px solid var(--line-2, var(--line));
+  border-bottom: 1px solid var(--line-2, var(--line));
+}
+
+.task-detail__meta > div:nth-child(2n) {
+  border-right: 0;
+}
+
+.task-detail__meta > div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.task-detail__meta dt {
+  margin: 0 0 7px;
+  color: var(--ink-3);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.task-detail__meta dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.task-detail__id {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.task-create-popover {
+  position: fixed;
+  z-index: 700;
+  top: 88px;
+  left: calc(50% + 125px);
+  width: min(640px, calc(100vw - 32px));
+  max-height: min(760px, calc(100vh - 112px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface);
+  box-shadow: var(--overlayShadow);
+  transform: translateX(-50%);
+  animation: task-popover-in 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.task-create-popover::before {
+  display: none;
+}
+
+@keyframes task-popover-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.task-create-popover .pt-modal__head {
+  background: var(--side, #fcfbfa);
+}
+
+.task-create-modal__body {
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.task-create-modal__identity-grid {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.task-create-modal__id {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.task-create-modal__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.task-create-modal__link-fields {
+  align-items: start;
+}
+
+.task-create-popover .pt-mf__l span {
+  color: var(--ink-3);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.task-form-select {
+  position: relative;
+  min-width: 0;
+}
+
+.task-form-select__trigger {
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 10px 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  background: var(--surface-3, var(--side));
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.task-form-select__trigger:hover,
+.task-form-select.is-open .task-form-select__trigger {
+  border-color: color-mix(in srgb, var(--accent) 44%, var(--line));
+  background: var(--surface);
+}
+
+.task-form-select__trigger:focus-visible {
+  border-color: var(--accent);
+  outline: 0;
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(15, 110, 99, 0.12);
+}
+
+.task-form-select__trigger > svg {
+  flex: none;
+  color: var(--ink-3);
+  transition: transform 140ms ease;
+}
+
+.task-form-select.is-open .task-form-select__trigger > svg {
+  transform: rotate(180deg);
+}
+
+.task-form-select__value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.task-form-select__copy {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.task-form-select__copy strong,
+.task-form-select__copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-form-select__copy strong {
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.task-form-select__copy small {
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.task-form-select__copy small::before {
+  content: "·";
+  margin: 0 6px;
+}
+
+.task-form-select__menu {
+  position: fixed;
+  z-index: 1200;
+  display: grid;
+  overflow-y: auto;
+  padding: 5px;
+  border: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--menuShadow);
+  overscroll-behavior: contain;
+}
+
+.task-form-select__menu > button {
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--ink);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.task-form-select__menu > button:hover,
+.task-form-select__menu > button:focus-visible {
+  outline: 0;
+  background: var(--surface-2, var(--side));
+}
+
+.task-form-select__menu > button.is-selected {
+  background: var(--pink-soft);
+}
+
+.task-form-select__menu > button.is-selected .task-form-select__copy strong {
+  color: var(--pink-ink, var(--pink));
+}
+
+.task-form-select__menu > button > svg {
+  flex: none;
+  color: var(--pink);
+}
+
+.task-create-modal__textarea {
+  min-height: 82px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.task-create-modal__error {
+  color: var(--bad, #b42318);
+  font-size: 12px;
+}
+
+.task-create-modal__due {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 10px;
+}
+
+.task-create-modal__due label {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink-2);
+  background: var(--surface-3, var(--side));
+}
+
+.task-create-modal__due label:focus-within {
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(15, 110, 99, 0.12);
+}
+
+.task-create-modal__due input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  background: transparent;
+  font: inherit;
+  font-size: 13.5px;
+}
+
+.task-create-modal__due input:disabled {
+  color: var(--ink-3);
+  cursor: not-allowed;
+}
+
+.task-create-modal__foot {
+  justify-content: space-between;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .tasks-panel__toolbar {
+    align-items: stretch;
+  }
+
+  .task-create-popover {
+    left: 50%;
+  }
+}
+
+@media (max-width: 560px) {
+  .task-create-popover {
+    position: fixed;
+    top: 76px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-height: calc(100vh - 92px);
+    transform: none;
+    animation: none;
+  }
+
+  .task-create-popover::before {
+    display: none;
+  }
+
+  .task-create-modal__identity-grid,
+  .task-create-modal__grid,
+  .task-create-modal__due {
+    grid-template-columns: 1fr;
+  }
+
+  .task-create-modal__foot .pt-button {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-create-popover {
+    animation: none;
+  }
+}

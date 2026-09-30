@@ -1,0 +1,60 @@
+/* Viewport-locked shell — scroll lives inside AppShell `.pt-scroll`, not the document */
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+}
+
+/* A DataSheet row is one record: hover the complete record, never one cell. */
+@media (hover: hover) {
+  #root
+    .pt-sheet
+    .pt-sheet__row:hover:not(.pt-sheet__head):not(.pt-sheet__row--loading)
+    > .pt-sheet__cell {
+    background: var(--surface-2, var(--side));
+  }
+}
+
+#root .pt-sheet__row.data-row--interactive {
+  cursor: pointer;
+}
+
+#root .pt-sheet__row.data-row--interactive:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+/*
+  Design-system mobile rule sets `.pt-frame { height: auto }` which grows the
+  document. Keep the inset shell viewport-bound so only the workspace scrolls.
+*/
+#root > .pt-frame {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#root > .pt-frame .pt-workspace {
+  height: auto !important;
+  min-height: 0;
+  max-height: 100%;
+}

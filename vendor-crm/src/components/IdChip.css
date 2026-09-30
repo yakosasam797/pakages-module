@@ -1,0 +1,92 @@
+/* Mirrors new-direction-03 booking `.id-chip` / `.bk-ref` / `.id-copy` */
+
+.id-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.id-chip__ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--pt-neutral-300, #d7dbe1);
+  border-radius: 6px;
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.id-chip__ref svg {
+  color: var(--ink-2);
+  flex: none;
+}
+
+.id-chip:hover .id-chip__ref {
+  border-color: var(--pink-line);
+  color: var(--pink-ink);
+}
+
+.id-chip:hover .id-chip__ref svg {
+  color: var(--pink);
+}
+
+.id-chip__copy {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  flex: none;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.12s ease,
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.id-chip:hover .id-chip__copy,
+.id-chip:focus-within .id-chip__copy,
+.id-chip__copy:focus-visible,
+.id-chip__copy--done {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.id-chip__copy:hover,
+.id-chip__copy:focus-visible {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.id-chip__copy--done,
+.id-chip__copy--done:hover {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+
+.id-chip__copy:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+@media (hover: none) {
+  .id-chip__copy {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

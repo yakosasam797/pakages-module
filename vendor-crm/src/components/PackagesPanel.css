@@ -1,0 +1,307 @@
+.packages-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+
+.packages-panel__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.packages-panel__search {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.packages-panel__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+
+.packages-filter {
+  position: relative;
+}
+
+.packages-filter__menu,
+.packages-sheet__menu {
+  position: absolute;
+  z-index: 30;
+  display: grid;
+  min-width: 180px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface);
+  box-shadow: 0 14px 34px rgba(20, 26, 33, 0.14);
+}
+
+.packages-filter__menu {
+  top: calc(100% + 7px);
+  right: 0;
+}
+
+.packages-filter__menu button,
+.packages-sheet__menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.packages-filter__menu button {
+  justify-content: space-between;
+}
+
+.packages-filter__menu button:hover,
+.packages-filter__menu button:focus-visible,
+.packages-sheet__menu button:hover,
+.packages-sheet__menu button:focus-visible {
+  background: var(--surface-2, var(--side));
+  outline: none;
+}
+
+.packages-panel__filter-chip,
+.packages-panel__notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin: -6px 0 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface-2, var(--side));
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.packages-panel__filter-chip {
+  width: fit-content;
+}
+
+.packages-panel__filter-chip button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-ink, var(--accent));
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.packages-panel__notice {
+  border-color: color-mix(in srgb, var(--accent) 18%, var(--line));
+  background: color-mix(in srgb, var(--accent-soft, #edf8f6) 78%, var(--surface));
+}
+
+.packages-panel__notice > svg {
+  color: var(--accent-ink, var(--accent));
+}
+
+.packages-panel__notice .pt-icon-button {
+  margin-left: auto;
+}
+
+.packages-panel__sheet {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+
+/*
+ * Kill DataSheet’s default .pt-sheet__scroll (overflow-x/y: auto).
+ * Packages must fill the workspace with no horizontal or vertical sheet scroll.
+ */
+.packages-sheet {
+  --pkg-check: calc(var(--page-pad, 16px) + 36px);
+  /*
+   * Action track = control width + shell pad. The pad is a dedicated trailing
+   * gutter so the kebab sits inside the sheet, aligned with toolbar actions.
+   */
+  --pkg-action-control: 52px;
+  --pkg-action: calc(var(--pkg-action-control) + var(--page-pad, 16px));
+  /* Package, Services, Priced from, Sell, Action; check stays first (left). */
+  --pkg-cols: var(--pkg-check) minmax(0, 1.5fr) minmax(0, 1.2fr) minmax(0, 0.95fr)
+    minmax(0, 0.55fr) var(--pkg-action);
+  width: auto;
+  max-width: none;
+}
+
+.packages-sheet .pt-sheet__scroll {
+  overflow: hidden !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+.packages-sheet .pt-sheet__row {
+  grid-auto-flow: unset;
+  grid-auto-columns: unset;
+  grid-template-columns: var(--pkg-cols);
+  min-width: 0 !important;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.packages-sheet .pt-sheet__cell {
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding-left: 12px;
+  padding-right: 12px;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.packages-sheet .pt-sheet__row > .pt-sheet__cell:first-child {
+  padding-left: var(--page-pad, 16px);
+}
+
+/* Checkboxes stay on the LEFT — first grid track only */
+.packages-sheet .pt-sheet__cell--check {
+  justify-content: flex-start;
+  overflow: visible;
+}
+
+/*
+ * Action closes the sheet: fixed control lane + page-pad gutter (mirrors the
+ * check column on the left). Left rule stays the Sell-to-Action divider.
+ */
+.packages-sheet .pt-sheet__cell.packages-sheet__action,
+.packages-sheet .pt-sheet__row > .pt-sheet__cell:last-child {
+  display: grid;
+  grid-template-columns: var(--pkg-action-control) var(--page-pad, 16px);
+  align-items: center;
+  justify-items: center;
+  overflow: visible;
+  padding-left: 0;
+  padding-right: 0;
+  border-left-color: var(--line);
+}
+
+.packages-sheet .pt-sheet__head > .pt-sheet__cell.packages-sheet__action {
+  text-align: center;
+}
+
+/* Place the kebab (and only the kebab) in the control lane — never the cell itself. */
+.packages-sheet .pt-sheet__cell.packages-sheet__action > .packages-sheet__act {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.packages-sheet__act {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 34px;
+  flex: none;
+  border-radius: var(--radius-md, 10px);
+}
+
+.packages-sheet .pt-sheet__row.packages-sheet__row--interactive {
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .packages-sheet .pt-sheet__row.packages-sheet__row--interactive:hover > .pt-sheet__cell {
+    background: var(--surface-2, var(--side));
+  }
+}
+
+.packages-sheet .pt-sheet__row.packages-sheet__row--interactive:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.packages-sheet__more {
+  color: var(--ink-2);
+}
+
+.packages-sheet__menu {
+  min-width: 188px;
+}
+
+.packages-sheet__menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: transparent;
+}
+
+.packages-sheet__menu button svg {
+  flex: none;
+  color: var(--ink-2);
+}
+
+.package-build-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .packages-sheet .pt-sheet__cell {
+    transition: none;
+  }
+}
+
+.packages-sheet__services {
+  max-width: 100%;
+}
+
+.packages-sheet__thumb {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  object-fit: cover;
+  border-radius: var(--radius-sm, 8px);
+  border: 1px solid var(--line);
+  background: var(--surface-2, var(--side));
+  display: block;
+}
+
+.packages-sheet__thumb--empty {
+  display: grid;
+  place-items: center;
+  color: var(--ink-3, var(--ink-2));
+}
+
+.packages-sheet__price {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .packages-panel__toolbar {
+    align-items: stretch;
+  }
+}

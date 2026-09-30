@@ -1,0 +1,121 @@
+/* Global notes panel — opened from the sidebar NotesStrip (ND03 shell). */
+
+.notes-panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 520;
+  background: transparent;
+}
+
+.notes-panel {
+  position: fixed;
+  top: 12px;
+  left: calc(var(--side-w, 232px) + 12px);
+  width: min(388px, calc(100vw - 24px));
+  max-height: min(640px, calc(100vh - 24px));
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  box-shadow:
+    0 20px 54px rgba(20, 26, 33, 0.22),
+    0 2px 8px rgba(20, 26, 33, 0.08);
+  overflow: hidden;
+  animation: notes-panel-in 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pt-frame--collapsed .notes-panel {
+  left: calc(var(--side-w-collapsed, 72px) + 12px);
+}
+
+@keyframes notes-panel-in {
+  from {
+    transform: scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notes-panel {
+    animation: none;
+  }
+}
+
+.notes-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 16px 13px;
+  border-bottom: 1px solid var(--line);
+  flex: none;
+}
+
+.notes-panel__titles {
+  min-width: 0;
+}
+
+.notes-panel__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.notes-panel__count {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.notes-panel__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notes-panel__empty {
+  margin: 0;
+  padding: 20px 4px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+
+.notes-panel__note {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface-2, var(--side));
+}
+
+.notes-panel__body {
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.notes-panel__meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.notes-panel__foot {
+  flex: none;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+}

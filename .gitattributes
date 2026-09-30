@@ -1,0 +1,2 @@
+# Preserve the pre-existing Vendor lockfile bytes on every checkout.
+vendor-crm/pnpm-lock.yaml -text

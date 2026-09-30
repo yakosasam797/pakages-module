@@ -1,0 +1,271 @@
+.vendor-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* When Communications is open, fill the shell so the split pane attaches to chrome */
+.vendor-page:has(> .comm) {
+  min-height: 100%;
+}
+
+.vendor-page:has(> .comm) .vendor-page__tabs {
+  margin-bottom: 0;
+}
+
+.page-crumbs {
+  margin: 0 0 var(--space-4);
+}
+
+.page-crumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--type-body-copy-family);
+  font-size: var(--type-body-copy-size);
+  font-weight: var(--type-body-copy-weight);
+  line-height: var(--type-body-copy-line);
+  color: var(--ink-3);
+}
+
+.page-crumbs__list li:not(:first-child)::before {
+  content: "›";
+  margin-right: var(--space-2);
+  color: var(--ink-4);
+}
+
+.page-crumbs__list li[aria-current="page"] {
+  color: var(--ink);
+  font-weight: var(--type-body-copy-strong-weight);
+}
+
+.page-crumbs__link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.page-crumbs__link:hover {
+  color: var(--ink);
+}
+
+.page-crumbs__link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.vendor-page__tabs {
+  margin-top: var(--space-5);
+  /* ND03 .panels { margin-top: 32px } — keep clear air under the tab underline */
+  margin-bottom: 32px;
+}
+
+.vendor-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-4);
+}
+
+.vendor-page:has(> .rate-card-toolbar) .vendor-page__tabs { margin-bottom: 20px; }
+.vendor-page__toolbar.rate-card-toolbar { margin-top: 0; margin-bottom: 20px; }
+
+.vendor-page__tools,
+.vendor-page__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+
+.rate-card-filter {
+  position: relative;
+}
+
+.rate-card-filter .pt-icon-button.is-active {
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--line));
+  background: var(--accent-soft, #edf8f6);
+  color: var(--accent-ink, var(--accent));
+}
+
+.rate-card-filter__menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  min-width: 180px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface);
+  box-shadow: 0 14px 34px rgba(20, 26, 33, 0.14);
+}
+
+.rate-card-filter__menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.rate-card-filter__menu button:hover,
+.rate-card-filter__menu button:focus-visible {
+  background: var(--surface-2, var(--side));
+  outline: none;
+}
+
+.rate-card-filter__summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 36px;
+  margin: -6px 0 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface-2, var(--side));
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.rate-card-filter__summary button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-ink, var(--accent));
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.vendor-page__sheet {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rate-card-sheet {
+  --rc-check: calc(var(--page-pad, 16px) + 46px);
+  --rc-cols: var(--rc-check) minmax(240px, 2fr) minmax(210px, 1.4fr) minmax(175px, 1.1fr) 78px;
+}
+
+.vendor-draft-tab {
+  display: grid;
+  min-height: clamp(320px, 48vh, 520px);
+  place-items: center;
+  padding: 40px 16px 72px;
+}
+
+.vendor-draft-tab .pt-empty {
+  max-width: 430px;
+}
+
+.draft-services-panel {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.draft-services-sheet__thumb {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm, 8px);
+  background: var(--surface-2, var(--side));
+  color: var(--ink-3);
+}
+
+.draft-services-sheet__thumb svg {
+  display: block;
+}
+
+.draft-services-sheet {
+  --svc-cols: var(--svc-check) minmax(200px, 1.7fr) minmax(110px, 0.85fr)
+    minmax(150px, 1fr) minmax(150px, 1.05fr) minmax(150px, 1.1fr);
+}
+
+.draft-services-sheet .svc-media-cell__count {
+  color: var(--ink-2);
+}
+
+.draft-services-sheet .pt-stack__line:first-child {
+  color: var(--ink-2);
+}
+
+.rate-card-sheet .pt-sheet__row {
+  grid-auto-flow: unset;
+  grid-auto-columns: unset;
+  grid-template-columns: var(--rc-cols);
+  min-width: 760px;
+}
+
+.rate-card-sheet__services,
+.rate-card-sheet__regions { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.rate-card-sheet__services > span,
+.rate-card-sheet__regions { overflow: hidden; color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
+.rate-card-sheet__service-icon { display: grid; width: 36px; height: 36px; flex: none; place-items: center; border: 1px solid var(--line); border-radius: var(--radius-sm, 8px); background: var(--surface-2, var(--side)); color: var(--accent-ink, var(--accent)); }
+.rate-card-sheet__regions svg { flex: none; color: var(--ink-3); }
+.rate-card-sheet .rate-card-sheet__action { display: flex; justify-content: flex-end; padding-right: var(--page-pad, 16px); }
+.rate-card-sheet__menu { position: fixed; z-index: 510; display: grid; width: 172px; padding: 5px; border: 1px solid var(--line); border-radius: var(--radius-md, 10px); background: var(--surface); box-shadow: var(--menuShadow); }
+.rate-card-sheet__menu button { min-height: 34px; padding: 7px 10px; border: 0; border-radius: var(--radius-sm, 8px); background: transparent; color: var(--ink); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.rate-card-sheet__menu button:hover,
+.rate-card-sheet__menu button:focus-visible { background: var(--surface-2); outline: none; }
+
+@media (max-width: 1000px) {
+  .vendor-page__toolbar {
+    align-items: stretch;
+  }
+
+  .vendor-page__tools,
+  .vendor-page__actions {
+    flex-wrap: wrap;
+  }
+}
+
+/*
+  Communications fills the workspace pane — lock page scroll so the
+  list/thread scroll internally and stay attached to the shell chrome.
+*/
+.pt-content:has(> .vendor-page > .comm) {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.pt-content:has(> .vendor-page > .comm) > .vendor-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}

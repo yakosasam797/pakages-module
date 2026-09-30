@@ -1,0 +1,77 @@
+/*
+ * Table-only dashboard pages use the remaining shell height as part of the
+ * sheet. The flexible empty row continues column rules and keeps pagination
+ * attached to the bottom edge; it collapses to zero when rows need the space.
+ * Long tables scroll inside that space so pagination remains visible.
+ */
+.pt-content:has(> .vendor-page > :is(.dashboard-table-panel, .dashboard-table-end)),
+.pt-content:has(> .vendors-page > .dashboard-table-end) {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.pt-content:has(> .vendor-page > :is(.dashboard-table-panel, .dashboard-table-end)) > .vendor-page,
+.pt-content:has(> .vendors-page > .dashboard-table-end) > .vendors-page {
+  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dashboard-table-panel,
+.dashboard-table-end {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.dashboard-table-panel .dashboard-table-end,
+.vendor-page > .dashboard-table-end,
+.vendors-page > .dashboard-table-end {
+  flex: 1 1 auto;
+}
+
+.dashboard-table-end > .pt-sheet {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dashboard-table-end > .pt-sheet > .pt-sheet__scroll {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+.dashboard-table-end > .pt-sheet > .pt-sheet__scroll > .pt-sheet__row {
+  flex-shrink: 0;
+}
+
+.dashboard-table-end > .pt-sheet > .pt-sheet__scroll > .pt-sheet__head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.dashboard-sheet__fill {
+  flex: 1 1 0;
+  min-height: 0 !important;
+  pointer-events: none;
+}
+
+.dashboard-sheet__fill > .pt-sheet__cell {
+  min-height: 0 !important;
+  padding-block: 0 !important;
+  border-bottom: 0;
+}
+
+.dashboard-table-end > .pt-foot {
+  flex: none;
+}

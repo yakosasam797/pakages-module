@@ -1,0 +1,7 @@
+.status-dot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+  flex: none;
+}

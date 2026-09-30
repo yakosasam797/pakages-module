@@ -1,0 +1,17 @@
+.service-rate-card-list { margin-bottom: 24px; }
+.service-rate-card-list__sheet { display: flex; flex-direction: column; min-width: 0; }
+.service-rate-card-sheet { --src-check: calc(var(--page-pad, 16px) + 46px); --src-cols: var(--src-check) minmax(230px, 1.8fr) minmax(190px, 1.35fr) minmax(180px, 1.1fr) 78px; }
+.service-rate-card-sheet .pt-sheet__row { grid-auto-flow: unset; grid-auto-columns: unset; grid-template-columns: var(--src-cols); min-width: 760px; }
+.service-rate-card-sheet__row--active .pt-sheet__cell { background: var(--surface-2, var(--side)); }
+.service-rate-card-sheet__vendor,
+.service-rate-card-sheet__region { display: flex; align-items: center; gap: 9px; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.service-rate-card-sheet__vendor img,
+.service-rate-card-sheet__vendor > span { display: grid; width: 34px; height: 34px; flex: none; place-items: center; border: 1px solid var(--line); border-radius: var(--radius-sm, 8px); background: var(--pink-soft); color: var(--pink-ink, var(--pink)); object-fit: cover; font-size: 11px; font-weight: 700; }
+.service-rate-card-sheet__vendor strong { overflow: hidden; color: var(--ink); font-size: 13px; font-weight: 600; text-overflow: ellipsis; }
+.service-rate-card-sheet__region { color: var(--ink-2); font-size: 13px; }
+.service-rate-card-sheet__region svg { flex: none; color: var(--ink-3); }
+.service-rate-card-sheet .service-rate-card-sheet__action { display: flex; justify-content: flex-end; padding-right: var(--page-pad, 16px); }
+.service-rate-card-sheet__menu { position: fixed; z-index: 510; display: grid; width: 172px; padding: 5px; border: 1px solid var(--line); border-radius: var(--radius-md, 10px); background: var(--surface); box-shadow: var(--menuShadow); }
+.service-rate-card-sheet__menu button { min-height: 34px; padding: 7px 10px; border: 0; border-radius: var(--radius-sm, 8px); background: transparent; color: var(--ink); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.service-rate-card-sheet__menu button:hover,
+.service-rate-card-sheet__menu button:focus-visible { background: var(--surface-2); outline: none; }
