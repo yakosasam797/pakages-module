@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   AppShell,
   BackButton,
@@ -348,6 +348,7 @@ type WorkspaceModule = "packages" | "bookings" | "vendors" | "destination" | "fi
 
 function moduleFromUrl(): WorkspaceModule {
   const module = new URLSearchParams(window.location.search).get("module");
+  if (!module && /^\/(settings|account|notifications)(\/|$)/.test(window.location.pathname)) return "vendors";
   return module === "bookings" || module === "vendors" || module === "destination" || module === "finance" ? module : "packages";
 }
 
@@ -389,6 +390,7 @@ export default function App() {
 
   useEffect(() => {
     const focusWorkspaceSearch = (event: globalThis.KeyboardEvent) => {
+      if (document.body.dataset.workspaceModule === "vendors") return;
       if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== "k") return;
       event.preventDefault();
       document.querySelector<HTMLInputElement>(".pt-topbar .pt-search input")?.focus();
@@ -409,7 +411,8 @@ export default function App() {
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    document.body.dataset.workspaceModule = activeModule;
     document.title = activeModule === "finance"
       ? "Finance · Paryatech"
       : activeModule === "destination"
@@ -597,6 +600,8 @@ export default function App() {
     }
     setActiveModule(module);
     const url = new URL(window.location.href);
+    url.pathname = import.meta.env.BASE_URL;
+    url.hash = "";
     if (module !== "packages") url.searchParams.set("module", module);
     else url.searchParams.delete("module");
     window.history.pushState({ module }, "", `${url.pathname}${url.search}${url.hash}`);
@@ -610,6 +615,8 @@ export default function App() {
     }
     setActiveModule(previous);
     const url = new URL(window.location.href);
+    url.pathname = import.meta.env.BASE_URL;
+    url.hash = "";
     if (previous === "packages") url.searchParams.delete("module");
     else url.searchParams.set("module", previous);
     window.history.replaceState({ module: previous }, "", `${url.pathname}${url.search}${url.hash}`);

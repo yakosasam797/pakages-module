@@ -63,7 +63,12 @@ function blankFromTemplate(templateId: string) {
   return templateId === "visa" ? "rc-new-visa" : "rc-new-hotel";
 }
 
-export default function App() {
+interface AppProps {
+  onNavigateModule?: (module: "packages" | "bookings" | "destination" | "finance") => void;
+  onWorkspaceNotes?: (mode: "browse" | "compose") => void;
+}
+
+export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {}) {
   const [activeNav, setActiveNav] = useState("vendors");
   const [crmRoute, setCrmRoute] = useState<CrmRoute>({ name: "vendors" });
   const [hubRoute, setHubRoute] = useState<HubRoute | null>(() =>
@@ -100,7 +105,7 @@ export default function App() {
     if (window.location.pathname.startsWith("/settings") ||
       window.location.pathname.startsWith("/account") ||
       window.location.pathname === "/notifications") {
-      window.history.pushState({}, "", "/");
+      window.history.pushState({ module: "vendors" }, "", onNavigateModule ? "/?module=vendors" : "/");
     }
   };
 
@@ -119,6 +124,11 @@ export default function App() {
     setCrmRoute({ name: "vendors" });
   };
   const openNavigation = (id: string) => {
+    const module = id === "finances" ? "finance" : id;
+    if (onNavigateModule && (module === "packages" || module === "bookings" || module === "destination" || module === "finance")) {
+      onNavigateModule(module);
+      return;
+    }
     setPageNavigation(null);
     setActiveNav(id);
     leaveHub();
@@ -184,7 +194,7 @@ export default function App() {
     setAccountOpen(false);
     setNotifOpen(false);
     setHubRoute(route);
-    window.history.pushState({ hub: route }, "", pathForHub(route));
+    window.history.pushState({ hub: route, module: "vendors" }, "", pathForHub(route) + (onNavigateModule ? "?module=vendors" : ""));
   };
 
   const openSettingsHome = () => {
@@ -595,6 +605,7 @@ export default function App() {
       }
       brandAction={<IconBrandCaret />}
       listMode={false}
+      search={false}
       notes={
         <NotesStrip
           label={notesTitle}
@@ -602,8 +613,8 @@ export default function App() {
           badge={notesBadge}
           tip="Open notes"
           addTip="Write a note"
-          onOpen={openNotes}
-          onAdd={openNotes}
+          onOpen={() => onWorkspaceNotes ? onWorkspaceNotes("browse") : openNotes()}
+          onAdd={() => onWorkspaceNotes ? onWorkspaceNotes("compose") : openNotes()}
         />
       }
       navGroups={navGroups}

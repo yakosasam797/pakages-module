@@ -49,4 +49,6 @@ docs/                       # consolidation map and verification record
 - Inventory milestone committed before source changes.
 - Flattening: 32 Booking files, 24 Finance files and 206 Vendor files (including the untracked lockfile) were hashed, inserted into the root index and checked against original bytes before removing nested Git pointers and metadata. Metadata was moved outside the project to `D:\_module_git_metadata_archive_2026-09-30`; no module history was imported. The original sibling backup was untouched.
 - Vendor lockfile SHA-256 remains unchanged; `.gitattributes` disables newline conversion for that file.
+- Unified runtime: root install succeeds; root TypeScript/Vite production build succeeds; all five sidebar destinations work in the collaborative preview. Vendor CRM and Finance have no iframe; Booking has one isolated HTML frame. Existing Packages DMC/Ground handling selections now have an explicit category type (Vendor's current catalog category union no longer includes it).
+- Vendor's generated pre-merge preview differed from its checked-in source (directory pagination/region presentation). Integration uses the preserved checked-in source, fixtures and assets. The prior generated preview is archived outside the active public directory during tooling cleanup.
 - Remaining results will be filled after UI/build verification.

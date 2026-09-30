@@ -3,7 +3,7 @@ import { SEED_VENDORS } from "../vendor-crm/src/data/vendors";
 import { VENDOR_SERVICES } from "../vendor-crm/src/data/services";
 import type { ProposalServiceKind } from "./proposalModel";
 
-export type PackageServiceCategory = DirectoryCategory | "Other";
+export type PackageServiceCategory = DirectoryCategory | "DMC/Ground handling" | "Other";
 export type PackageServiceSource = "vendor-crm" | "api";
 
 export interface PackageServiceOption {

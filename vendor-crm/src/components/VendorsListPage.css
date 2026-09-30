@@ -285,6 +285,7 @@
 }
 
 .directory-view-tabs {
+  flex: none;
   padding-top: 4px;
 }
 
@@ -295,6 +296,7 @@
 }
 
 .service-category-tabs {
+  flex: none;
   display: flex;
   min-width: 0;
   overflow-x: auto;

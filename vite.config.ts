@@ -1,9 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
+import { scopeModuleCss } from "./scripts/scope-module-css.mjs";
 
 export default defineConfig({
   plugins: [react()],
+  css: { postcss: { plugins: [scopeModuleCss()] } },
   resolve: {
     alias: {
       "@paryatech/design-system": fileURLToPath(new URL("./node_modules/@paryatech/ui", import.meta.url)),
