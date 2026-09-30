@@ -7,6 +7,8 @@ import { baliExample } from "./destinationDemoData";
 import type { DestinationExampleBase, DestinationExampleService, DestinationExampleVendor, DestinationExampleTrip } from "./destinationDemoData";
 import { featuredRegions, regionById, searchRegions } from "./regionSearch";
 import type { RegionSuggestion } from "./regionSearch";
+import { destinationProfileFor } from "./destinationProfiles";
+import type { DestinationProfile } from "./destinationProfiles";
 import bengaluruImage from "./assets/destinations/bengaluru-vidhana-soudha.jpg";
 import "./DestinationPage.css";
 
@@ -36,6 +38,38 @@ function photo(service: DestinationService) { return service.profile?.media.find
 function statusTone(value: string) { return /published|approved|active|confirmed|completed|accepted|live/i.test(value) ? "positive" : /draft|pending|tentative|reprice/i.test(value) ? "pending" : "neutral"; }
 
 function Status({ value }: { value: string }) { return <span className={`destination-status destination-status--${statusTone(value)}`}>{value}</span>; }
+
+function DestinationHero({ name, location, profile, fallbackImage, counts, hasExamples }: {
+  name: string;
+  location: string;
+  profile?: DestinationProfile;
+  fallbackImage?: string;
+  counts: { packages: number; services: number; guides: number; vendors: number };
+  hasExamples: boolean;
+}) {
+  const images = profile?.images ?? (fallbackImage ? [{ src: fallbackImage, alt: `${name} destination`, caption: name }] : []);
+  return <section className={`destination-hero${images.length ? " destination-hero--pictured" : ""}`} aria-labelledby="destination-hero-title">
+    <div className="destination-hero__content">
+      <span className="destination-hero__eyebrow"><Icon name="pin" size="sm" /> Destination profile</span>
+      <h2 id="destination-hero-title">{name}</h2>
+      <span className="destination-hero__location">{location}</span>
+      <p>{profile?.description ?? `Explore the packages, services, guides, and local partners connected to ${name}.`}</p>
+      <div className="destination-hero__stats" aria-label="Connected destination content">
+        <span><strong>{counts.packages}</strong><small>Packages</small></span>
+        <span><strong>{counts.services}</strong><small>Services</small></span>
+        <span><strong>{counts.guides}</strong><small>Guides</small></span>
+        <span><strong>{counts.vendors}</strong><small>Vendors</small></span>
+      </div>
+      {hasExamples && <span className="destination-hero__example">Includes example data</span>}
+    </div>
+    {images.length > 0 && <div className={`destination-hero__gallery${images.length === 1 ? " destination-hero__gallery--single" : ""}`} aria-label={`${name} photos`}>
+      {images.map((image, index) => <figure className={`destination-hero__image destination-hero__image--${index + 1}`} key={image.src}>
+        <img src={image.src} alt={image.alt} />
+        <figcaption>{image.caption}</figcaption>
+      </figure>)}
+    </div>}
+  </section>;
+}
 
 function Rail({ id, title, count, children, empty }: { id: string; title: string; count: number; children?: ReactNode; empty?: string }) {
   const track = useRef<HTMLDivElement>(null);
@@ -192,6 +226,7 @@ export function DestinationPage({ packages, proposals, onOpenRecord }: Destinati
   const clearRegion = () => { setQuery(""); setSelectedRegion(null); setSuggestionsOpen(false); setOpenExample(null); setOpenPlace(null); setOpenService(null); const url = new URL(window.location.href); url.searchParams.delete("region"); window.history.pushState({ module: "destination" }, "", `${url.pathname}${url.search}${url.hash}`); inputRef.current?.focus(); };
   const editQuery = (value: string) => { setQuery(value); setSelectedRegion(null); setSuggestionsOpen(Boolean(value.trim())); if (new URLSearchParams(window.location.search).has("region")) { const url = new URL(window.location.href); url.searchParams.delete("region"); window.history.replaceState({ module: "destination" }, "", `${url.pathname}${url.search}${url.hash}`); } };
   const placeName = selectedRegion?.label.split(",")[0] ?? "";
+  const destinationProfile = selectedRegion ? destinationProfileFor(selectedRegion.id) : undefined;
   const guide = useMemo(() => {
     if (!snapshot || !selectedRegion) return [];
     const fromSources = buildPlaceGuide(snapshot, selectedRegion);
@@ -206,13 +241,13 @@ export function DestinationPage({ packages, proposals, onOpenRecord }: Destinati
   const totalTrips = snapshot ? snapshot.proposals.length + snapshot.bookings.length + (examples?.trips.length ?? 0) : 0;
 
   return <main className="destination-page">
-    <header className="destination-page__header"><h1>Destination</h1></header>
-    <div className="destination-search" ref={searchRef}><div className="destination-search__field"><Icon name="pin" size="sm" /><input ref={inputRef} type="search" value={query} placeholder="Search a city or region, e.g. Bengaluru" aria-label="Search a city, destination, or region" role="combobox" aria-autocomplete="list" aria-expanded={suggestionsOpen && !selectedRegion} aria-controls="destination-suggestions" aria-activedescendant={suggestionsOpen && suggestions.length ? `destination-suggestion-${activeSuggestion}` : undefined} onFocus={() => { if (query.trim() && !selectedRegion) setSuggestionsOpen(true); }} onChange={(event) => editQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Escape") setSuggestionsOpen(false); if (!suggestionsOpen || !suggestions.length) return; if (event.key === "ArrowDown") { event.preventDefault(); setActiveSuggestion((index) => (index + 1) % suggestions.length); } else if (event.key === "ArrowUp") { event.preventDefault(); setActiveSuggestion((index) => (index - 1 + suggestions.length) % suggestions.length); } else if (event.key === "Enter") { event.preventDefault(); chooseRegion(suggestions[activeSuggestion]); } }} />{query && <button type="button" className="destination-search__clear" aria-label="Clear destination" onClick={clearRegion}>×</button>}</div>
+    <header className="destination-page__header">{selectedRegion ? <button type="button" className="destination-back" onClick={clearRegion}><Icon name="chevronLeft" size="sm" /> All destinations</button> : <h1>Destination</h1>}</header>
+    {!selectedRegion && <div className="destination-search" ref={searchRef}><div className="destination-search__field"><Icon name="pin" size="sm" /><input ref={inputRef} type="search" value={query} placeholder="Search a city or region, e.g. Bengaluru" aria-label="Search a city, destination, or region" role="combobox" aria-autocomplete="list" aria-expanded={suggestionsOpen && !selectedRegion} aria-controls="destination-suggestions" aria-activedescendant={suggestionsOpen && suggestions.length ? `destination-suggestion-${activeSuggestion}` : undefined} onFocus={() => { if (query.trim() && !selectedRegion) setSuggestionsOpen(true); }} onChange={(event) => editQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Escape") setSuggestionsOpen(false); if (!suggestionsOpen || !suggestions.length) return; if (event.key === "ArrowDown") { event.preventDefault(); setActiveSuggestion((index) => (index + 1) % suggestions.length); } else if (event.key === "ArrowUp") { event.preventDefault(); setActiveSuggestion((index) => (index - 1 + suggestions.length) % suggestions.length); } else if (event.key === "Enter") { event.preventDefault(); chooseRegion(suggestions[activeSuggestion]); } }} />{query && <button type="button" className="destination-search__clear" aria-label="Clear destination" onClick={clearRegion}>×</button>}</div>
       {suggestionsOpen && !selectedRegion && <div id="destination-suggestions" className="destination-search__suggestions" role="listbox" aria-label="Destination suggestions"><div className="destination-search__suggestions-heading">Suggested places</div>{searchLoading ? <div className="destination-search__message" role="status">Finding places…</div> : searchError ? <div className="destination-search__message" role="status">Couldn’t load places. Try again.</div> : suggestions.length ? suggestions.map((region, index) => <button id={`destination-suggestion-${index}`} key={region.id} type="button" role="option" aria-selected={index === activeSuggestion} className={index === activeSuggestion ? "is-active" : undefined} onMouseEnter={() => setActiveSuggestion(index)} onClick={() => chooseRegion(region)}><span className="destination-search__suggestion-photo">{featuredImages.get(region.id) ? <img src={featuredImages.get(region.id)} alt="" /> : <Icon name="pin" size="sm" />}</span><span><strong>{region.label}</strong><small>{region.group}{region.country ? ` · ${region.country}` : ""}</small></span></button>) : <div className="destination-search__message">No matching place found.</div>}</div>}
-    </div>
+    </div>}
 
     {!selectedRegion ? <section className="destination-start"><div className="destination-start__heading"><h2>Explore a destination</h2><p>Choose a place to see what is already in your workspace.</p></div><div className="destination-start__grid">{featured.map(({ region, data, example, image }) => <button type="button" key={region.id} className="destination-start__place" onClick={() => chooseRegion(region)}><span className="destination-start__photo">{image ? <img src={image} alt="" /> : <Icon name="pin" size="lg" />}</span><span className="destination-start__body"><strong>{region.label.split(",")[0]}</strong><small>{region.group} · {region.country}{example ? " · Example data" : ""}</small><span>{plural(data.packages.length + data.vendorPackages.length + (example?.packages.length ?? 0), "package")} · {plural(data.services.length + data.itineraryServices.length + (example?.services.length ?? 0), "service")}</span></span><Icon name="chevronRight" size="sm" /></button>)}</div></section> : snapshot && <div className="destination-explore">
-      <section className="destination-place"><div><span className="destination-place__location"><Icon name="pin" size="sm" />{selectedRegion.group} · {selectedRegion.country}</span><div className="destination-place__title"><h2>{placeName}</h2>{examples && <span className="destination-place__example">Includes example data</span>}</div></div><div className="destination-place__numbers"><span><strong>{totalPackages}</strong> packages</span><span><strong>{totalServices}</strong> services</span><span><strong>{guide.length}</strong> guides</span><span><strong>{totalVendors}</strong> vendors</span></div></section>
+      <DestinationHero name={placeName} location={`${selectedRegion.group}, ${selectedRegion.country}`} profile={destinationProfile} fallbackImage={featuredImages.get(selectedRegion.id)} counts={{ packages: totalPackages, services: totalServices, guides: guide.length, vendors: totalVendors }} hasExamples={Boolean(examples)} />
       <nav className="destination-jump" aria-label="Jump to destination sections"><button type="button" onClick={() => jumpTo("destination-packages")}>Packages <span>{totalPackages}</span></button><button type="button" onClick={() => jumpTo("destination-services")}>Services <span>{totalServices}</span></button><button type="button" onClick={() => jumpTo("destination-guide")}>Guides <span>{guide.length}</span></button><button type="button" onClick={() => jumpTo("destination-vendors")}>Vendors <span>{totalVendors}</span></button><button type="button" onClick={() => jumpTo("destination-trips")}>Trips <span>{totalTrips}</span></button></nav>
 
       <section className="destination-block" id="destination-packages"><Rail id="destination-package-rail" title="Packages" count={totalPackages} empty={`No packages are connected to ${placeName} yet.`}>{snapshot.packages.map(({ record }) => <PackageCard key={record.id} name={record.name} image={record.image} destination={record.destination} note={record.duration ?? record.id} price={record.startingPrice != null ? `From ${money(record.startingPrice)}` : "Price not set"} status={record.status} source="Packages" onClick={() => onOpenRecord ? onOpenRecord("package", record.id) : openModule("packages")} />)}{snapshot.vendorPackages.map((record) => <PackageCard key={record.id} name={record.name} image={record.imageUrl.replace("w=96", "w=640").replace("h=96", "h=480")} destination={record.detail} note={record.services} price={record.sellPrice} status={record.status === "live" ? "Live" : record.status === "reprice" ? "Re-price" : "Draft"} source="Vendor CRM" onClick={() => openModule("vendors")} />)}{examples?.packages.map((record) => <PackageCard key={record.id} name={record.name} image={record.image} destination={record.location} note={record.duration} price={`From ${money(record.price)}`} status={record.status} source="Example" onClick={() => setOpenExample({ kind: "Package", record })} />)}</Rail></section>

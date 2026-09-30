@@ -1,0 +1,13 @@
+﻿import { chromium } from 'playwright';
+const browser=await chromium.launch({headless:true});
+const page=await browser.newPage({viewport:{width:390,height:800}});
+await page.goto('http://127.0.0.1:43792/',{waitUntil:'networkidle'});
+await page.getByRole('link',{name:'Open Trailmakers Experiences'}).click();
+await page.getByRole('tab',{name:/Activity/}).click();
+await page.getByRole('button',{name:'More actions for Coverage reviewed'}).click();
+await page.getByRole('menuitem',{name:'View Activity'}).click();
+console.log('dialog',await page.getByRole('dialog').getByRole('heading').innerText());
+await page.getByRole('button',{name:'Close activity details'}).click();
+await page.getByRole('checkbox',{name:'Select Coverage reviewed'}).click();
+console.log('selected',await page.locator('.act-bulk').innerText());
+await browser.close();

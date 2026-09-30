@@ -1,0 +1,17 @@
+﻿import { chromium } from 'playwright';
+const browser=await chromium.launch({headless:true});
+const page=await browser.newPage({viewport:{width:390,height:800},deviceScaleFactor:1});
+await page.goto('http://127.0.0.1:43792/',{waitUntil:'networkidle'});
+await page.getByRole('link',{name:'Open Trailmakers Experiences'}).click();
+console.log('profile fields',await page.locator('.vo-panels .vo-profile__field').count(),'contacts',await page.locator('.vo-panels .vo-contact').count());
+console.log('overflow',await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth));
+await page.screenshot({path:'qa-vendor-overview-mobile.png'});
+await page.getByRole('tab',{name:/Activity/}).click();
+await page.getByRole('button',{name:'More actions for Coverage reviewed'}).click();
+console.log('actions',await page.getByRole('menuitem').allTextContents());
+await page.getByRole('menuitem',{name:'View Activity'}).click();
+console.log('dialog',await page.getByRole('dialog').getByRole('heading').innerText());
+await page.getByRole('button',{name:'Close activity details'}).click();
+await page.getByRole('checkbox',{name:'Select Coverage reviewed'}).click();
+console.log('selected',await page.locator('.act-bulk').innerText());
+await browser.close();

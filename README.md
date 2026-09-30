@@ -10,7 +10,9 @@ Package creation starts with basic details, then opens a separate day and servic
 
 Booking is included as an unmodified Git submodule from [`yakosasam797/new-direction-03`](https://github.com/yakosasam797/new-direction-03). The current standalone Booking page is copied unchanged to `public/booking/index.html` by the dev and build commands. It runs in a full-window isolated frame; only cross-module sidebar clicks are handled by the workspace.
 
-Vendor CRM is included as an unmodified Git submodule from [`yakosasam797/Vendor-CRM`](https://github.com/yakosasam797/Vendor-CRM). The dev and production commands build it into `public/vendor-crm/` and show it in an isolated frame. Its own sidebar opens Packages and Bookings through the workspace switcher. Generated assets are ignored by Git; the two submodules are the sources of truth.
+Vendor CRM is included as an unmodified Git submodule from [`yakosasam797/Vendor-CRM`](https://github.com/yakosasam797/Vendor-CRM). The dev and production commands build it into `public/vendor-crm/` and show it in an isolated frame. Its own sidebar opens Packages and Bookings through the workspace switcher. Generated assets are ignored by Git; the submodules are the sources of truth.
+
+Finance is included from the `finance-module` submodule and rendered directly inside the shared platform shell. The build also publishes its standalone page at `/finance/index.html`. Opening **All finances** does not require a separate Finance server or iframe.
 
 The host adds a small integration-only tab-height rule from `public/vendor-crm-integration.css` inside the Vendor frame. This keeps the upstream Vendor CRM files unchanged, so a later pushed Vendor commit can be brought in by advancing the submodule pointer and rebuilding.
 

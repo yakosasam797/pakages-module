@@ -1,5 +1,6 @@
 import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, readCreatedDirectoryServices, type DirectoryCategory } from "../vendor-crm/src/data/vendorDirectory";
 import { SEED_VENDORS } from "../vendor-crm/src/data/vendors";
+import { VENDOR_SERVICES } from "../vendor-crm/src/data/services";
 import type { ProposalServiceKind } from "./proposalModel";
 
 export type PackageServiceCategory = DirectoryCategory | "Other";
@@ -13,16 +14,9 @@ export interface PackageServiceOption {
   description: string;
   vendor?: string;
   image?: string;
+  rateCardIds?: string[];
   source: PackageServiceSource;
 }
-
-const apiExamples: PackageServiceOption[] = [
-  { id: "api-taj-hotel-goa", name: "Taj Hotel Goa", category: "Accommodation", location: "Goa", description: "Hotel listing · room and availability details to confirm", source: "api" },
-  { id: "api-taj-lake-palace", name: "Taj Lake Palace", category: "Accommodation", location: "Udaipur", description: "Palace hotel listing · room and availability details to confirm", source: "api" },
-  { id: "api-dubai-airport-transfer", name: "Dubai airport transfer", category: "Transport", location: "Dubai", description: "Private transfer listing · vehicle and rate to confirm", source: "api" },
-  { id: "api-ubud-cultural-tour", name: "Ubud cultural tour", category: "Activities", location: "Ubud", description: "Guided experience listing · schedule to confirm", source: "api" },
-  { id: "api-uae-tourist-visa", name: "UAE tourist visa", category: "Visa", location: "United Arab Emirates", description: "Visa listing · eligibility and processing time to confirm", source: "api" },
-];
 
 function vendorImage(url?: string): string | undefined {
   if (!url) return undefined;
@@ -30,17 +24,18 @@ function vendorImage(url?: string): string | undefined {
   return photo ? `/service-thumbnails/${photo}.jpg` : url;
 }
 
-export const packageServiceCategories: PackageServiceCategory[] = ["Accommodation", "Transport", "Activities", "Visa", "Flights", "Other"];
+export const packageServiceCategories: PackageServiceCategory[] = ["Accommodation", "Transport", "Activities", "Visa", "Flights", "DMC/Ground handling", "Other"];
 
 export const kindForCategory: Record<PackageServiceCategory, ProposalServiceKind> = {
   Accommodation: "stay", Transport: "transfer", Activities: "activity",
-  Visa: "other", Flights: "flight", Other: "other",
+  Visa: "other", Flights: "flight", "DMC/Ground handling": "other", Other: "other",
 };
 
 export function crmServiceOptions(): PackageServiceOption[] {
   return [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].map((service) => {
     const connection = VENDOR_SERVICE_CONNECTIONS.find((item) => item.serviceId === service.id);
     const vendor = SEED_VENDORS.find((item) => item.id === connection?.vendorId);
+    const profile = VENDOR_SERVICES.find((item) => item.id === service.serviceId);
     return {
       id: service.id,
       name: service.name,
@@ -48,7 +43,8 @@ export function crmServiceOptions(): PackageServiceOption[] {
       location: service.location,
       description: service.description || service.attributes?.map((item) => item.value).join(" · ") || `${service.category} service in ${service.location}`,
       vendor: vendor?.name,
-      image: vendorImage(vendor?.imageUrl),
+      image: vendorImage(profile?.imageUrl ?? vendor?.imageUrl),
+      rateCardIds: profile?.rateCards.map((card) => card.id) ?? [],
       source: "vendor-crm" as const,
     };
   });
@@ -58,7 +54,7 @@ export async function searchApiServices(query: string, signal?: AbortSignal): Pr
   const q = query.trim();
   if (q.length < 2) return [];
   const endpoint = import.meta.env.VITE_SERVICE_SEARCH_API_URL?.trim();
-  if (!endpoint) return apiExamples.filter((item) => `${item.name} ${item.category} ${item.location}`.toLowerCase().includes(q.toLowerCase()));
+  if (!endpoint) return [];
   const url = new URL(endpoint, window.location.origin);
   url.searchParams.set("q", q);
   const response = await fetch(url, { signal });

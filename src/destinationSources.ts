@@ -1,4 +1,4 @@
-import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS } from "../vendor-crm/src/data/vendorDirectory";
+import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, readCreatedDirectoryServices } from "../vendor-crm/src/data/vendorDirectory";
 import type { DirectoryService } from "../vendor-crm/src/data/vendorDirectory";
 import { SEED_VENDORS } from "../vendor-crm/src/data/vendors";
 import type { Vendor } from "../vendor-crm/src/data/vendors";
@@ -167,7 +167,7 @@ export function workspaceRegionSuggestions(
     ...packages.map((item) => item.destination),
     ...proposals.map((item) => item.destination),
     ...bookings.map((item) => item.destination),
-    ...DIRECTORY_SERVICES.map((item) => item.location),
+    ...[...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].map((item) => item.location),
     ...SEED_VENDORS.map((item) => item.location),
   ];
   const byPlace = new Map<string, RegionSuggestion>();
@@ -196,7 +196,7 @@ export function buildDestinationSnapshot(
   const matchingPackages = packages.filter((item) => belongsToRegion(`${item.destination} ${item.region}`, region));
   const matchingProposals = proposals.filter((item) => belongsToRegion(`${item.destination} ${item.region}`, region));
   const packageByName = new Map(packages.map((item) => [normalize(item.name), item]));
-  const matchingServices = DIRECTORY_SERVICES.filter((item) => belongsToRegion(item.location, region) || belongsToRegion(item.name, region));
+  const matchingServices = [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].filter((item) => belongsToRegion(item.location, region) || belongsToRegion(item.name, region));
   const vendorById = new Map(SEED_VENDORS.map((vendor) => [vendor.id, vendor]));
   const serviceProfileById = new Map(VENDOR_SERVICES.map((service) => [service.id, service]));
 

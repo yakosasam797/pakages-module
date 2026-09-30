@@ -14,11 +14,11 @@ import "./PackageComposer.css";
 
 const icons: Record<PackageServiceCategory, IconName> = {
   Accommodation: "hotel", Transport: "bus", Activities: "camera",
-  Visa: "passport", Flights: "plane", Other: "package",
+  Visa: "passport", Flights: "plane", "DMC/Ground handling": "package", Other: "package",
 };
 const blockLabels: Record<PackageServiceCategory, string> = {
   Accommodation: "accommodation", Transport: "transport", Activities: "activity",
-  Visa: "visa", Flights: "flight", Other: "service",
+  Visa: "visa", Flights: "flight", "DMC/Ground handling": "ground handling", Other: "service",
 };
 
 const makeDay = (index: number): ProposalDay => ({ id: crypto.randomUUID(), title: `Day ${index} plan`, place: "", services: [], plannedBlockCount: 1 });
@@ -144,7 +144,7 @@ export function PackageComposer({ existing, initialTemplate, onCancel, onSave }:
       <div className="package-composer__days">{days.map((day, index) => <article className="package-composer__day" key={day.id}>
         <div className="package-composer__day-rail"><span className="package-composer__day-number">{String(index + 1).padStart(2, "0")}</span><h3>Day {index + 1}</h3><small>{day.services.length} {day.services.length === 1 ? "service" : "services"}</small><button type="button" disabled={days.length === 1} onClick={() => { setDays((current) => current.filter((item) => item.id !== day.id)); setError(""); }} aria-label={`Remove day ${index + 1}`}><Icon name="clear" size="xs" /> Remove day</button></div>
         <div className="package-composer__day-main"><label className="package-composer__place-field"><span>Place or city <em>Optional</em></span><input value={day.place} onChange={(event) => setDays((current) => current.map((item) => item.id === day.id ? { ...item, place: event.target.value } : item))} placeholder="e.g. Ubud, Bali" /></label>
-          <div className="package-composer__blocks">{day.services.length ? day.services.map((service) => <div className="package-composer__block" key={service.id}><span className="package-composer__block-icon">{service.image ? <img src={service.image} alt="" /> : <Icon name={icons[(service.serviceCategory as PackageServiceCategory) || "Other"] ?? "package"} size="sm" />}</span><div><small>{service.serviceCategory ?? "Service"}</small><strong>{service.title}</strong>{service.vendor ? <em>{service.vendor}</em> : null}</div><button type="button" aria-label={`Remove ${service.title} from day ${index + 1}`} onClick={() => setDays((current) => current.map((item) => item.id === day.id ? { ...item, services: item.services.filter((block) => block.id !== service.id) } : item))}><Icon name="clear" size="sm" /></button></div>) : <p className="package-composer__day-empty">No services added to this day yet.</p>}</div>
+          {day.services.length ? <div className="package-composer__blocks">{day.services.map((service) => <div className="package-composer__block" key={service.id}><span className="package-composer__block-icon">{service.image ? <img src={service.image} alt="" /> : <Icon name={icons[(service.serviceCategory as PackageServiceCategory) || "Other"] ?? "package"} size="sm" />}</span><div><small>{service.serviceCategory ?? "Service"}</small><strong>{service.title}</strong>{service.vendor ? <em>{service.vendor}</em> : null}</div><button type="button" aria-label={`Remove ${service.title} from day ${index + 1}`} onClick={() => setDays((current) => current.map((item) => item.id === day.id ? { ...item, services: item.services.filter((block) => block.id !== service.id) } : item))}><Icon name="clear" size="sm" /></button></div>)}</div> : null}
           <button type="button" className="package-composer__add-block" onClick={() => { setPickerDayId(day.id); setCategory(null); setQuery(""); }}><Icon name="plus" size="sm" /><span>Add service block</span></button>
         </div>
       </article>)}</div>
