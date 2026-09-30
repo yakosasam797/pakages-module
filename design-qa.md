@@ -6,25 +6,25 @@
 - Package-information references: the five supplied MakeMyTrip itinerary captures. These guided content coverage only; their visual styling was not reproduced.
 - Accordion reference: `C:/Users/YAKSHITH/.t3/userdata/attachments/e0f960be-c119-42ca-8249-25786b10649d-eaa8e625-abff-46ff-976c-ca926b316085.png` (3238 × 1582 px).
 - Package-story reference: `C:/Users/YAKSHITH/.t3/userdata/attachments/e0f960be-c119-42ca-8249-25786b10649d-4f1770c2-7499-442f-a448-6f0c2418cd0b.png` (3210 × 1274 px).
-- List implementation: `design-qa-implementation.png`
-- Package-type navigation: `design-qa-package-types.png`
-- Proposal workspace: `design-qa-proposals.png`
-- Detail implementation: `design-qa-detail-top.png`
-- Collapsed itinerary implementation: `design-qa-detail-collapsed.png`
-- Long-itinerary state: `design-qa-detail-day-4.png`
-- Add-item modal: `design-qa-add-item.png`
-- Responsive detail: `design-qa-detail-mobile.png`
-- Creation foundation: `design-qa-builder-foundation.png`
-- Route allocation: `design-qa-builder-route.png`
-- Contextual service editor: `design-qa-builder-service.png`
-- CRM and regional API supply picker: `design-qa-builder-supply.png`
-- Day-level itinerary: `design-qa-builder-itinerary.png`
-- Commercial build-up: `design-qa-builder-pricing.png`
-- Package media workspace: `design-qa-builder-media.png`
-- Operational review: `design-qa-builder-review.png`
-- Responsive creation flow: `design-qa-builder-mobile.png`
-- Direction 03 side-by-side comparison: `design-qa-builder-comparison.png`
-- Feedback reference/implementation comparison board: `design-qa-feedback-comparison.png` (1920 × 1200 px).
+- List implementation: `qa/packages/design-qa-implementation.png`
+- Package-type navigation: `qa/packages/design-qa-package-types.png`
+- Proposal workspace: `qa/packages/design-qa-proposals.png`
+- Detail implementation: `qa/packages/design-qa-detail-top.png`
+- Collapsed itinerary implementation: `qa/packages/design-qa-detail-collapsed.png`
+- Long-itinerary state: `qa/packages/design-qa-detail-day-4.png`
+- Add-item modal: `qa/packages/design-qa-add-item.png`
+- Responsive detail: `qa/packages/design-qa-detail-mobile.png`
+- Creation foundation: `qa/packages/design-qa-builder-foundation.png`
+- Route allocation: `qa/packages/design-qa-builder-route.png`
+- Contextual service editor: `qa/packages/design-qa-builder-service.png`
+- CRM and regional API supply picker: `qa/packages/design-qa-builder-supply.png`
+- Day-level itinerary: `qa/packages/design-qa-builder-itinerary.png`
+- Commercial build-up: `qa/packages/design-qa-builder-pricing.png`
+- Package media workspace: `qa/packages/design-qa-builder-media.png`
+- Operational review: `qa/packages/design-qa-builder-review.png`
+- Responsive creation flow: `qa/packages/design-qa-builder-mobile.png`
+- Direction 03 side-by-side comparison: `qa/packages/design-qa-builder-comparison.png`
+- Feedback reference/implementation comparison board: `qa/packages/design-qa-feedback-comparison.png` (1920 × 1200 px).
 - Desktop viewport: 1440 × 900 CSS px, device scale factor 1
 - Mobile viewport: 390 × 844 CSS px, device scale factor 1
 - Test package: Bali Indonesia, 6-day itinerary
@@ -152,7 +152,7 @@ The content hierarchy has been translated into one continuous working document:
 - Fix: promoted Packages and Proposals to peer workspace tabs and built a functional proposal list with its own search, filters, type counts, actions, and status model.
 - P2: adding the Package type column initially pushed row actions beyond the standard desktop canvas.
 - Fix: tightened both package and proposal column tracks; the final 1440 × 900 captures keep Open and overflow actions visible without desktop horizontal scrolling.
-- Post-fix evidence: `design-qa-package-types.png` and `design-qa-proposals.png`; production build and automated desktop/mobile interaction checks passed with no console errors.
+- Post-fix evidence: `qa/packages/design-qa-package-types.png` and `qa/packages/design-qa-proposals.png`; production build and automated desktop/mobile interaction checks passed with no console errors.
 
 ### Pass 8 â€” remove the services-style taxonomy
 
@@ -163,7 +163,7 @@ The content hierarchy has been translated into one continuous working document:
 
 - P1: package activity history needed to read as an auditable record, not as another itinerary or process timeline.
 - Fix: added an Activity profile tab using the platform's full activity-table language: searchable rows with date, time, event context, and member; no process dots or connecting line.
-- Post-fix evidence: `design-qa-detail-activity.png`; activity search, selection, six-row history, production build, and the complete UI verification suite pass without console errors.
+- Post-fix evidence: `qa/packages/design-qa-detail-activity.png`; activity search, selection, six-row history, production build, and the complete UI verification suite pass without console errors.
 
 ## Findings
 
@@ -188,11 +188,11 @@ final result: passed
 ### Source and browser evidence
 
 - Packages visual truth: `C:/Users/YAKSHITH/.t3/userdata/attachments/cff6c540-42a4-4476-b6ce-f9c075158ae7-b4362471-7146-43fa-83a0-8dbce528e047.png` (1655 × 977 px).
-- Packages implementation: `design-qa-packages-source-size.png` (1655 × 977 px, CSS viewport 1655 × 977, device scale factor 1).
+- Packages implementation: `qa/packages/design-qa-packages-source-size.png` (1655 × 977 px, CSS viewport 1655 × 977, device scale factor 1).
 - Proposals visual truth: `C:/Users/YAKSHITH/.t3/userdata/attachments/cff6c540-42a4-4476-b6ce-f9c075158ae7-72de579a-71ab-434a-a578-0f1b72f46c05.png` (1508 × 979 px).
-- Proposals implementation: `design-qa-proposals-source-size.png` (1508 × 979 px, CSS viewport 1508 × 979, device scale factor 1).
-- Region autocomplete focus: `design-qa-region-suggestions.png` (1655 × 977 px).
-- Narrow responsive state: `design-qa-list-narrow.png` (820 × 900 px).
+- Proposals implementation: `qa/packages/design-qa-proposals-source-size.png` (1508 × 979 px, CSS viewport 1508 × 979, device scale factor 1).
+- Region autocomplete focus: `qa/packages/design-qa-region-suggestions.png` (1655 × 977 px).
+- Narrow responsive state: `qa/packages/design-qa-list-narrow.png` (820 × 900 px).
 - Density normalization: source and implementation were compared at matching CSS-pixel dimensions with device scale factor 1; no resampling was required.
 - State: light theme, Packages default list, Proposals default list, and Packages with `Bangalore` region suggestions open.
 
@@ -206,7 +206,7 @@ final result: passed
 
 ### Focused comparison evidence
 
-- Region search was reviewed separately because the source does not show the open state. `design-qa-region-suggestions.png` confirms that `Bangalore` returns `Bengaluru, Karnataka`, identifies India and South India, and provides a clear `Show packages` selection action.
+- Region search was reviewed separately because the source does not show the open state. `qa/packages/design-qa-region-suggestions.png` confirms that `Bangalore` returns `Bengaluru, Karnataka`, identifies India and South India, and provides a clear `Show packages` selection action.
 - Selecting the suggestion returns exactly the two Bangalore/Bengaluru packages.
 - The service-type menu exposes 12 options including Complete trips, Accommodation, Transport, Activities, Visa, Flights, Meals & dining, Guides, Travel insurance, Cruises, and Rail.
 - The region menu includes the complete configured geography list through Oceania.
@@ -238,12 +238,12 @@ final result: passed
   - Post-fix evidence: package and proposal scroll widths equal their client widths; the 1655 × 977 Packages view paginates after row 7.
 - P1: region discovery was plain text matching and did not provide a selectable backend suggestion flow for aliases such as Bangalore/Bengaluru.
   - Fix: added debounced region autocomplete with an API endpoint boundary, alias-aware local fallback, clear location metadata, and selection-driven filtering.
-  - Post-fix evidence: `design-qa-region-suggestions.png`; selecting Bengaluru returns two records.
+  - Post-fix evidence: `qa/packages/design-qa-region-suggestions.png`; selecting Bengaluru returns two records.
 - P2: package/service taxonomy and geography were incomplete, while the sort and result-count controls contradicted the requested toolbar.
   - Fix: expanded the service and region filters and removed `Recently updated` plus the trailing result count; records remain sorted by update date by default.
 - P2: the dense nine-column table could not remain legible on a narrow viewport.
   - Fix: retained every record field in a responsive card layout below 900 px and paginated based on the taller row footprint.
-  - Post-fix evidence: `design-qa-list-narrow.png`.
+  - Post-fix evidence: `qa/packages/design-qa-list-narrow.png`.
 
 ### Findings
 
@@ -260,7 +260,7 @@ final result: passed
 - Tables: Packages and Proposals now use interactive rows with one overflow action, 40 px thumbnails, status dots, and Vendor CRM's neutral package Draft tone.
 - Detail: the package thumbnail, record-header surface, primary Edit action, and overflow actions use the same visual hierarchy as Vendor CRM package records.
 - Responsive: six package composition metrics reflow into two columns on phones. The verified mobile detail has no document-level horizontal overflow.
-- Evidence: `design-qa-implementation.png`, `design-qa-proposals.png`, `design-qa-builder-foundation.png`, `design-qa-detail-top.png`, and `design-qa-detail-mobile.png`, reviewed against the reference captures.
+- Evidence: `qa/packages/design-qa-implementation.png`, `qa/packages/design-qa-proposals.png`, `qa/packages/design-qa-builder-foundation.png`, `qa/packages/design-qa-detail-top.png`, and `qa/packages/design-qa-detail-mobile.png`, reviewed against the reference captures.
 - `npm run build` and `npm run verify:ui` passed. UI verification covered seven package records, list filters, creation, row menu, keyboard row opening, desktop/mobile views, complete images, and zero console errors.
 
 final result: passed

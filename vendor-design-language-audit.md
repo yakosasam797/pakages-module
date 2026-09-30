@@ -19,7 +19,7 @@ The module keeps its own package-specific information architecture, route builde
 
 - `npm run build`: passed.
 - `npm run verify:ui`: passed across Packages, Proposals, filtering, package creation, seven package details, row menu, keyboard row activation, and mobile views; no browser console errors.
-- Compared fresh `design-qa-implementation.png`, `design-qa-detail-top.png`, `design-qa-builder-foundation.png`, `design-qa-proposals.png`, and `design-qa-detail-mobile.png` against the Vendor CRM QA captures above.
+- Compared fresh `qa/packages/design-qa-implementation.png`, `qa/packages/design-qa-detail-top.png`, `qa/packages/design-qa-builder-foundation.png`, `qa/packages/design-qa-proposals.png`, and `qa/packages/design-qa-detail-mobile.png` against the Vendor CRM QA captures above.
 - Mobile detail has no document-level horizontal overflow and retains all six composition metrics.
 - Local preview: `http://127.0.0.1:4180/`.
 
