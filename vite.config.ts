@@ -1,10 +1,23 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
+import { cpSync } from "node:fs";
 import { scopeModuleCss } from "./scripts/scope-module-css.mjs";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), {
+    name: "booking-prototype-refresh",
+    configureServer(server) {
+      const source = fileURLToPath(new URL("./booking-module/booking-redesign.html", import.meta.url));
+      const output = fileURLToPath(new URL("./public/booking/index.html", import.meta.url));
+      server.watcher.add(source);
+      server.watcher.on("change", (file) => {
+        if (file !== source) return;
+        cpSync(source, output);
+        server.ws.send({ type: "full-reload" });
+      });
+    },
+  }],
   css: { postcss: { plugins: [scopeModuleCss()] } },
   resolve: {
     alias: {

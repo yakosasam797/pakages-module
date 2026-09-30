@@ -1,5 +1,9 @@
 # figma-make-app
 
+## Unified workspace override
+
+This folder is now part of the root repository, not a standalone Figma app. The current working entry is `booking-redesign.html`; preserve its UI and mock data. Run dependency installation, development and build commands from the repository root only. The historical scaffold guidance below describes the original setup; its tooling has been retired under `tooling-reference/` and does not control the unified app. See `../README.md`.
+
 React + Vite + Tailwind CSS project running inside Figma Make.
 
 ## Development Server

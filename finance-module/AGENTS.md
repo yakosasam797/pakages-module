@@ -1,5 +1,7 @@
 # Paryatech Finance
 
+This module is an ordinary folder in the unified root repository. Run the verification commands below from the repository root; standalone setup files under `tooling-reference/` are historical references.
+
 This repository owns the agency-wide Finance workspace. Booking, Customer CRM, and Vendor CRM are contextual views of the same finance records, not separate finance implementations.
 
 ## Product rules

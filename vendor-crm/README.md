@@ -1,32 +1,11 @@
-# React + TypeScript + Vite
+# Vendor CRM module
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Run all commands from the repository root: `npm ci`, `npm run dev`, `npm run build`.
 
-Currently, two official plugins are available:
+`src/App.tsx` contains the existing CRM shell and routes. The root's `src/VendorModule.tsx` lazy-loads it directly into the same React application. Its module navigation callback opens Packages, Booking, Destination and Finance without an iframe. Settings/account/notification URLs retain `?module=vendors` so reload and browser history select the correct module.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Screens, seeded data, assets, reference material and QA images remain here. Browser-created services retain their existing localStorage key and are also available to Packages and Destination. Original standalone installation/build files and the previous README are inactive under `tooling-reference/`.
 
-## React Compiler
+The pre-existing `pnpm-lock.yaml` is preserved byte-for-byte at its original path for reference; it is not used for installation. There is no active nested package manifest.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+See [root setup and module map](../README.md) and [consolidation notes](../docs/module-consolidation.md).

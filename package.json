@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "oxlint src vendor-crm/src finance-module/src",
     "preview": "vite preview",
-    "verify:ui": "node scripts/verify-ui.mjs"
+    "verify:ui": "node scripts/verify-ui.mjs",
+    "verify:models": "node --test scripts/finance-fixture.test.mjs vendor-crm/src/rateCard/transportQuote.test.mjs vendor-crm/src/rateCard/regionalTransportQuote.test.mjs"
   },
   "dependencies": {
     "@paryatech/ui": "git+https://github.com/yakosasam797/-Design-System-03-experiment.git#2d274eccdc8d1ea41a05576dc89f993b3dd814ed",
