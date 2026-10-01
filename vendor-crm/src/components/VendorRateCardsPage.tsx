@@ -33,7 +33,7 @@ import { VENDOR_CONVERSATIONS } from "../data/communications";
 import { VENDOR_PACKAGES } from "../data/packages";
 import { can, type OrgRole } from "../permissions";
 import type { PageNavigationChange } from "../pageNavigation";
-import { IconCheck, IconFilter, IconMore, IconPin, IconPlus } from "../icons";
+import { IconCard, IconCheck, IconFilter, IconMore, IconPin, IconPlus } from "../icons";
 import { AnchoredImport } from "./AnchoredImport";
 import { CommunicationPanel } from "./CommunicationPanel";
 import { PackagesPanel } from "./PackagesPanel";
@@ -48,8 +48,10 @@ import { VendorFormModal } from "./VendorFormModal";
 import { VendorOverview } from "./VendorOverview";
 import { VendorProfileHeader } from "./VendorProfileHeader";
 import { DashboardDataSheetFill } from "./DashboardDataSheet";
-import { SERVICE_TYPE_FILTERS, servicesForVendor, type VendorService } from "../data/services";
-import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, type DirectoryService } from "../data/vendorDirectory";
+import { SERVICE_TYPE_FILTERS, getVendorService, servicesForVendor, type VendorService } from "../data/services";
+import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, linkVendorService, readCreatedDirectoryServices, type DirectoryService } from "../data/vendorDirectory";
+import { getDetailCard, listCreatedActivityCards, listCreatedPrivateTransportCards } from "../rateCard/cards";
+import { TRANSPORT_TEMPLATE_LABELS } from "../rateCard/privateTransport";
 import type { DraftLinkedService } from "./AddServicesModal";
 import { NewServicePage } from "./NewServicePage";
 import { ServiceTypeIcon, ServiceTypeLabel, type ServiceTypeName } from "./ServiceTypeLabel";
@@ -71,30 +73,31 @@ const BASE_TABS: TabItem[] = [
 function vendorServiceFromDirectory(service: DirectoryService, vendor: Vendor): VendorService {
   const attributes = Object.fromEntries((service.attributes ?? []).map(({ label, value }) => [label, value]));
   const description = service.description?.trim() ?? "";
+  const original = getVendorService(service.serviceId);
   return {
-    id: service.id,
+    id: service.serviceId,
     vendorId: vendor.id,
     name: service.name,
     type: service.category === "Activities" ? "Activity" : service.category,
-    details: description || (service.attributes ?? []).map(({ value }) => value).join(" · ") || service.location,
-    about: description || `${service.name} is supplied by ${vendor.name}.`,
+    details: description || original?.details || (service.attributes ?? []).map(({ value }) => value).join(" · ") || service.location,
+    about: description || original?.about || `${service.name} is supplied by ${vendor.name}.`,
     location: service.location,
-    inclusions: service.inclusions ?? [],
+    inclusions: service.inclusions ?? original?.inclusions ?? [],
     profile: {
       category: service.category,
-      duration: attributes.Duration ?? "Service based",
-      ageSuitability: attributes["Age suitability"] ?? "All ages",
-      difficulty: attributes.Difficulty ?? "Not applicable",
-      seasonality: attributes.Seasonality ?? "Available year-round",
+      duration: attributes.Duration ?? original?.profile.duration ?? "Service based",
+      ageSuitability: attributes["Age suitability"] ?? original?.profile.ageSuitability ?? "All ages",
+      difficulty: attributes.Difficulty ?? original?.profile.difficulty ?? "Not applicable",
+      seasonality: attributes.Seasonality ?? original?.profile.seasonality ?? "Available year-round",
       searchText: `${service.name} ${service.location} ${service.category}`,
-      exclusions: service.exclusions ?? [],
+      exclusions: service.exclusions ?? original?.profile.exclusions ?? [],
     },
-    pricingLabel: "No pricing linked",
-    rateCardCount: 0,
-    rateCards: [],
-    imageUrl: "",
-    imageAlt: `${service.name} service image`,
-    media: [],
+    pricingLabel: original?.pricingLabel ?? "No pricing linked",
+    rateCardCount: original?.rateCardCount ?? 0,
+    rateCards: original?.rateCards ?? [],
+    imageUrl: original?.imageUrl ?? "",
+    imageAlt: original?.imageAlt ?? `${service.name} service image`,
+    media: original?.media ?? [],
   };
 }
 
@@ -119,6 +122,8 @@ const RATE_CARD_FILTER_OPTIONS: Array<{
   { value: "all", label: "All rate cards" },
   { value: "published", label: "Published" },
   { value: "draft", label: "Draft" },
+  { value: "review", label: "Review" },
+  { value: "active", label: "Active" },
   { value: "expired", label: "Expired" },
 ];
 
@@ -376,6 +381,7 @@ export function VendorRateCardsPage({
   vendors,
   createdServices,
   onCreatedServicesChange,
+  deletedServiceIds,
   orgRole,
   flash,
   onClearFlash,
@@ -391,6 +397,7 @@ export function VendorRateCardsPage({
   vendors: Vendor[];
   createdServices: DirectoryService[];
   onCreatedServicesChange: (next: DirectoryService[]) => void;
+  deletedServiceIds: string[];
   orgRole: OrgRole;
   flash?: string | null;
   onClearFlash?: () => void;
@@ -408,12 +415,17 @@ export function VendorRateCardsPage({
   const [query, setQuery] = useState("");
   const [rateCardStatusFilter, setRateCardStatusFilter] =
     useState<RateCardStatusFilter>("all");
+  const [rateCardServiceFilter, setRateCardServiceFilter] = useState("all");
+  const [rateCardTypeFilter, setRateCardTypeFilter] = useState("all");
+  const [rateCardValidityFilter, setRateCardValidityFilter] = useState("all");
   const [rateCardFilterOpen, setRateCardFilterOpen] = useState(false);
   const [rateCardMenu, setRateCardMenu] = useState<{ id: string; top: number; left: number } | null>(null);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [addServicesOpen, setAddServicesOpen] = useState(false);
+  const [linkedActivityId, setLinkedActivityId] = useState("");
+  const [linkRevision, setLinkRevision] = useState(0);
   const [packageDetailOpen, setPackageDetailOpen] = useState(false);
   const [documentRequestDraft, setDocumentRequestDraft] = useState<{
     id: number;
@@ -437,7 +449,7 @@ export function VendorRateCardsPage({
   const canEdit = can(orgRole, "vendor.edit");
   const canAddTask = can(orgRole, "vendor.task.add");
   const isDraft = vendor.status === "Draft";
-  const draftLinkedServices: DraftLinkedService[] = createdServices.filter((service) => service.profileVendorId === vendor.id).map((service) => ({
+  const draftLinkedServices: DraftLinkedService[] = createdServices.filter((service) => service.profileVendorId === vendor.id && !deletedServiceIds.includes(service.id)).map((service) => ({
     id: service.id,
     name: service.name,
     type: service.category,
@@ -446,22 +458,48 @@ export function VendorRateCardsPage({
     sourceDetail: service.description || service.attributes?.map(({ value }) => value).join(" · ") || "Service profile",
   }));
 
-  const createdVendorServices = createdServices.filter((service) => service.profileVendorId === vendor.id).map((service) => vendorServiceFromDirectory(service, vendor));
-  const vendorServices = [...servicesForVendor(vendor.id), ...createdVendorServices];
+  const createdVendorServices = createdServices.filter((service) => service.profileVendorId === vendor.id && !deletedServiceIds.includes(service.id)).map((service) => vendorServiceFromDirectory(service, vendor));
+  const deletedProfileServiceIds = new Set(DIRECTORY_SERVICES.filter((service) => deletedServiceIds.includes(service.id)).map((service) => service.serviceId));
+  const overriddenProfileServiceIds = new Set(createdVendorServices.map((service) => service.id));
+  const vendorServices = [...servicesForVendor(vendor.id).filter((service) => !deletedProfileServiceIds.has(service.id) && !overriddenProfileServiceIds.has(service.id)), ...createdVendorServices];
   const vendorRateCardRows = useMemo(() => {
     const linked = new Map<string, { id: string; card: RateCard; title: string; services: DirectoryService[] }>();
     VENDOR_SERVICE_CONNECTIONS.filter((connection) => connection.vendorId === vendor.id && connection.rateCardId).forEach((connection) => {
-      const service = DIRECTORY_SERVICES.find((item) => item.id === connection.serviceId);
+      const service = deletedServiceIds.includes(connection.serviceId)
+        ? undefined
+        : createdServices.find((item) => item.id === connection.serviceId) ?? DIRECTORY_SERVICES.find((item) => item.id === connection.serviceId);
       const card = RATE_CARDS.find((item) => item.id === connection.rateCardId);
-      if (!service || !card) return;
+      if (!card) return;
       const id = `${card.id}:${connection.rateCardName}`;
       const current = linked.get(id);
       if (current) {
-        if (!current.services.some((item) => item.id === service.id)) current.services.push(service);
-      } else linked.set(id, { id, card, title: connection.rateCardName, services: [service] });
+        if (service && !current.services.some((item) => item.id === service.id)) current.services.push(service);
+      } else linked.set(id, { id, card, title: connection.rateCardName, services: service ? [service] : [] });
+    });
+    listCreatedPrivateTransportCards().filter((detail) => detail.privateTransport?.vendorId === vendor.id).forEach((detail) => {
+      const tariff = detail.privateTransport!;
+      const service = createdServices.find((item) => item.id === tariff.serviceId) ?? DIRECTORY_SERVICES.find((item) => item.id === tariff.serviceId);
+      const card: RateCard = {
+        id: detail.id, ref: detail.ref, title: detail.name, category: "Transport", currency: detail.currency,
+        property: detail.property, propertyImageUrl: "", propertyImageAlt: "", validity: `${tariff.validFrom} – ${tariff.validTo}`,
+        validityNote: TRANSPORT_TEMPLATE_LABELS[tariff.template], status: tariff.status.toLowerCase() as RateCardStatus,
+        coverageCount: tariff.vehicleIds.length, coverageUnit: "vehicles", coverageDetail: "Vendor tariff", action: "continue",
+      };
+      linked.set(detail.id, { id: detail.id, card, title: detail.name, services: service ? [service] : [] });
+    });
+    listCreatedActivityCards().filter((detail) => detail.activityTariff?.vendorId === vendor.id).forEach((detail) => {
+      const tariff = detail.activityTariff!;
+      const service = createdServices.find((item) => item.id === tariff.serviceId) ?? DIRECTORY_SERVICES.find((item) => item.id === tariff.serviceId);
+      const card: RateCard = {
+        id: detail.id, ref: detail.ref, title: detail.name, category: "Activities", currency: detail.currency,
+        property: detail.property, propertyImageUrl: "", propertyImageAlt: "", validity: `${tariff.validFrom} – ${tariff.validTo}`,
+        validityNote: "Supplier cost", status: "draft", coverageCount: tariff.personRates.length + tariff.bookingRates.length + tariff.unitRates.length,
+        coverageUnit: "prices", coverageDetail: "Vendor activity tariff", action: "continue",
+      };
+      linked.set(detail.id, { id: detail.id, card, title: detail.name, services: service ? [service] : [] });
     });
     return Array.from(linked.values());
-  }, [vendor.id]);
+  }, [createdServices, deletedServiceIds, vendor.id]);
   const vendorActivity = vendorActivityForVendor(vendor).filter((row) => !removedActivityIdsByVendor[vendor.id]?.includes(row.id));
   const removeActivity = (id: string) => setRemovedActivityIdsByVendor((current) => ({
     ...current,
@@ -585,16 +623,24 @@ export function VendorRateCardsPage({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return vendorRateCardRows.filter((row) => {
-      if (rateCardStatusFilter !== "all" && row.card.status !== rateCardStatusFilter) {
+      const detail = getDetailCard(row.card.id);
+      const status = detail?.activityTariff ? detail.state.toLowerCase() : detail?.privateTransport?.status.toLowerCase() || row.card.status;
+      const type = detail?.privateTransport?.template || row.card.category;
+      const validity = detail?.activityTariff?.validTo || detail?.privateTransport?.validTo || (row.card.status === "expired" ? "2000-01-01" : "9999-12-31");
+      if (rateCardStatusFilter !== "all" && status !== rateCardStatusFilter) {
         return false;
       }
+      if (rateCardServiceFilter !== "all" && !row.services.some((service) => service.name === rateCardServiceFilter)) return false;
+      if (rateCardTypeFilter !== "all" && type !== rateCardTypeFilter) return false;
+      if (rateCardValidityFilter === "current" && validity < new Date().toISOString().slice(0, 10)) return false;
+      if (rateCardValidityFilter === "expired" && validity >= new Date().toISOString().slice(0, 10)) return false;
       return (
         !q ||
         row.title.toLowerCase().includes(q) ||
         row.services.some((service) => `${service.name} ${service.location}`.toLowerCase().includes(q))
       );
     });
-  }, [query, rateCardStatusFilter, vendorRateCardRows]);
+  }, [query, rateCardStatusFilter, rateCardServiceFilter, rateCardTypeFilter, rateCardValidityFilter, vendorRateCardRows]);
 
   const headerState: CheckboxState =
     selected.length === 0 ? "off" : selected.length === filtered.length && filtered.length > 0 ? "on" : "indeterminate";
@@ -706,11 +752,13 @@ export function VendorRateCardsPage({
       ) : tab === "activity" ? (
         <VendorActivityPanel vendor={vendor} activity={vendorActivity} onRemoveActivity={removeActivity} onOpenRelated={openActivityRelated} />
       ) : tab === "services" ? (
-        <ServicesPanel
+        <><div className="vendor-page__link-activity">{canEdit ? <><label>Offer an existing activity <select value={linkedActivityId} onChange={(event) => setLinkedActivityId(event.target.value)}><option value="">Select activity</option>{[...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].filter((service) => service.category === "Activities" && service.profileVendorId !== vendor.id && !VENDOR_SERVICE_CONNECTIONS.some((connection) => connection.vendorId === vendor.id && connection.serviceId === service.id)).map((service) => <option key={service.id} value={service.id}>{service.name} · {service.location}</option>)}</select></label><button type="button" disabled={!linkedActivityId} onClick={() => { linkVendorService(vendor.id, linkedActivityId); setLinkedActivityId(""); setLinkRevision((value) => value + 1); }}>Link activity</button></> : null}</div><ServicesPanel
+          key={`${vendor.id}-${linkRevision}`}
           vendorId={vendor.id}
           vendors={vendors}
           canEdit={canEdit}
           createdServices={createdVendorServices}
+          deletedProfileServiceIds={[...deletedProfileServiceIds]}
           onAddService={() => setAddServicesOpen(true)}
           openServiceId={openServiceId}
           onOpenServiceIdChange={(id) => {
@@ -719,7 +767,7 @@ export function VendorRateCardsPage({
           }}
           onOpenRateCard={onOpenCard}
           onOpenVendor={onOpenVendor}
-        />
+        /></>
       ) : tab === "packages" ? (
         <PackagesPanel
           vendorId={vendor.id}
@@ -776,6 +824,9 @@ export function VendorRateCardsPage({
               aria-label="Search rate cards or services"
             />
             <div className="vendor-page__tools">
+              <FilterSelect tip="Filter by service" label="Service" value={rateCardServiceFilter} options={[{ value: "all", label: "All services" }, ...Array.from(new Set(vendorRateCardRows.flatMap((row) => row.services.map((service) => service.name)))).map((name) => ({ value: name, label: name }))]} onChange={(value) => { setRateCardServiceFilter(value); setSelected([]); setPage(1); }} />
+              <FilterSelect tip="Filter by rate-card type" label="Type" value={rateCardTypeFilter} options={[{ value: "all", label: "All types" }, ...Array.from(new Set(vendorRateCardRows.map((row) => getDetailCard(row.card.id)?.privateTransport?.template || row.card.category))).map((value) => ({ value, label: value in TRANSPORT_TEMPLATE_LABELS ? TRANSPORT_TEMPLATE_LABELS[value as keyof typeof TRANSPORT_TEMPLATE_LABELS] : value }))]} onChange={(value) => { setRateCardTypeFilter(value); setSelected([]); setPage(1); }} />
+              <FilterSelect tip="Filter by validity" label="Validity" value={rateCardValidityFilter} options={[{ value: "all", label: "Any validity" }, { value: "current", label: "Current" }, { value: "expired", label: "Expired" }]} onChange={(value) => { setRateCardValidityFilter(value); setSelected([]); setPage(1); }} />
               <div className="rate-card-filter" ref={rateCardFilterRef}>
                 <Tooltip tip="Filter by status">
                   <IconButton
@@ -859,7 +910,8 @@ export function VendorRateCardsPage({
                   </DataSheetCell>
                   <DataSheetCell>Rate card</DataSheetCell>
                   <DataSheetCell>Services</DataSheetCell>
-                  <DataSheetCell>Regions served</DataSheetCell>
+                  <DataSheetCell>Type</DataSheetCell>
+                  <DataSheetCell>Status</DataSheetCell>
                   <DataSheetCell className="rate-card-sheet__action">Action</DataSheetCell>
                 </DataSheetHeader>
                 {filtered.map((row) => (
@@ -893,17 +945,18 @@ export function VendorRateCardsPage({
                       <LeadCell icon={<IconPin />} title={row.title} subtitle={row.card.ref} />
                     </DataSheetCell>
                     <DataSheetCell><div className="rate-card-sheet__services">
-                      <span className="rate-card-sheet__service-icon" aria-hidden="true"><ServiceTypeIcon type={row.services[0].category as ServiceTypeName} size={18} /></span>
-                      <span>{row.services.map((service) => service.name).join(" · ")}</span>
+                      <span className="rate-card-sheet__service-icon" aria-hidden="true">{row.services[0] ? <ServiceTypeIcon type={row.services[0].category as ServiceTypeName} size={18} /> : <IconCard size={18} />}</span>
+                      <span>{row.services.length ? row.services.map((service) => service.name).join(" · ") : "No linked services"}</span>
                     </div></DataSheetCell>
-                    <DataSheetCell><span className="rate-card-sheet__regions"><IconPin size={15} />{[...new Set(row.services.map((service) => service.location))].join(" · ")}</span></DataSheetCell>
+                    <DataSheetCell>{getDetailCard(row.card.id)?.privateTransport ? TRANSPORT_TEMPLATE_LABELS[getDetailCard(row.card.id)!.privateTransport!.template] : row.card.category}</DataSheetCell>
+                    <DataSheetCell>{getDetailCard(row.card.id)?.activityTariff ? getDetailCard(row.card.id)?.state : getDetailCard(row.card.id)?.privateTransport?.status || STATUS_LABEL[row.card.status]}</DataSheetCell>
                     <DataSheetCell className="rate-card-sheet__action"><IconButton label={`More actions for ${row.title}`} aria-haspopup="menu" aria-expanded={rateCardMenu?.id === row.id} onClick={(event) => {
                       const rect = event.currentTarget.getBoundingClientRect();
                       setRateCardMenu((current) => current?.id === row.id ? null : { id: row.id, top: rect.bottom + 6, left: Math.max(12, Math.min(window.innerWidth - 184, rect.right - 172)) });
                     }}><IconMore /></IconButton></DataSheetCell>
                   </DataSheetRow>
                 ))}
-                <DashboardDataSheetFill columns={5} />
+                <DashboardDataSheetFill columns={6} />
               </DataSheet>
                 <Pagination
                   rangeLabel={`Showing 1–${filtered.length} of ${filtered.length} rate cards`}

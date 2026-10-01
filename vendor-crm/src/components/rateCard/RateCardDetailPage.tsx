@@ -43,8 +43,14 @@ import {
 import { RecordHeader } from "../RecordHeader";
 import { StatusChipWithDot } from "../StatusChipWithDot";
 import { ActivityPanel } from "../ActivityPanel";
+import { ActivityRateDetails, ActivityTestRate } from "../ActivityRateWorkspace";
+import { validateActivityTariff } from "../../rateCard/activityPricing";
+import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, readCreatedDirectoryServices } from "../../data/vendorDirectory";
 import { TransportRateDetails, TransportTestRate } from "../TransportRateWorkspace";
 import { RegionalTransportRates, RegionalTransportTest } from "../RegionalTransportWorkspace";
+import { PrivateTransportRates, PrivateTransportTest } from "../PrivateTransportWorkspace";
+import { readVehicleOfferings } from "../../data/vehicleOfferings";
+import { TRANSPORT_TEMPLATE_LABELS } from "../../rateCard/privateTransport";
 import { activityFromEvents } from "../activityFromEvents";
 import { PoliciesPanel } from "./PoliciesPanel";
 import { SeasonEditorModal, type SeasonDraft } from "./SeasonEditorModal";
@@ -165,6 +171,7 @@ export function RateCardDetailPage({
   seedCard,
   startEditing = false,
   canEditMarkup = false,
+  canEdit = true,
   onDraftChange,
 }: {
   cardId: string;
@@ -173,19 +180,21 @@ export function RateCardDetailPage({
   startEditing?: boolean;
   /** Markup is commercially sensitive and can only be changed by an Owner. */
   canEditMarkup?: boolean;
+  canEdit?: boolean;
   /** Called whenever local draft changes (keeps App draft in sync). */
   onDraftChange?: (card: RateCardDetail) => void;
 }) {
   const catalog = getDetailCard(cardId);
   const seed = seedCard ?? catalog;
   const [draft, setDraft] = useState<RateCardDetail | null>(() =>
-    startEditing && seed ? structuredClone(seed) : null,
+    startEditing && canEdit && seed ? structuredClone(seed) : null,
   );
   const card = draft?.id === (seed?.id ?? cardId) ? draft : seed ?? draft;
   const [page, setPage] = useState<DetailPageTab>("ratecard");
   const [seasonIdx, setSeasonIdx] = useState(0);
   const [seasonOpen, setSeasonOpen] = useState(false);
-  const [editing, setEditing] = useState(startEditing);
+  const [editing, setEditing] = useState(startEditing && canEdit);
+  const [saveErrors, setSaveErrors] = useState<string[]>([]);
   const [markupEditing, setMarkupEditing] = useState(false);
   const [markupDraft, setMarkupDraft] = useState("15");
   const [seasonModal, setSeasonModal] = useState<SeasonDraft | null>(null);
@@ -211,9 +220,20 @@ export function RateCardDetailPage({
   }, [markupEditing]);
 
   const commitDraft = (next: RateCardDetail) => {
-    setDraft(next);
-    saveTransportCard(next);
-    onDraftChange?.(next);
+    const previous = draft?.id === next.id ? draft : seed;
+    const changedActiveTariff = previous?.privateTransport?.status === "Active" && next.privateTransport &&
+      JSON.stringify(previous.privateTransport) !== JSON.stringify(next.privateTransport);
+    const saved: RateCardDetail = changedActiveTariff && next.privateTransport?.status === "Active"
+      ? { ...next, state: "Draft", tone: "warning" as const, privateTransport: { ...next.privateTransport, status: "Draft" as const, sourceConfirmed: false, version: next.privateTransport.version + 1 } }
+      : next;
+    if (saved.privateTransport) {
+      saved.ready = saved.privateTransport.illustrative ? "Illustrative demo prices" : saved.privateTransport.status === "Active" ? "Supplier tariff verified" : "Supplier confirmation pending";
+      saved.readyTone = saved.privateTransport.status === "Active" ? "success" : "warning";
+    }
+    setDraft(saved);
+    if (next.activityTariff) return;
+    saveTransportCard(saved);
+    onDraftChange?.(saved);
   };
 
   const updateCard = (fn: (c: RateCardDetail) => RateCardDetail) => {
@@ -234,8 +254,41 @@ export function RateCardDetailPage({
     { id: "ratecard", label: "Rate card" },
     { id: "test", label: "Test rate" },
     { id: "policies", label: "Policies" },
+    ...(card.activityTariff ? [{ id: "versions", label: "Versions" }] : []),
     { id: "activity", label: "Activity" },
   ];
+
+  const activityOptions = card.activityTariff ? ([...DIRECTORY_SERVICES, ...readCreatedDirectoryServices()].find((service) => service.id === card.activityTariff!.serviceId)?.activityOptions ?? []) : [];
+  const offeredActivityIds = [...DIRECTORY_SERVICES, ...readCreatedDirectoryServices()].filter((service) => service.profileVendorId === card.activityTariff?.vendorId || VENDOR_SERVICE_CONNECTIONS.some((connection) => connection.vendorId === card.activityTariff?.vendorId && connection.serviceId === service.id)).map((service) => service.id);
+
+  const saveActivity = () => {
+    if (!canEdit || !card.activityTariff) return;
+    const errors = validateActivityTariff(card.activityTariff, activityOptions, offeredActivityIds);
+    setSaveErrors(errors);
+    if (errors.length) return;
+    const version = card.activityVersions?.length ? Math.max(...card.activityVersions.map((item) => item.version)) + 1 : card.activityTariff.version;
+    const tariff = { ...card.activityTariff, version };
+    const saved = { ...card, state: "Draft", tone: "warning" as const, activityTariff: tariff, validity: `${tariff.validFrom} – ${tariff.validTo}`, activityVersions: [...(card.activityVersions ?? []), { version, savedAt: new Date().toISOString(), tariff: structuredClone(tariff) }] };
+    saveTransportCard(saved);
+    setDraft(saved);
+    onDraftChange?.(saved);
+    setEditing(false);
+  };
+
+  const activateActivity = () => {
+    if (!canEdit || !card.activityTariff) return;
+    const tariff = card.activityTariff;
+    const errors = validateActivityTariff(tariff, activityOptions, offeredActivityIds);
+    if (!tariff.sourceConfirmed) errors.push("Confirm the supplier numbers against their source document.");
+    if (!tariff.taxProfileId || tariff.approvedTaxRate == null || !tariff.taxApprovalSource?.trim()) errors.push("Record the approved supplier tax profile, rate and approval source.");
+    if (![...tariff.personRates, ...tariff.bookingRates, ...tariff.unitRates].some((row) => ["priced", "complimentary", "on-request"].includes(row.state))) errors.push("Add at least one priced, complimentary or on-request offering.");
+    setSaveErrors(errors);
+    if (errors.length) return;
+    const active = { ...card, state: "Active", tone: "success" as const };
+    saveTransportCard(active);
+    setDraft(active);
+    onDraftChange?.(active);
+  };
 
   const season = card.seasons[Math.min(seasonIdx, Math.max(0, card.seasons.length - 1))];
   const quoteResult = runQuote(card, quote);
@@ -272,7 +325,27 @@ export function RateCardDetailPage({
     const csvCell = (value: string | number | null | undefined) =>
       `"${String(value ?? "").replaceAll('"', '""')}"`;
     const currentSeasonIndex = Math.min(seasonIdx, Math.max(0, card.seasons.length - 1));
-    const rows: Array<Array<string | number | null | undefined>> = card.regionalTransport ? [
+    const rows: Array<Array<string | number | null | undefined>> = card.activityTariff ? [
+      ["Rate card", card.name], ["Reference", card.ref], ["Vendor", card.vendor], ["Service", card.property], ["Currency", card.currency], ["Version", card.activityTariff.version], ["Valid from", card.activityTariff.validFrom], ["Valid until", card.activityTariff.validTo], [],
+      ["Method", "Option ID", "Category / unit", "Minimum", "Maximum", "Basis", "State", "Supplier amount"],
+      ...card.activityTariff.personRates.map((row) => ["Per person", row.optionId, row.category, row.minAge, row.maxAge, `Group ${row.minGroup ?? "any"}-${row.maxGroup ?? "any"}`, row.state, row.amount]),
+      ...card.activityTariff.bookingRates.map((row) => ["Per booking/group", row.optionId, "", row.minGroup, row.maxGroup, row.basisLabel, row.state, row.amount]),
+      ...card.activityTariff.unitRates.map((row) => ["Per unit", row.optionId, row.unit, row.capacityPerUnit, row.duration, row.basis, row.state, row.amount]), [],
+      ["Charge", "Option IDs", "Treatment", "Mandatory", "Basis", "Amount"],
+      ...card.activityTariff.charges.map((row) => [row.name, row.optionIds.join("; ") || "All", row.treatment, row.mandatory ? "Yes" : "No", row.basis, row.amount]), [],
+      ["Adjustment", "Option IDs", "From", "To", "Treatment", "Amount", "Stacking"],
+      ...card.activityTariff.adjustments.map((row) => [row.name, row.optionIds.join("; ") || "All", row.from, row.to, row.treatment, row.amount, row.stacking]),
+    ] : card.privateTransport ? (() => {
+      const tariff = card.privateTransport!;
+      const vehicles = readVehicleOfferings().filter((vehicle) => tariff.vehicleIds.includes(vehicle.id));
+      const base: Array<Array<string | number | null | undefined>> = [["Rate card", card.name], ["Vendor", card.vendor], ["Service", card.property], ["Template", TRANSPORT_TEMPLATE_LABELS[tariff.template]], ["Valid from", tariff.validFrom], ["Valid until", tariff.validTo], ["Currency", card.currency], ["Supplier tax", tariff.taxMode === "inclusive" ? "Included in listed prices" : tariff.taxMode === "exclusive" ? "Added separately" : "Not set"], []];
+      if (tariff.template === "fixed-transfer") base.push(["Route", ...vehicles.map((vehicle) => vehicle.label)], ...tariff.routes.map((route) => [`${route.from} → ${route.to}`, ...vehicles.map((vehicle) => route.prices[vehicle.id])])) ;
+      if (tariff.template === "local-package") base.push(["Vehicle", ...tariff.packages.map((pkg) => pkg.name)], ...vehicles.map((vehicle) => [vehicle.label, ...tariff.packages.map((pkg) => tariff.packagePrices[vehicle.id]?.[pkg.id])]), [], ["Vehicle", "Extra km", "Extra hour"], ...vehicles.map((vehicle) => [vehicle.label, tariff.excessPrices[vehicle.id]?.extraKm, tariff.excessPrices[vehicle.id]?.extraHour]));
+      if (tariff.template === "outstation-km") base.push(["Vehicle", "Rate / km", "Minimum km / day", "Driver / day"], ...vehicles.map((vehicle) => [vehicle.label, tariff.outstationPrices[vehicle.id]?.ratePerKm, tariff.outstationPrices[vehicle.id]?.minKmPerDay, tariff.outstationPrices[vehicle.id]?.driverPerDay]));
+      if (tariff.template === "daily-hire") base.push(["Vehicle", "Price / day", "Included km / day", "Included hours / day"], ...vehicles.map((vehicle) => [vehicle.label, tariff.dailyPrices[vehicle.id]?.pricePerDay, tariff.dailyPrices[vehicle.id]?.includedKmPerDay, tariff.dailyPrices[vehicle.id]?.includedHoursPerDay]), [], ["Vehicle", "Extra km", "Extra hour"], ...vehicles.map((vehicle) => [vehicle.label, tariff.excessPrices[vehicle.id]?.extraKm, tariff.excessPrices[vehicle.id]?.extraHour]));
+      base.push([], ["Charge", "Applies to", "Treatment", "Amount", "Charged per", "Trigger"], ...tariff.charges.map((charge) => [charge.name, charge.appliesTo, charge.treatment, charge.amount, charge.chargedPer, charge.trigger]));
+      return base;
+    })() : card.regionalTransport ? [
       ["Rate card", card.name], ["Vendor", card.vendor], ["Service", card.property], ["Currency", card.currency], ["Price type", "Supplier cost"], ["Source", card.regionalTransport.source], ["Source document", card.regionalTransport.sourceDocument], ["Timezone", card.regionalTransport.timezone], [],
       ["Valid from", card.regionalTransport.seasons[0]?.start], ["Valid until", card.regionalTransport.seasons[0]?.end], ["Tax treatment", card.regionalTransport.taxPresentation], [],
       ["Vehicle", "Passenger seats", "Medium bags"], ...card.regionalTransport.vehicles.map((vehicle) => [vehicle.label, vehicle.passengerSeats, vehicle.luggageBags]), [],
@@ -539,16 +612,18 @@ export function RateCardDetailPage({
               <IconDownload />
               Download rate card
             </Button>
-            {editing ? (
-              <Button variant="primary" size="sm" onClick={() => setEditing(false)}>
-                Done editing
+            {editing ? <>
+              {card.activityTariff ? <Button variant="brand" size="sm" onClick={() => { setDraft(null); setSaveErrors([]); setEditing(false); }}>Cancel</Button> : null}
+              <Button variant="primary" size="sm" onClick={card.activityTariff ? saveActivity : () => setEditing(false)}>
+                {card.activityTariff ? "Save draft" : "Done editing"}
               </Button>
-            ) : (
+            </> : canEdit ? <>
+              {card.activityTariff && card.state !== "Active" ? <Button variant="brand" size="sm" onClick={activateActivity}>Activate rate card</Button> : null}
               <Button variant="primary" size="sm" onClick={() => setEditing(true)}>
                 <IconPencil />
                 Edit rate card
               </Button>
-            )}
+            </> : null}
           </div>
         }
       />
@@ -562,7 +637,11 @@ export function RateCardDetailPage({
         />
       </div>
 
-      {page === "ratecard" && card.regionalTransport ? (
+      {saveErrors.length ? <div className="activity-rate-save-errors" role="alert"><strong>Complete these rate-card details</strong><ul>{saveErrors.map((error) => <li key={error}>{error}</li>)}</ul></div> : null}
+
+      {page === "ratecard" && card.activityTariff ? <div className="rc-ratecard rc-ratecard--transport"><ActivityRateDetails card={card} options={activityOptions} editing={editing && canEdit} onChange={(activityTariff) => { setSaveErrors([]); updateCard((base) => ({ ...base, activityTariff })); }} /></div> : page === "ratecard" && card.privateTransport ? (
+        <div className="rc-ratecard rc-ratecard--transport"><PrivateTransportRates card={card} editing={editing} onChange={(privateTransport) => updateCard((base) => ({ ...base, privateTransport, state: privateTransport.status, tone: privateTransport.status === "Active" ? "success" : "warning", validity: `${privateTransport.validFrom} – ${privateTransport.validTo}` }))} /></div>
+      ) : page === "ratecard" && card.regionalTransport ? (
         <div className="rc-ratecard rc-ratecard--transport"><RegionalTransportRates card={card} editing={editing} onChange={(regionalTransport) => updateCard((base) => {
           const ordered = [...regionalTransport.seasons].sort((a, b) => a.start.localeCompare(b.start));
           const formatDate = (value: string) => new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(`${value}T00:00:00Z`));
@@ -1062,7 +1141,7 @@ export function RateCardDetailPage({
         </div>
       ) : null}
 
-      {page === "test" && card.regionalTransport ? <RegionalTransportTest card={card} /> : page === "test" && card.transport ? <TransportTestRate card={card} /> : page === "test" ? (
+      {page === "test" && card.activityTariff ? <ActivityTestRate card={card} options={activityOptions} /> : page === "test" && card.privateTransport ? <PrivateTransportTest card={card} /> : page === "test" && card.regionalTransport ? <RegionalTransportTest card={card} /> : page === "test" && card.transport ? <TransportTestRate card={card} /> : page === "test" ? (
         <div className="rc-test">
           <div className="rc-test__layout">
             <section className="rc-test__block" aria-labelledby="rc-test-inputs-title">
@@ -1386,7 +1465,9 @@ export function RateCardDetailPage({
         </div>
       ) : null}
 
-      {page === "policies" ? <PoliciesPanel policies={card.policies} /> : null}
+      {page === "policies" ? <PoliciesPanel policies={card.activityTariff ? [{ id: "activity-commercial", title: "Supplier commercial policy", category: "Commercial", summary: card.activityTariff.commercialPolicy || "Not yet recorded", body: card.activityTariff.commercialPolicy || "Add supplier commercial terms to the rate card.", document: null, status: card.activityTariff.commercialPolicy ? "ok" : "unresolved" }] : card.policies} /> : null}
+
+      {page === "versions" && card.activityTariff ? <section className="rtw-section activity-rate__versions"><div className="rtw-section__head"><h2>Saved versions</h2></div><div className="rtw-scroll"><table className="rtw-table"><thead><tr><th>Version</th><th>Saved</th><th>Validity</th><th>Prices</th></tr></thead><tbody>{(card.activityVersions ?? []).map((item) => <tr key={item.version}><td>Version {item.version}</td><td>{new Date(item.savedAt).toLocaleString()}</td><td>{item.tariff.validFrom} – {item.tariff.validTo}</td><td>{item.tariff.personRates.length + item.tariff.bookingRates.length + item.tariff.unitRates.length} rows</td></tr>)}</tbody></table></div>{!card.activityVersions?.length ? <div className="rtw-table-foot">The first saved draft will appear here.</div> : null}</section> : null}
 
       {page === "activity" ? (
         <ActivityPanel

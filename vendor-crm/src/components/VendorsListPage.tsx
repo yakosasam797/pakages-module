@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import {
   Button,
   Checkbox,
@@ -30,7 +31,8 @@ import {
 import { visibleVendorsForRole, type Vendor } from "../data/vendors";
 import { can, type OrgRole } from "../permissions";
 import type { PageNavigationChange } from "../pageNavigation";
-import { BED_LABEL, formatMoney, getDetailCard } from "../rateCard/cards";
+import { BED_LABEL, formatMoney, getDetailCard, listCreatedPrivateTransportCards } from "../rateCard/cards";
+import { readVehicleOfferings } from "../data/vehicleOfferings";
 import type { RateCardDetail } from "../rateCard/types";
 import {
   IconBed,
@@ -38,6 +40,7 @@ import {
   IconCard,
   IconCheck,
   IconChevronDown,
+  IconClose,
   IconFilter,
   IconImage,
   IconImport,
@@ -46,6 +49,7 @@ import {
   IconPencil,
   IconPin,
   IconPlus,
+  IconTrash,
   IconUser,
 } from "../icons";
 import { StatusChipWithDot } from "./StatusChipWithDot";
@@ -57,6 +61,8 @@ import { ServiceTestRate } from "./ServiceTestRate";
 import { ServiceRateCardTable } from "./ServiceRateCardTable";
 import { TransportRateDetails, TransportTestRate } from "./TransportRateWorkspace";
 import { RegionalTransportRates, RegionalTransportTest } from "./RegionalTransportWorkspace";
+import { PrivateTransportRates, PrivateTransportTest } from "./PrivateTransportWorkspace";
+import { VehicleOfferingsPanel } from "./VehicleOfferingsPanel";
 import { ServicePolicies } from "./ServicePolicies";
 import { ServiceTypeIcon, ServiceTypeLabel, ServiceTypeList } from "./ServiceTypeLabel";
 import { NewServicePage } from "./NewServicePage";
@@ -287,6 +293,13 @@ export function ServiceRateDetails({
     return <EmptyState title="No rate card linked" description="Add a supplier rate card to test or display pricing for this service." />;
   }
 
+  if (card.privateTransport) {
+    return <div className="service-rate-details">
+      {linkedCards}
+      <div className="service-rate-details__record"><div className="service-rate-details__record-copy"><span className="service-rate-details__record-icon" aria-hidden="true"><IconCard size={16} /></span><div><span className="service-rate-details__record-label">Linked vendor rate card</span><div className="service-rate-details__record-title"><strong>{connection.rateCardName}</strong><StatusChipWithDot tone={rateCardStatusTone(card)}>{card.state}</StatusChipWithDot></div></div></div><div className="service-rate-details__record-actions"><Button variant="brand" size="sm" onClick={() => onOpenRateCard(connection.vendorId, connection.rateCardId)}>Open rate card</Button></div></div>
+      <PrivateTransportRates card={card} editing={false} onChange={() => {}} />
+    </div>;
+  }
   if (card.regionalTransport) {
     return <div className="service-rate-details">
       {linkedCards}
@@ -494,12 +507,14 @@ function ServiceDirectoryDetail({
   canEdit,
   onOpenVendor,
   onOpenRateCard,
+  onEdit,
 }: {
   service: DirectoryService;
   vendors: Vendor[];
   canEdit: boolean;
   onOpenVendor: (id: string) => void;
   onOpenRateCard: (vendorId: string, rateCardId: string) => void;
+  onEdit: () => void;
 }) {
   const [tab, setTab] = useState<ServiceDetailTab>("overview");
   const [selectedVendorIds, setSelectedVendorIds] = useState<string[]>([]);
@@ -508,12 +523,19 @@ function ServiceDirectoryDetail({
   const vendorIds = useMemo(() => new Set(vendors.map((vendor) => vendor.id)), [vendors]);
   const connections = useMemo(() => {
     const linked = VENDOR_SERVICE_CONNECTIONS.filter((connection) => connection.serviceId === service.id && vendorIds.has(connection.vendorId));
-    if (linked.length || !vendorIds.has(service.profileVendorId)) return linked;
+    const created = listCreatedPrivateTransportCards().filter((card) => card.privateTransport?.serviceId === service.id && vendorIds.has(card.privateTransport.vendorId)).map((card) => ({
+      id: `${card.privateTransport!.vendorId}-${card.id}`, vendorId: card.privateTransport!.vendorId,
+      serviceId: service.id, supplierType: "Direct supplier" as const,
+      productsCovered: card.property, rateCardId: card.id, rateCardName: card.name,
+      validity: `${card.privateTransport!.validFrom} – ${card.privateTransport!.validTo}`,
+    }));
+    if (linked.length || created.length || !vendorIds.has(service.profileVendorId)) return [...linked, ...created];
     return [{ id: `created-${service.id}`, vendorId: service.profileVendorId, serviceId: service.id, supplierType: "Direct supplier" as const, productsCovered: service.category, rateCardId: "", rateCardName: "No rate card linked", validity: "Not set" }];
   }, [service, vendorIds]);
-  const transportCard = connections.map((connection) => getDetailCard(connection.rateCardId)).find((card) => card?.transport || card?.regionalTransport);
+  const transportCard = connections.map((connection) => getDetailCard(connection.rateCardId)).find((card) => card?.privateTransport || card?.transport || card?.regionalTransport);
+  const vendorConnections = Array.from(new Map(connections.map((connection) => [connection.vendorId, connection])).values());
   const serviceProfile = getVendorService(service.serviceId);
-  const connectedVendorIds = connections.map((connection) => connection.vendorId);
+  const connectedVendorIds = vendorConnections.map((connection) => connection.vendorId);
   const linkedRateCardCount = new Set(connections.map((connection) => connection.rateCardId).filter(Boolean)).size;
   const mediaItems = serviceProfile?.media ?? [];
   const primaryMediaCount = mediaItems.filter((item) => item.usedInBanner).length;
@@ -528,7 +550,7 @@ function ServiceDirectoryDetail({
     {
       id: "vendors",
       label: "Vendor coverage",
-      value: connections.length,
+      value: vendorConnections.length,
       note: "Supplier relationships",
       icon: <IconBuilding size={15} />,
     },
@@ -594,7 +616,7 @@ function ServiceDirectoryDetail({
           </div>
         </div>
         <div className="service-directory-detail__aside">
-          {canEdit ? <Button variant="primary" size="sm"><IconPencil />Edit service</Button> : null}
+          {canEdit ? <Button variant="primary" size="sm" onClick={onEdit}><IconPencil />Edit service</Button> : null}
         </div>
       </header>
 
@@ -666,10 +688,13 @@ function ServiceDirectoryDetail({
               </section>
             </div>
           </div>
+          {service.category === "Transport" ? <VehicleOfferingsPanel vendorId={service.profileVendorId} serviceId={service.id} canEdit={canEdit} /> : null}
         </div>
       ) : tab === "test-rate" ? (
         !connections.some((connection) => connection.rateCardId)
           ? <EmptyState title="No rate card linked" description="Add a supplier rate card before testing this service's price." />
+          : transportCard?.privateTransport
+          ? <PrivateTransportTest card={transportCard} />
           : transportCard?.regionalTransport
           ? <RegionalTransportTest card={transportCard} />
           : transportCard
@@ -681,7 +706,7 @@ function ServiceDirectoryDetail({
             <div className="service-section-head">
               <h2 id="service-suppliers-title">Linked vendors</h2>
             </div>
-            {connections.length === 0 ? (
+            {vendorConnections.length === 0 ? (
               <EmptyState title="No vendors linked" description="Link a vendor to make this service available for costing." />
             ) : (
               <div className="service-directory-detail__sheet dashboard-table-end">
@@ -689,12 +714,12 @@ function ServiceDirectoryDetail({
             <DataSheetHeader>
               <DataSheetCell check><Checkbox state={vendorHeaderState} onCheckedChange={(state) => setSelectedVendorIds(state === "on" ? connectedVendorIds : [])} label="Select all vendors" /></DataSheetCell>
               <DataSheetCell>Vendor</DataSheetCell>
-              <DataSheetCell>Supplier relationship</DataSheetCell>
-              <DataSheetCell>Location</DataSheetCell>
-              <DataSheetCell>Rate card</DataSheetCell>
+              <DataSheetCell>{service.category === "Transport" ? "Service coverage" : "Supplier relationship"}</DataSheetCell>
+              <DataSheetCell>{service.category === "Transport" ? "Vehicle offerings" : "Location"}</DataSheetCell>
+              <DataSheetCell>{service.category === "Transport" ? "Rate cards" : "Rate card"}</DataSheetCell>
               <DataSheetCell className="service-suppliers-sheet__action">Action</DataSheetCell>
             </DataSheetHeader>
-            {connections.map((connection) => {
+            {vendorConnections.map((connection) => {
               const vendor = vendors.find((item) => item.id === connection.vendorId);
               if (!vendor) return null;
               return (
@@ -719,9 +744,9 @@ function ServiceDirectoryDetail({
                 >
                   <DataSheetCell check><Checkbox state={selectedVendorIds.includes(vendor.id) ? "on" : "off"} onCheckedChange={(state) => setSelectedVendorIds((current) => state === "on" ? current.includes(vendor.id) ? current : [...current, vendor.id] : current.filter((id) => id !== vendor.id))} label={`Select ${vendor.name}`} /></DataSheetCell>
                   <DataSheetCell><DirectoryEntity vendor={vendor} title={vendor.name} subtitle={vendor.code} onClick={() => onOpenVendor(vendor.id)} /></DataSheetCell>
-                  <DataSheetCell><span className="directory-relationship"><strong>{connection.supplierType}</strong><span>{connection.productsCovered}</span></span></DataSheetCell>
-                  <DataSheetCell><span className="vendors-sheet__location"><IconPin size={14} />{vendor.location}</span></DataSheetCell>
-                  <DataSheetCell>{connection.rateCardId ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => onOpenRateCard(vendor.id, connection.rateCardId)} aria-label={`Open ${connection.rateCardName} for ${vendor.name}`}><IconCard size={16} aria-hidden="true" /><span>{connection.rateCardName}</span></button> : <span>No rate card linked</span>}</DataSheetCell>
+                  <DataSheetCell>{service.category === "Transport" ? service.location : <span className="directory-relationship"><strong>{connection.supplierType}</strong><span>{connection.productsCovered}</span></span>}</DataSheetCell>
+                  <DataSheetCell>{service.category === "Transport" ? readVehicleOfferings().filter((item) => item.vendorId === vendor.id && item.serviceIds.includes(service.id)).map((item) => item.label).join(" / ") || "None yet" : <span className="vendors-sheet__location"><IconPin size={14} />{vendor.location}</span>}</DataSheetCell>
+                  <DataSheetCell>{service.category === "Transport" ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => onOpenVendor(vendor.id)} aria-label={`Open ${vendor.name} rate cards`}><IconCard size={16} aria-hidden="true" /><span>{connections.filter((item) => item.vendorId === vendor.id && item.rateCardId).length} rate card{connections.filter((item) => item.vendorId === vendor.id && item.rateCardId).length === 1 ? "" : "s"}</span></button> : connection.rateCardId ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => onOpenRateCard(vendor.id, connection.rateCardId)} aria-label={`Open ${connection.rateCardName} for ${vendor.name}`}><IconCard size={16} aria-hidden="true" /><span>{connection.rateCardName}</span></button> : <span>No rate card linked</span>}</DataSheetCell>
                   <DataSheetCell className="service-suppliers-sheet__action">
                     <div
                       className="vendors-sheet__more"
@@ -757,7 +782,7 @@ function ServiceDirectoryDetail({
                 <DashboardDataSheetFill columns={7} />
                 </DataSheet>
                 {selectedVendorIds.length > 0 ? <ListBulkBar label={`${selectedVendorIds.length} vendor${selectedVendorIds.length === 1 ? "" : "s"} selected`}><Button variant="brand" size="sm"><IconImport />Export</Button><Button variant="ghost" size="sm" onClick={() => setSelectedVendorIds([])}>Clear</Button></ListBulkBar> : null}
-                <Pagination rangeLabel={`Showing 1–${connections.length} of ${connections.length} vendors`} page={1} pageCount={1} onPageChange={() => {}} />
+                <Pagination rangeLabel={`Showing 1–${vendorConnections.length} of ${vendorConnections.length} vendors`} page={1} pageCount={1} onPageChange={() => {}} />
               </div>
             )}
           </section>
@@ -773,6 +798,8 @@ export function VendorsListPage({
   vendors,
   createdServices,
   onCreatedServicesChange,
+  deletedServiceIds,
+  onDeletedServiceIdsChange,
   orgRole,
   flash,
   onClearFlash,
@@ -785,6 +812,8 @@ export function VendorsListPage({
   vendors: Vendor[];
   createdServices: DirectoryService[];
   onCreatedServicesChange: (next: DirectoryService[]) => void;
+  deletedServiceIds: string[];
+  onDeletedServiceIdsChange: (next: string[]) => void;
   orgRole: OrgRole;
   flash?: string | null;
   onClearFlash?: () => void;
@@ -797,6 +826,8 @@ export function VendorsListPage({
   const [perspective, setPerspective] = useState<Perspective>("vendors");
   const [openServiceId, setOpenServiceId] = useState<string | null>(null);
   const [creatingService, setCreatingService] = useState(false);
+  const [editingService, setEditingService] = useState<DirectoryService | null>(null);
+  const [deletingService, setDeletingService] = useState<DirectoryService | null>(null);
   const [createdNotice, setCreatedNotice] = useState("");
   const [serviceCategory, setServiceCategory] = useState<"all" | DirectoryCategory>("all");
   const [categoryFilters, setCategoryFilters] = useState<DirectoryCategory[]>([]);
@@ -818,8 +849,8 @@ export function VendorsListPage({
   const scoped = useMemo(() => visibleVendorsForRole(vendors, orgRole), [vendors, orgRole]);
   const scopedIds = useMemo(() => new Set(scoped.map((vendor) => vendor.id)), [scoped]);
   const scopedConnections = useMemo(() => [
-    ...VENDOR_SERVICE_CONNECTIONS.filter((connection) => scopedIds.has(connection.vendorId)),
-    ...createdServices.filter((service) => scopedIds.has(service.profileVendorId)).map((service): VendorServiceConnection => ({
+    ...VENDOR_SERVICE_CONNECTIONS.filter((connection) => scopedIds.has(connection.vendorId) && !deletedServiceIds.includes(connection.serviceId)),
+    ...createdServices.filter((service) => scopedIds.has(service.profileVendorId) && !deletedServiceIds.includes(service.id) && !DIRECTORY_SERVICES.some((seed) => seed.id === service.id)).map((service): VendorServiceConnection => ({
       id: `created-${service.id}`,
       vendorId: service.profileVendorId,
       serviceId: service.id,
@@ -829,23 +860,30 @@ export function VendorsListPage({
       rateCardName: "No rate card linked",
       validity: "Not set",
     })),
-  ], [createdServices, scopedIds]);
+  ], [createdServices, deletedServiceIds, scopedIds]);
   const activeConnections = useMemo(() => scopedConnections.filter((connection) => supplierTypes.length === 0 || supplierTypes.includes(connection.supplierType)), [scopedConnections, supplierTypes]);
   const visibleServiceIds = useMemo(() => new Set(activeConnections.map((connection) => connection.serviceId)), [activeConnections]);
-  const availableServices = useMemo(() => [...createdServices.filter((service) => scopedIds.has(service.profileVendorId)), ...DIRECTORY_SERVICES.filter((service) => visibleServiceIds.has(service.id))], [createdServices, scopedIds, visibleServiceIds]);
+  const availableServices = useMemo(() => {
+    const overrides = new Map(createdServices.map((service) => [service.id, service]));
+    return [
+      ...createdServices.filter((service) => !DIRECTORY_SERVICES.some((seed) => seed.id === service.id) && scopedIds.has(service.profileVendorId) && !deletedServiceIds.includes(service.id)),
+      ...DIRECTORY_SERVICES.filter((service) => visibleServiceIds.has(service.id) && !deletedServiceIds.includes(service.id)).map((service) => overrides.get(service.id) ?? service),
+    ];
+  }, [createdServices, deletedServiceIds, scopedIds, visibleServiceIds]);
   const locationSuggestions = useMemo(() => getLocationSuggestions(scoped, availableServices), [scoped, availableServices]);
   const matchingLocations = useMemo(() => findLocationSuggestions(locationSuggestions, locationQuery), [locationSuggestions, locationQuery]);
   const activeService = openServiceId ? availableServices.find((service) => service.id === openServiceId) : undefined;
   const closeServiceDetail = useCallback(() => setOpenServiceId(null), []);
   const closeCreateService = useCallback(() => setCreatingService(false), []);
+  const closeEditService = useCallback(() => setEditingService(null), []);
 
   useEffect(() => {
-    if (creatingService) {
+    if (creatingService || editingService) {
       onNavigationContextChange?.({
-        backLabel: "Back to services",
+        backLabel: editingService && openServiceId ? "Back to service" : "Back to services",
         sectionLabel: "Services",
-        title: "Add service",
-        onBack: closeCreateService,
+        title: editingService ? "Edit service" : "Add service",
+        onBack: editingService ? closeEditService : closeCreateService,
       });
       return () => onNavigationContextChange?.(null);
     }
@@ -860,7 +898,17 @@ export function VendorsListPage({
       onBack: closeServiceDetail,
     });
     return () => onNavigationContextChange?.(null);
-  }, [activeService, closeCreateService, closeServiceDetail, creatingService, onNavigationContextChange]);
+  }, [activeService, closeCreateService, closeEditService, closeServiceDetail, creatingService, editingService, onNavigationContextChange, openServiceId]);
+
+  useEffect(() => {
+    if (!deletingService) return;
+    const focusFrame = requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".service-delete-confirm__cancel")?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDeletingService(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => { cancelAnimationFrame(focusFrame); document.removeEventListener("keydown", onKeyDown); };
+  }, [deletingService]);
 
   const viewTabs: TabItem[] = [
     { id: "vendors", label: "Vendors" },
@@ -941,6 +989,21 @@ export function VendorsListPage({
   };
   const activeFilterCount = supplierTypes.length + (perspective === "vendors" ? categoryFilters.length : 0);
 
+  if (editingService) {
+    return <NewServicePage
+      key={editingService.id}
+      service={editingService}
+      existingServices={availableServices}
+      vendors={vendors}
+      onCancel={closeEditService}
+      onCreated={(updated) => {
+        onCreatedServicesChange([updated, ...createdServices.filter((service) => service.id !== updated.id)]);
+        setEditingService(null);
+        setCreatedNotice(`${updated.name} updated.`);
+      }}
+    />;
+  }
+
   if (activeService) {
     return (
       <ServiceDirectoryDetail
@@ -949,13 +1012,14 @@ export function VendorsListPage({
         canEdit={canEdit}
         onOpenVendor={onOpenVendor}
         onOpenRateCard={onOpenRateCard}
+        onEdit={() => setEditingService(activeService)}
       />
     );
   }
 
   if (creatingService) {
     return <NewServicePage
-      existingServices={[...createdServices, ...DIRECTORY_SERVICES]}
+      existingServices={availableServices}
       vendors={vendors}
       onCancel={closeCreateService}
       onCreated={(service) => {
@@ -1073,7 +1137,15 @@ export function VendorsListPage({
                         className="directory-services-offered"
                       />
                     </DataSheetCell>
-                    <DataSheetCell>{canEdit ? <div className="vendors-sheet__more" ref={menuId === row.vendor.id ? menuRef : undefined}><IconButton label={`More actions for ${row.vendor.name}`} aria-expanded={menuId === row.vendor.id} aria-haspopup="menu" onClick={() => setMenuId((current) => current === row.vendor.id ? null : row.vendor.id)}><IconMore /></IconButton>{menuId === row.vendor.id ? <div className="vendors-sheet__menu" role="menu"><button type="button" role="menuitem" onClick={() => { setEditId(row.vendor.id); setModal("edit"); setMenuId(null); }}>Edit vendor</button></div> : null}</div> : null}</DataSheetCell>
+                    <DataSheetCell>
+                      <div className="vendors-sheet__more" ref={menuId === row.vendor.id ? menuRef : undefined}>
+                        <IconButton label={`More actions for ${row.vendor.name}`} aria-expanded={menuId === row.vendor.id} aria-haspopup="menu" onClick={() => setMenuId((current) => current === row.vendor.id ? null : row.vendor.id)}><IconMore /></IconButton>
+                        {menuId === row.vendor.id ? <div className="vendors-sheet__menu" role="menu">
+                          <button type="button" role="menuitem" onClick={() => { onOpenVendor(row.vendor.id); setMenuId(null); }}>Open vendor</button>
+                          {canEdit ? <button type="button" role="menuitem" onClick={() => { setEditId(row.vendor.id); setModal("edit"); setMenuId(null); }}>Edit vendor</button> : null}
+                        </div> : null}
+                      </div>
+                    </DataSheetCell>
                   </DataSheetRow>
                 ))}
                 <DashboardDataSheetFill columns={5} />
@@ -1124,16 +1196,21 @@ export function VendorsListPage({
                         </IconButton>
                         {menuId === row.service.id ? (
                           <div className="vendors-sheet__menu" role="menu">
+                            <button type="button" role="menuitem" onClick={() => { setOpenServiceId(row.service.id); setMenuId(null); }}>Open service</button>
+                            {canEdit ? <>
                             <button
                               type="button"
                               role="menuitem"
                               onClick={() => {
-                                setOpenServiceId(row.service.id);
+                                setOpenServiceId(null);
+                                setEditingService(row.service);
                                 setMenuId(null);
                               }}
                             >
-                              Open service
+                              Edit service
                             </button>
+                            <button type="button" role="menuitem" className="vendors-sheet__menu-danger" onClick={() => { setDeletingService(row.service); setMenuId(null); }}>Delete service</button>
+                            </> : null}
                           </div>
                         ) : null}
                       </div>
@@ -1160,6 +1237,22 @@ export function VendorsListPage({
         onUpdated={(updated) => { onVendorsChange(vendors.map((vendor) => vendor.id === updated.id ? updated : vendor)); setModal(null); setEditId(null); }}
         onViewExisting={onOpenVendor}
       />
+      {deletingService ? createPortal(
+        <div className="pt-modal-overlay open" role="presentation" onClick={() => setDeletingService(null)}>
+          <div className="pt-modal service-delete-confirm" role="alertdialog" aria-modal="true" aria-labelledby="delete-service-title" aria-describedby="delete-service-description" onClick={(event) => event.stopPropagation()}>
+            <header className="pt-modal__head"><h2 className="pt-modal__title" id="delete-service-title">Delete service?</h2><IconButton label="Close delete confirmation" onClick={() => setDeletingService(null)}><IconClose /></IconButton></header>
+            <div className="pt-modal__body"><p id="delete-service-description">Delete <strong>{deletingService.name}</strong> from the service directory? It will also disappear from vendor service lists. Rate cards stay with their vendors.</p></div>
+            <footer className="pt-modal__foot"><Button variant="ghost" size="sm" className="service-delete-confirm__cancel" onClick={() => setDeletingService(null)}>Cancel</Button><Button variant="primary" size="sm" className="service-delete-confirm__button" onClick={() => {
+              onCreatedServicesChange(createdServices.filter((service) => service.id !== deletingService.id));
+              onDeletedServiceIdsChange([...new Set([...deletedServiceIds, deletingService.id])]);
+              setSelected((current) => current.filter((id) => id !== deletingService.id));
+              setCreatedNotice(`${deletingService.name} deleted.`);
+              setDeletingService(null);
+            }}><IconTrash />Delete service</Button></footer>
+          </div>
+        </div>,
+        document.body,
+      ) : null}
     </div>
   );
 }

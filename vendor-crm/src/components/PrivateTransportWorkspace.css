@@ -1,0 +1,71 @@
+.private-transport__facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.private-transport__facts > div { display: grid; align-content: center; gap: 7px; min-width: 0; min-height: 76px; padding: 15px 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 12px; }
+.private-transport__facts > div:nth-child(3n) { border-right: 0; }
+.private-transport__facts > div:nth-last-child(-n + 3) { border-bottom: 0; }
+.private-transport__facts span, .private-transport__rules label > span { color: var(--ink-2); font-size: 11px; font-weight: 650; }
+.private-transport__facts strong { font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+.private-transport__edit-review { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-top: 1px solid var(--line); }
+.private-transport__edit-review label { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.private-transport__edit-review label > span { color: var(--ink-2); font-size: 11px; font-weight: 650; }
+.private-transport__edit-review input[type="checkbox"] { accent-color: var(--brand, #0e7069); }
+.private-transport__edit-review .rtw-input { min-width: 150px; }
+.private-transport__activation-errors { padding: 14px 20px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 12px; }
+.private-transport__activation-errors strong { color: var(--ink); }
+.private-transport__activation-errors ul { margin: 6px 0 0; padding-left: 18px; }
+.private-transport__tax-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 72px; padding: 16px 20px; font-size: 12px; }
+.private-transport__tax-row > span { color: var(--ink-2); font-weight: 650; }
+.private-transport__tax-row > strong { color: var(--ink); font-size: 13px; }
+.private-transport__tax-row .rtw-input { min-width: 210px; }
+.private-transport__tax-row + .private-transport__tax-row { border-top: 1px solid var(--line); }
+.private-transport__profile-create { display: grid; grid-template-columns: minmax(150px, 1fr) repeat(3, minmax(120px, 1fr)) auto; align-items: center; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--line); }
+.private-transport__profile-create > strong { font-size: 12px; }
+.private-transport__profile-create .rtw-input { min-width: 0; }
+.private-transport__route { display: flex; align-items: center; gap: 8px; min-width: 230px; }
+.private-transport__route input { min-width: 95px; }
+.private-transport__route > span { color: var(--ink-2); }
+.private-transport__package-head { display: grid; gap: 6px; min-width: 130px; }
+.private-transport__package-head > span { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 400; }
+.private-transport__package-head .rtw-input--number { width: 55px; min-width: 0; padding: 5px; }
+.private-transport__remove { border: 0; background: transparent; color: var(--ink-2); cursor: pointer; font: inherit; font-size: 18px; }
+.private-transport__rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.private-transport__rules label, .private-transport__single-rule { display: grid; align-content: center; gap: 8px; min-width: 0; min-height: 76px; padding: 15px 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 12px; }
+.private-transport__rules label:nth-child(3n) { border-right: 0; }
+.private-transport__rules label:last-child, .private-transport__single-rule { border-bottom: 0; }
+.private-transport__rules strong { font-size: 13px; font-weight: 600; }
+.private-transport__single-rule { grid-column: 1 / -1; color: var(--ink-2); }
+.private-transport__vehicle-pick { display: grid; gap: 9px; padding: 15px 20px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface, #fff); font-size: 12px; }
+.private-transport__vehicle-pick > span { font-weight: 650; }
+.private-transport__vehicle-pick > div { display: flex; flex-wrap: wrap; gap: 10px 20px; }
+.private-transport__vehicle-pick label { display: flex; align-items: center; gap: 6px; }
+.private-transport__vehicle-pick input { accent-color: var(--brand, #0e7069); }
+.private-transport__vehicle-pick small { color: var(--ink-2); }
+.private-transport-test__fleet { display: grid; gap: 10px; padding-top: 4px; }
+.private-transport-test__fleet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.private-transport-test__fleet-head strong { color: var(--ink); font-size: 12px; }
+.private-transport-test__fleet-head .rtw-button:disabled { cursor: default; opacity: .45; }
+.private-transport-test__suggestions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.private-transport-test__suggestions > span { margin-right: 5px; color: var(--ink-2); font-size: 11px; font-weight: 650; }
+.private-transport-test__suggestions button { padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: 11px; cursor: pointer; }
+.private-transport-test__suggestions button:hover { border-color: var(--brand, #0e7069); }
+.private-transport-test__no-fleet { margin: 0; color: #a1434d; font-size: 12px; }
+.private-transport-test__vehicle-lines { display: grid; padding: 9px 20px; border-top: 1px solid var(--line); }
+.private-transport-test__vehicle-lines > div { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; font-size: 12px; }
+.private-transport-test__fleet-row { display: grid; grid-template-columns: minmax(0, 1fr) 110px auto; align-items: end; gap: 10px; }
+.private-transport-test__remove-vehicle { min-height: 38px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink-2); font: inherit; font-size: 12px; cursor: pointer; }
+.private-transport-test__remove-vehicle:hover { color: var(--ink); background: var(--surface-2); }
+.private-transport-test__days { display: grid; gap: 8px; }
+.private-transport-test__days > div { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
+.private-transport-test__days strong { min-width: 45px; font-size: 12px; }
+.private-transport-test__days label { flex: 1; }
+@media (max-width: 900px) { .private-transport__facts, .private-transport__rules { grid-template-columns: repeat(2, minmax(0, 1fr)); } .private-transport__facts > div:nth-child(3n), .private-transport__rules label:nth-child(3n) { border-right: 1px solid var(--line); } .private-transport__facts > div:nth-child(2n), .private-transport__rules label:nth-child(2n) { border-right: 0; } .private-transport__facts > div:nth-last-child(3) { border-bottom: 1px solid var(--line); } }
+@media (max-width: 900px) { .private-transport__profile-create { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .private-transport__facts, .private-transport__rules { grid-template-columns: 1fr; } .private-transport__facts > div, .private-transport__rules label { border-right: 0 !important; } .private-transport__facts > div:nth-last-child(2) { border-bottom: 1px solid var(--line); } .private-transport__tax-row { align-items: flex-start; flex-direction: column; } .private-transport-test__days > div { flex-wrap: wrap; } .private-transport-test__fleet-row, .private-transport__profile-create { grid-template-columns: 1fr; } .private-transport-test__remove-vehicle { grid-column: 1 / -1; justify-self: start; } }
+.private-transport__charge-conditions { display: grid; }
+.private-transport__charge-condition { display: flex; align-items: start; flex-wrap: wrap; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.private-transport__charge-condition:last-child { border-bottom: 0; }
+.private-transport__charge-condition > strong { min-width: 145px; padding-top: 7px; }
+.private-transport__charge-condition > label { display: grid; gap: 5px; min-width: 150px; font-size: 12px; }
+.private-transport__charge-condition .rtw-input--number { max-width: 125px; }
+.private-transport__scope { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 15px; width: 100%; font-size: 12px; }
+.private-transport__scope > span { font-weight: 650; }
+.private-transport__scope label { display: inline-flex; align-items: center; gap: 5px; }

@@ -108,3 +108,7 @@
   gap: 9px;
   flex: none;
 }
+.create-rc-modal__service { display: grid; gap: 7px; margin-top: 18px; font-size: 12px; font-weight: 650; }
+.create-rc-modal__service select { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface, #fff); color: var(--ink); font: inherit; font-weight: 400; }
+.create-rc-modal__service small { color: var(--ink-2); font-weight: 400; }
+.create-rc-modal__service select:focus-visible { outline: 2px solid var(--pink-ink, #b74080); outline-offset: 2px; }

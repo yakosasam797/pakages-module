@@ -30,6 +30,7 @@ import {
 import {
   DIRECTORY_SERVICES,
   VENDOR_SERVICE_CONNECTIONS,
+  readCreatedDirectoryServices,
   directoryCategoryForServiceType,
   type DirectoryService,
   type VendorServiceConnection,
@@ -51,7 +52,10 @@ import {
 import { AnchoredImport } from "./AnchoredImport";
 import { ServiceTestRate } from "./ServiceTestRate";
 import { RegionalTransportTest } from "./RegionalTransportWorkspace";
-import { getDetailCard } from "../rateCard/cards";
+import { PrivateTransportTest } from "./PrivateTransportWorkspace";
+import { VehicleOfferingsPanel } from "./VehicleOfferingsPanel";
+import { readVehicleOfferings } from "../data/vehicleOfferings";
+import { getDetailCard, listCreatedPrivateTransportCards, listDetailCards } from "../rateCard/cards";
 import { ServicePolicies } from "./ServicePolicies";
 import { SummaryStrip, type SummaryField } from "./SummaryStrip";
 import { ServiceTypeLabel } from "./ServiceTypeLabel";
@@ -333,7 +337,18 @@ function ServiceDetail({ service, vendors, canEdit, initialTab = "overview", onO
     const linked = VENDOR_SERVICE_CONNECTIONS.filter(
       (connection) => connection.serviceId === directoryService.id,
     );
-    if (linked.length) return linked;
+    const created = listCreatedPrivateTransportCards().filter((card) => card.privateTransport?.serviceId === directoryService.id).map((card) => ({
+      id: `${card.privateTransport!.vendorId}-${card.id}`, vendorId: card.privateTransport!.vendorId,
+      serviceId: directoryService.id, supplierType: "Direct supplier" as const,
+      productsCovered: card.property, rateCardId: card.id, rateCardName: card.name,
+      validity: `${card.privateTransport!.validFrom} – ${card.privateTransport!.validTo}`,
+    }));
+    const activityCards = listDetailCards().filter((card) => card.activityTariff?.serviceId === directoryService.id).map((card) => ({
+      id: `activity-${card.id}`, vendorId: card.activityTariff!.vendorId, serviceId: directoryService.id,
+      supplierType: "Direct supplier" as const, productsCovered: "Activity options", rateCardId: card.id,
+      rateCardName: card.name, validity: `${card.activityTariff!.validFrom} – ${card.activityTariff!.validTo}`,
+    }));
+    if (linked.length || created.length || activityCards.length) return [...linked.filter((connection) => !activityCards.some((card) => card.vendorId === connection.vendorId && (!connection.rateCardId || connection.rateCardId === card.rateCardId))), ...created, ...activityCards];
     if (!service.rateCards.length) return [{
       id: `${service.vendorId}-${directoryService.id}`,
       vendorId: service.vendorId,
@@ -356,13 +371,14 @@ function ServiceDetail({ service, vendors, canEdit, initialTab = "overview", onO
     }));
   }, [directoryService.id, service]);
 
-  const linkedVendors = useMemo(
-    () => testPriceConnections.flatMap((connection) => {
+  const linkedVendors = useMemo(() => {
+    const unique = new Map<string, { connection: VendorServiceConnection; vendor: Vendor }>();
+    testPriceConnections.forEach((connection) => {
       const vendor = vendors.find((item) => item.id === connection.vendorId);
-      return vendor ? [{ connection, vendor }] : [];
-    }),
-    [testPriceConnections, vendors],
-  );
+      if (vendor && !unique.has(vendor.id)) unique.set(vendor.id, { connection, vendor });
+    });
+    return Array.from(unique.values());
+  }, [testPriceConnections, vendors]);
   const linkedRateCardCount = new Set(testPriceConnections.map((connection) => connection.rateCardId).filter(Boolean)).size;
   const primaryMediaCount = mediaItems.filter((item) => item.usedInBanner).length;
   const tabs: TabItem[] = [
@@ -641,7 +657,10 @@ function ServiceDetail({ service, vendors, canEdit, initialTab = "overview", onO
               </section>
             </div>
           </div>
+          {service.type === "Transport" ? <VehicleOfferingsPanel vendorId={service.vendorId} serviceId={directoryService.id} canEdit={canEdit} /> : null}
         </div>
+      ) : tab === "test-rate" && getDetailCard(testPriceConnections[0]?.rateCardId)?.privateTransport ? (
+        <PrivateTransportTest card={getDetailCard(testPriceConnections[0].rateCardId)!} />
       ) : tab === "test-rate" && getDetailCard(testPriceConnections[0]?.rateCardId)?.regionalTransport ? (
         <RegionalTransportTest card={getDetailCard(testPriceConnections[0].rateCardId)!} />
       ) : tab === "test-rate" && !testPriceConnections.some((connection) => connection.rateCardId) ? (
@@ -675,9 +694,9 @@ function ServiceDetail({ service, vendors, canEdit, initialTab = "overview", onO
                       />
                     </DataSheetCell>
                     <DataSheetCell>Vendor</DataSheetCell>
-                    <DataSheetCell>Supplier relationship</DataSheetCell>
-                    <DataSheetCell>Location</DataSheetCell>
-                    <DataSheetCell>Rate card</DataSheetCell>
+                    <DataSheetCell>{service.type === "Transport" ? "Service coverage" : "Supplier relationship"}</DataSheetCell>
+                    <DataSheetCell>{service.type === "Transport" ? "Vehicle offerings" : "Location"}</DataSheetCell>
+                    <DataSheetCell>{service.type === "Transport" ? "Rate cards" : "Rate card"}</DataSheetCell>
                     <DataSheetCell className="service-suppliers-sheet__action">Action</DataSheetCell>
                   </DataSheetHeader>
                   {linkedVendors.map(({ connection, vendor }) => (
@@ -727,15 +746,15 @@ function ServiceDetail({ service, vendors, canEdit, initialTab = "overview", onO
                       </DataSheetCell>
                       <DataSheetCell>
                         <StackCell>
-                          <StackLine>{connection.supplierType}</StackLine>
-                          <StackLine muted>{connection.productsCovered}</StackLine>
+                          <StackLine>{service.type === "Transport" ? service.location : connection.supplierType}</StackLine>
+                          {service.type !== "Transport" ? <StackLine muted>{connection.productsCovered}</StackLine> : null}
                         </StackCell>
                       </DataSheetCell>
                       <DataSheetCell>
-                        <span className="vendors-sheet__location"><IconPin size={14} />{vendor.location}</span>
+                        {service.type === "Transport" ? readVehicleOfferings().filter((item) => item.vendorId === vendor.id && item.serviceIds.includes(directoryService.id)).map((item) => item.label).join(" / ") || "None yet" : <span className="vendors-sheet__location"><IconPin size={14} />{vendor.location}</span>}
                       </DataSheetCell>
                       <DataSheetCell>
-                        {connection.rateCardId ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => onOpenRateCard?.(connection.rateCardId, vendor.id)} aria-label={`Open ${connection.rateCardName} for ${vendor.name}`}><IconCard size={16} aria-hidden="true" /><span>{connection.rateCardName}</span></button> : <span>No rate card linked</span>}
+                        {service.type === "Transport" ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => onOpenVendor?.(vendor.id)} aria-label={`Open ${vendor.name} rate cards`}><IconCard size={16} aria-hidden="true" /><span>{testPriceConnections.filter((item) => item.vendorId === vendor.id && item.rateCardId).length} rate card{testPriceConnections.filter((item) => item.vendorId === vendor.id && item.rateCardId).length === 1 ? "" : "s"}</span></button> : connection.rateCardId ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => onOpenRateCard?.(connection.rateCardId, vendor.id)} aria-label={`Open ${connection.rateCardName} for ${vendor.name}`}><IconCard size={16} aria-hidden="true" /><span>{connection.rateCardName}</span></button> : <span>No rate card linked</span>}
                       </DataSheetCell>
                       <DataSheetCell className="service-suppliers-sheet__action">
                         <div className="services-sheet__act">
@@ -807,6 +826,7 @@ export function ServicesPanel({
   vendors,
   canEdit = false,
   createdServices = [],
+  deletedProfileServiceIds = [],
   onAddService,
   openServiceId = null,
   onOpenServiceIdChange,
@@ -817,6 +837,7 @@ export function ServicesPanel({
   vendors: Vendor[];
   canEdit?: boolean;
   createdServices?: VendorService[];
+  deletedProfileServiceIds?: string[];
   onAddService?: () => void;
   openServiceId?: string | null;
   onOpenServiceIdChange?: (id: string | null) => void;
@@ -832,8 +853,20 @@ export function ServicesPanel({
   const [openServiceTab, setOpenServiceTab] = useState<ServiceDetailTab>("overview");
 
   const vendorServices = useMemo(
-    () => [...servicesForVendor(vendorId), ...createdServices.filter((service) => service.vendorId === vendorId)],
-    [createdServices, vendorId],
+    () => {
+      const createdForVendor = createdServices.filter((service) => service.vendorId === vendorId);
+      const hiddenIds = new Set([...deletedProfileServiceIds, ...createdForVendor.map((service) => service.id)]);
+      const existing = servicesForVendor(vendorId).filter((service) => !hiddenIds.has(service.id));
+      const linked = VENDOR_SERVICE_CONNECTIONS.filter((connection) => connection.vendorId === vendorId && connection.id.startsWith("linked-")).flatMap((connection): VendorService[] => {
+        const directory = [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].find((service) => service.id === connection.serviceId);
+        if (!directory || existing.some((service) => service.name === directory.name) || createdForVendor.some((service) => service.name === directory.name)) return [];
+        const source = servicesForVendor(directory.profileVendorId).find((service) => service.name === directory.name);
+        if (source) return [{ ...source, id: `linked-${vendorId}-${directory.id}`, vendorId, rateCardCount: 0, rateCards: [], pricingLabel: "Supplier rate card pending" }];
+        return [{ id: `linked-${vendorId}-${directory.id}`, vendorId, name: directory.name, type: directory.category === "Activities" ? "Activity" : directory.category, details: directory.description ?? directory.name, about: directory.description ?? directory.name, location: directory.location, inclusions: directory.inclusions ?? [], profile: { category: directory.category, duration: directory.activityOptions?.[0]?.duration ?? "Service based", ageSuitability: "See service options", difficulty: "Not applicable", seasonality: "Subject to supplier availability", searchText: directory.name, exclusions: directory.exclusions ?? [] }, pricingLabel: "Supplier rate card pending", rateCardCount: 0, rateCards: [], imageUrl: "", imageAlt: directory.name, media: [] }];
+      });
+      return [...existing, ...linked, ...createdForVendor];
+    },
+    [createdServices, deletedProfileServiceIds, vendorId],
   );
 
   const filtered = useMemo(() => {
@@ -1070,6 +1103,7 @@ export function ServicesPanel({
             style={{ top: serviceMenu.top, left: serviceMenu.left }}
             onClick={(event) => event.stopPropagation()}
           >
+            <button type="button" role="menuitem" onClick={() => openServiceAt(serviceMenu.id)}>Open service</button>
             <button type="button" role="menuitem" onClick={() => openServiceAt(serviceMenu.id, "test-rate")}>Test rate</button>
           </div>
         </div>,

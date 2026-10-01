@@ -1,6 +1,9 @@
+import { PRIVATE_TRANSPORT_FIXTURES } from "./privateTransportFixtures";
+import { ACTIVITY_RATE_FIXTURES } from "./activityRateFixtures";
+import { TRANSPORT_TEMPLATE_LABELS } from "../rateCard/privateTransport";
 import type { StatusTone } from "@paryatech/design-system";
 
-export type RateCardStatus = "published" | "expired" | "draft";
+export type RateCardStatus = "published" | "expired" | "draft" | "review" | "active";
 export type RateCardAction = "open" | "continue";
 
 export interface RateCard {
@@ -58,18 +61,20 @@ function propertyMedia(name: string) {
 }
 
 export const RATE_CARDS: RateCard[] = [
-  {
-    id: "rc-kochi-local-transfers", ref: "RC-KOCHI-LOCAL", title: "Kochi airport and local transfers",
-    category: "Transport", currency: "INR", ...propertyMedia("Fleet — Kochi"),
-    validity: "01 Oct 2026 – 31 Mar 2027", validityNote: "Fixed transfer · Local package",
-    status: "draft", coverageCount: 2, coverageUnit: "fare methods", coverageDetail: "Supplier review needed", action: "continue",
-  },
-  {
-    id: "rc-kerala-km-tariff", ref: "RC-KERALA-KM", title: "Kerala outstation kilometre tariff",
-    category: "Transport", currency: "INR", ...propertyMedia("Fleet — Kochi"),
-    validity: "01 Oct 2026 – 31 Mar 2027", validityNote: "Outstation per km · Daily hire",
-    status: "draft", coverageCount: 2, coverageUnit: "fare methods", coverageDetail: "Supplier review needed", action: "continue",
-  },
+  ...ACTIVITY_RATE_FIXTURES.map((fixture) => ({
+    id: fixture.id, ref: fixture.ref, title: fixture.name, category: "Activities", currency: "INR",
+    ...propertyMedia("Example Lake Resort"), property: fixture.serviceName, validity: "01 Oct 2026 – 31 Mar 2027",
+    validityNote: "Supplier cost", status: "draft" as const,
+    coverageCount: fixture.tariff.personRates.length + fixture.tariff.bookingRates.length + fixture.tariff.unitRates.length,
+    coverageUnit: "prices", coverageDetail: "Supplier confirmation pending", action: "continue" as const,
+  })),
+  ...PRIVATE_TRANSPORT_FIXTURES.map((fixture) => ({
+    id: fixture.id, ref: fixture.ref, title: fixture.name, category: "Transport", currency: "INR",
+    ...propertyMedia("Fleet ? Kochi"), validity: "01 Oct 2026 ? 31 Mar 2027",
+    validityNote: TRANSPORT_TEMPLATE_LABELS[fixture.tariff.template], status: "draft" as const,
+    coverageCount: fixture.tariff.vehicleIds.length, coverageUnit: "vehicles",
+    coverageDetail: "Illustrative supplier tariff", action: "continue" as const,
+  })),
   {
     id: "rc-taj-goa-wanderlust",
     ref: "RC-TAJ-WANDERLUST",
@@ -100,21 +105,6 @@ export const RATE_CARDS: RateCard[] = [
     coverageCount: 0,
     coverageUnit: "priced rooms",
     coverageDetail: "Enter supplier rates",
-    action: "continue",
-  },
-  {
-    id: "rc-kerala-private-hire",
-    ref: "RC-KERALA-HIRE",
-    title: "Kerala private hire rates",
-    category: "Transport",
-    currency: "INR",
-    ...propertyMedia("Fleet — Kochi"),
-    validity: "01 Oct 2026 – 31 Mar 2027",
-    validityNote: "Supplier confirmation pending",
-    status: "draft",
-    coverageCount: 5,
-    coverageUnit: "fare methods",
-    coverageDetail: "Supplier review needed",
     action: "continue",
   },
   {
@@ -163,21 +153,6 @@ export const RATE_CARDS: RateCard[] = [
     action: "continue",
   },
   {
-    id: "rc-air-2026",
-    ref: "RC-2026-0301",
-    title: "Airport transfer rates · 2026",
-    category: "Transport",
-    currency: "INR",
-    ...propertyMedia("Fleet — Kochi"),
-    validity: "01 Jan – 31 Dec 2026",
-    validityNote: "Supplier terms need confirmation",
-    status: "draft",
-    coverageCount: 6,
-    coverageUnit: "transfer fares",
-    coverageDetail: "2 routes · 3 vehicles",
-    action: "open",
-  },
-  {
     id: "rc-visa-uae",
     ref: "RC-2026-0301",
     title: "Visa services tariff · UAE",
@@ -198,12 +173,16 @@ export const STATUS_TONE: Record<RateCardStatus, StatusTone> = {
   published: "done",
   expired: "open",
   draft: "progress",
+  review: "progress",
+  active: "done",
 };
 
 export const STATUS_LABEL: Record<RateCardStatus, string> = {
   published: "Published",
   expired: "Expired",
   draft: "Draft",
+  review: "Review",
+  active: "Active",
 };
 
 export const VENDOR = {

@@ -49,3 +49,6 @@
 .package-structured__lines small { color: var(--ink-3); font-size: 10px; }
 @media (max-width: 850px) { .package-structured__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .package-structured__seasons > div { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .package-structured__grid, .package-structured__seasons > div { grid-template-columns: 1fr; } .package-structured__status { display: grid; gap: 4px; } .package-structured__status > label:first-child { min-width: 0; } .package-structured > header { flex-wrap: wrap; } .package-structured > header > strong { margin-left: 50px; } }
+.package-structured__on-request { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(90px, .45fr) repeat(2, minmax(0, 1fr)); align-items: end; gap: 12px; }
+.package-structured__on-request > strong { padding-bottom: 12px; font-size: 12px; }
+@media (max-width: 700px) { .package-structured__on-request { grid-template-columns: 1fr; } }

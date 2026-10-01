@@ -1,0 +1,29 @@
+.private-proposal { overflow: hidden; border: 1px solid #dfe4e8; border-radius: 12px; background: #fff; }
+.private-proposal > header { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 18px 22px; border-bottom: 1px solid #dfe4e8; background: #f8faf9; }
+.private-proposal > header > div { display: grid; gap: 4px; }
+.private-proposal > header small, .private-proposal > header span { color: #596675; font-size: 12px; }
+.private-proposal > header h3 { margin: 0; font-size: 18px; }
+.private-proposal > header strong { font-size: 18px; white-space: nowrap; }
+.private-proposal__body { display: grid; gap: 18px; padding: 20px 22px; }
+.private-proposal__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.private-proposal label { display: grid; gap: 6px; min-width: 0; color: #253347; font-size: 12px; font-weight: 650; }
+.private-proposal label > span { color: #425064; }
+.private-proposal input, .private-proposal select { width: 100%; min-height: 42px; box-sizing: border-box; padding: 9px 12px; border: 1px solid #dce3e9; border-radius: 8px; background: #fff; color: #132437; font: inherit; font-size: 13px; }
+.private-proposal input:focus, .private-proposal select:focus { outline: 2px solid #9bcfc9; outline-offset: 1px; }
+.private-proposal__full { grid-column: 1 / -1; }
+.private-proposal__label { padding: 9px 12px; border: 1px solid #dfe4e8; border-radius: 8px; background: #f7f9f8; color: #536173; font-size: 12px; }
+.private-proposal__fleet, .private-proposal__matching, .private-proposal__quote, .private-proposal__days { display: grid; gap: 10px; padding: 16px; border: 1px solid #dfe4e8; border-radius: 10px; }
+.private-proposal__fleet > strong, .private-proposal__matching > strong, .private-proposal__quote > strong { font-size: 14px; }
+.private-proposal__suggestions { display: flex; flex-wrap: wrap; gap: 7px; }
+.private-proposal button { min-height: 34px; padding: 6px 10px; border: 1px solid #dce3e9; border-radius: 7px; background: #fff; color: #17394a; font: inherit; font-size: 12px; cursor: pointer; }
+.private-proposal button:hover { border-color: #0e7069; color: #0e7069; }
+.private-proposal__fleet-row { display: grid; grid-template-columns: minmax(0, 1fr) 85px auto; gap: 8px; }
+.private-proposal__matching > button, .private-proposal__quote > div:not(:first-child) { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.private-proposal__matching > button { text-align: left; }
+.private-proposal__quote > div { padding-top: 9px; border-top: 1px solid #e8ecef; font-size: 12px; }
+.private-proposal__quote > div b { font-size: 13px; }
+.private-proposal__quote .private-proposal__payable { color: #0c6c63; font-weight: 700; }
+.private-proposal__quote p, .private-proposal__hint, .private-proposal__fleet small { margin: 0; color: #576477; font-size: 12px; line-height: 1.5; }
+.private-proposal__quote ul { margin: 0; padding-left: 20px; color: #9f3d4c; font-size: 12px; }
+.private-proposal__days > div { display: grid; grid-template-columns: 60px repeat(2, minmax(0, 1fr)); align-items: center; gap: 8px; }
+@media (max-width: 640px) { .private-proposal__grid, .private-proposal__fleet-row { grid-template-columns: 1fr; } .private-proposal > header { align-items: start; flex-direction: column; } .private-proposal__body { padding: 16px; } }

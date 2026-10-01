@@ -56,14 +56,16 @@ export interface DestinationBooking {
   status: string;
 }
 
+type DestinationServiceRecord = Omit<DirectoryService, "category"> & { category: string };
+
 export interface DestinationSnapshot {
   packages: Array<{ record: DestinationPackage; proposals: DestinationProposal[] }>;
   vendorPackages: VendorPackage[];
   proposals: Array<{ record: DestinationProposal; package?: DestinationPackage }>;
   bookings: DestinationBooking[];
-  services: Array<{ record: DirectoryService; vendors: Vendor[]; profile?: VendorService }>;
+  services: Array<{ record: DestinationServiceRecord; vendors: Vendor[]; profile?: VendorService }>;
   itineraryServices: DestinationItineraryService[];
-  vendors: Array<{ record: Vendor; services: DirectoryService[]; basedHere: boolean }>;
+  vendors: Array<{ record: Vendor; services: DestinationServiceRecord[]; basedHere: boolean }>;
 }
 
 const categoryByKind: Record<ProposalServiceKind, string> = {
@@ -78,7 +80,7 @@ function itineraryServiceKey(kind: string, title: string) {
 function itineraryServicesFor(
   matchingPackages: DestinationPackage[],
   matchingProposals: DestinationProposal[],
-  directoryServices: DirectoryService[],
+  directoryServices: Array<{ name: string }>,
 ): DestinationItineraryService[] {
   const byKey = new Map<string, DestinationItineraryService>();
   const crmNames = new Set(directoryServices.map((service) => normalize(service.name)));
@@ -168,6 +170,7 @@ export function workspaceRegionSuggestions(
     ...proposals.map((item) => item.destination),
     ...bookings.map((item) => item.destination),
     ...[...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].map((item) => item.location),
+    ...VENDOR_SERVICES.map((item) => item.location),
     ...SEED_VENDORS.map((item) => item.location),
   ];
   const byPlace = new Map<string, RegionSuggestion>();
@@ -196,11 +199,22 @@ export function buildDestinationSnapshot(
   const matchingPackages = packages.filter((item) => belongsToRegion(`${item.destination} ${item.region}`, region));
   const matchingProposals = proposals.filter((item) => belongsToRegion(`${item.destination} ${item.region}`, region));
   const packageByName = new Map(packages.map((item) => [normalize(item.name), item]));
-  const matchingServices = [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].filter((item) => belongsToRegion(item.location, region) || belongsToRegion(item.name, region));
+  const directoryServices = [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES];
+  const directoryProfileIds = new Set(directoryServices.map((item) => item.serviceId));
+  const profileOnlyServices: DestinationServiceRecord[] = VENDOR_SERVICES.filter((item) => !directoryProfileIds.has(item.id)).map((item) => ({
+    id: item.id,
+    serviceId: item.id,
+    profileVendorId: item.vendorId,
+    name: item.name,
+    category: item.type === "Activity" ? "Activities" : item.type,
+    location: item.location,
+    description: item.about,
+  }));
+  const matchingServices: DestinationServiceRecord[] = [...directoryServices, ...profileOnlyServices].filter((item) => belongsToRegion(item.location, region) || belongsToRegion(item.name, region));
   const vendorById = new Map(SEED_VENDORS.map((vendor) => [vendor.id, vendor]));
   const serviceProfileById = new Map(VENDOR_SERVICES.map((service) => [service.id, service]));
 
-  const providersFor = (service: DirectoryService) => {
+  const providersFor = (service: DestinationServiceRecord) => {
     const ids = new Set([
       service.profileVendorId,
       ...VENDOR_SERVICE_CONNECTIONS.filter((connection) => connection.serviceId === service.id).map((connection) => connection.vendorId),

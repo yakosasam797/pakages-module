@@ -1,14 +1,167 @@
-import { DETAIL_CARDS } from "../vendor-crm/src/rateCard/cards";
+import { DETAIL_CARDS, getDetailCard, listDetailCards } from "../vendor-crm/src/rateCard/cards";
 import type { RateCardDetail } from "../vendor-crm/src/rateCard/types";
-import type { ProposalService, ServicePriceState } from "./proposalModel";
+import { calculateActivityQuote, type ActivityQuoteInput } from "../vendor-crm/src/rateCard/activityPricing";
+import { calculatePrivateTransportQuote, type PrivateTransportTrip } from "../vendor-crm/src/rateCard/privateTransport";
+import { readVehicleOfferings } from "../vendor-crm/src/data/vehicleOfferings";
+import { readSupplierTaxProfiles } from "../vendor-crm/src/rateCard/supplierTax";
+import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "../vendor-crm/src/data/vendorDirectory";
+import type { ProposalDay, ProposalService, ServicePriceState } from "./proposalModel";
 
 export type CostLine = { label: string; basis: string; amount: number };
 export type CostContext = { tripStart?: string; dayIndex?: number; travellers?: number };
-export type CostBreakdown = { status: ServicePriceState; total: number; lines: CostLine[]; issue?: string; source?: string };
+export type CostBreakdown = { status: ServicePriceState; total: number; lines: CostLine[]; issue?: string; source?: string; markupBasis?: number };
 
 export const accommodationCards = Object.values(DETAIL_CARDS).filter((card) => card.service === "Accommodation" && card.id !== "rc-new-hotel");
 export const availableAccommodationCards = accommodationCards.filter((card) => card.state === "Published");
 export const availableTransportCards = Object.values(DETAIL_CARDS).filter((card) => card.service === "Transport" && card.state === "Published");
+export const availablePrivateTransportCards = () => listDetailCards().map((card) => getDetailCard(card.id) ?? card).filter((card) => card.service === "Transport" && card.privateTransport?.status === "Active");
+export const availableActivityCards = () => listDetailCards().map((card) => getDetailCard(card.id) ?? card).filter((card) => card.service === "Activities" && Boolean(card.activityTariff));
+
+export function activityQuoteForService(service: ProposalService, context: CostContext = {}) {
+  const card = service.rateCardId ? getDetailCard(service.rateCardId) : undefined;
+  const tariff = card?.activityTariff;
+  if (!card || !tariff) return null;
+  const offering = [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].find((item) => item.id === tariff.serviceId);
+  const input: ActivityQuoteInput = {
+    date: service.serviceDate || (context.tripStart ? dayAt(context.tripStart, context.dayIndex ?? 0)?.toISOString().slice(0, 10) ?? "" : ""),
+    optionId: service.activityInput?.optionId ?? "",
+    method: service.activityInput?.method ?? "person",
+    participants: service.activityInput?.participants ?? [],
+    groupSize: service.activityInput?.groupSize ?? 0,
+    unitRateId: service.activityInput?.unitRateId ?? "",
+    unitQuantity: service.activityInput?.unitQuantity ?? 0,
+    unitSelections: service.activityInput?.unitSelections,
+    session: service.activityInput?.session,
+    supplierAvailabilityConfirmed: service.activityInput?.supplierAvailabilityConfirmed,
+    hours: service.activityInput?.hours ?? 0,
+    days: service.activityInput?.days ?? 0,
+    selectedChargeIds: service.activityInput?.selectedChargeIds ?? [],
+    transferCostedElsewhere: service.activityInput?.transferCostedElsewhere ?? false,
+    separateTransportConfirmed: service.activityInput?.separateTransportConfirmed,
+    externalRequirementServiceIds: service.activityInput?.externalRequirementServiceIds,
+    confirmedOnRequestAmount: service.activityInput?.confirmedOnRequestAmount,
+    confirmedOnRequestSource: service.activityInput?.confirmedOnRequestSource,
+    confirmedOnRequestValidUntil: service.activityInput?.confirmedOnRequestValidUntil,
+    confirmedOnRequestRates: service.activityInput?.confirmedOnRequestRates,
+  };
+  return { card, tariff, input, result: calculateActivityQuote(tariff, offering?.activityOptions ?? [], input) };
+}
+
+function quoteActivity(service: ProposalService, context: CostContext): CostBreakdown {
+  const snapshot = service.activitySnapshot;
+  const current = snapshot ? null : activityQuoteForService(service, context);
+  const card = service.rateCardId ? getDetailCard(service.rateCardId) : undefined;
+  const source = `${snapshot?.vendorName ?? card?.vendor ?? service.vendor ?? "Supplier"} · ${snapshot?.cardName ?? card?.name ?? "activity rate card"}${snapshot ? ` · version ${snapshot.version} snapshot` : ""}`;
+  const result = snapshot?.result ?? current?.result;
+  if (!result) return blocked("The selected vendor activity rate card is unavailable.", source);
+  if (!snapshot && card?.state !== "Active") return blocked("Activate this vendor's activity rate card before using it in a proposal.", source);
+  if ((snapshot?.currency ?? card?.currency) !== "INR") return blocked("Convert and confirm this vendor rate before including it in an INR proposal.", source);
+  if (result.supplierTotal == null) return blocked(result.blockers[0] ?? "Supplier price is unresolved.", source);
+  return { status: "priced", total: result.supplierTotal, lines: [...result.lines.filter((line) => line.amount != null).map((line) => ({ label: line.label, basis: line.detail, amount: line.amount! })), ...(result.tax ? [{ label: "Supplier tax", basis: "Approved supplier tax profile", amount: result.tax }] : [])], source: result.availabilityMessage ? `${source} · ${result.availabilityMessage}` : source };
+}
+
+export function freezeActivityPricing(days: ProposalDay[], tripStart: string): { days: ProposalDay[]; issues: string[] } {
+  const issues: string[] = [];
+  const allServices = days.flatMap((day, dayIndex) => day.services.map((service) => ({ service, dayIndex })));
+  const frozen = days.map((day, dayIndex) => ({ ...day, services: day.services.map((service) => {
+    if (service.kind !== "activity" || !service.rateCardId) return service;
+    if (service.activitySnapshot) return service;
+    const quote = activityQuoteForService(service, { tripStart, dayIndex });
+    if (quote?.card.state !== "Active") { issues.push(`${service.title}: activate the vendor activity rate card before approval.`); return service; }
+    if (!quote?.result.supplierTotal && quote?.result.supplierTotal !== 0) {
+      issues.push(`${service.title}: ${quote?.result.blockers[0] ?? "rate card unavailable"}`);
+      return service;
+    }
+    if (quote.result.availability === "unavailable") { issues.push(`${service.title}: ${quote.result.availabilityMessage}`); return service; }
+    const otherTransfers = day.services.filter((item) => item.id !== service.id && item.kind === "transfer");
+    const issueCountBeforeRequirements = issues.length;
+    const activityHasTransport = quote.result.includedComponents.includes("Transport") || quote.tariff.charges.some((charge) => quote.input.selectedChargeIds.includes(charge.id) && /pickup|transfer/i.test(charge.name));
+    if (activityHasTransport && otherTransfers.length && !quote.input.separateTransportConfirmed) { issues.push(`${service.title}: a transport block and activity transport are both present on this day. Confirm they cover different movements or remove the duplicate charge.`); return service; }
+    const kindFor = (component: string) => component === "Transport" ? "transfer" : component === "Meal" ? "meal" : component === "Admission" ? "activity" : "other";
+    for (const component of quote.result.externalRequirements) {
+      const linkedId = quote.input.externalRequirementServiceIds?.[component];
+      const linked = allServices.find((item) => item.service.id === linkedId && item.service.id !== service.id && item.service.kind === kindFor(component));
+      if (!linked) {
+        issues.push(`${service.title}: ${component} is excluded; link a separately priced itinerary service before approval.`);
+        continue;
+      }
+      const linkedCost = serviceCostBreakdown(linked.service, { tripStart, dayIndex: linked.dayIndex });
+      if (linked.service.optional || linkedCost.status !== "priced") issues.push(`${service.title}: linked ${component.toLowerCase()} must be included in this itinerary with a resolved supplier price before approval.`);
+    }
+    if (issues.length > issueCountBeforeRequirements) return service;
+    return { ...service, activitySnapshot: {
+      vendorId: quote.tariff.vendorId, serviceId: quote.tariff.serviceId, vendorName: quote.card.vendor,
+      cardName: quote.card.name, currency: quote.card.currency, version: quote.tariff.version,
+      pricedAt: new Date().toISOString(), input: structuredClone(quote.input), result: structuredClone(quote.result),
+    } };
+  }) }));
+  return { days: frozen, issues };
+}
+
+export function privateTransportQuoteForService(service: ProposalService, context: CostContext = {}) {
+  const card = service.rateCardId ? getDetailCard(service.rateCardId) : undefined;
+  const tariff = card?.privateTransport;
+  if (!card || !tariff || !service.privateTransportInput) return null;
+  const input: PrivateTransportTrip = {
+    ...service.privateTransportInput,
+    date: service.privateTransportInput.date || service.serviceDate || (context.tripStart ? dayAt(context.tripStart, context.dayIndex ?? 0)?.toISOString().slice(0, 10) ?? "" : ""),
+    travellers: service.transportCoversEntireGroup && context.travellers ? context.travellers : service.privateTransportInput.travellers,
+  };
+  return { card, tariff, input, result: calculatePrivateTransportQuote(tariff, readVehicleOfferings(), input, readSupplierTaxProfiles()) };
+}
+
+function quotePrivateTransport(service: ProposalService, context: CostContext): CostBreakdown {
+  const snapshot = service.privateTransportSnapshot;
+  const current = snapshot ? null : privateTransportQuoteForService(service, context);
+  const card = service.rateCardId ? getDetailCard(service.rateCardId) : undefined;
+  const source = `${snapshot?.vendorName ?? card?.vendor ?? service.vendor ?? "Supplier"} · ${snapshot?.cardName ?? card?.name ?? "transport rate card"}${snapshot ? ` · version ${snapshot.version} snapshot` : ""}`;
+  const result = snapshot?.result ?? current?.result;
+  if (!result) return blocked("Enter trip details and select a vendor-owned transport rate card.", source);
+  if ((snapshot?.currency ?? card?.currency) !== "INR") return blocked("Convert and confirm this supplier rate before including it in an INR proposal.", source);
+  if (!snapshot && current?.tariff.status !== "Active") return blocked("Activate this vendor's transport rate card before using it in Proposal.", source);
+  if (result.blockers.length || result.commercialAmount == null) return blocked(result.blockers[0] ?? "Supplier commercial amount is unresolved.", source);
+  const taxMode = snapshot?.tariff.taxMode ?? current?.tariff.taxMode;
+  if (result.actualCharges.length && !service.transportActualsTerm) return blocked(`Choose how ${result.actualCharges.join(", ")} payable at actuals will be handled in the customer quote.`, source);
+  const knownSupplierAmount = result.supplierPayable ?? (taxMode === "inclusive" ? result.commercialAmount : result.supplierTax == null ? null : result.commercialAmount + result.supplierTax);
+  if (knownSupplierAmount == null) return blocked("Supplier tax or payable amount is unresolved.", source);
+  const lines: CostLine[] = [
+    { label: "Vehicle tariff", basis: result.billableKm != null ? `${result.billableKm} billable km` : "Selected supplier tariff", amount: result.base ?? 0 },
+    { label: "Driver allowance", basis: "Supplier rule", amount: result.driver ?? 0 },
+    { label: "Excess usage", basis: "Usage beyond included allowance", amount: result.excess ?? 0 },
+    { label: "Fixed additional charges", basis: "Applicable supplier terms", amount: result.fixedExtras ?? 0 },
+    { label: "Supplier tax", basis: taxMode === "inclusive" ? "Included in vehicle tariff" : "Approved shared tax profile", amount: taxMode === "inclusive" ? 0 : result.supplierTax ?? 0 },
+  ];
+  return { status: "priced", total: knownSupplierAmount, markupBasis: result.costBasis ?? undefined, lines, source: result.actualCharges.length ? `${source} · base plus ${result.actualCharges.join(", ")} at actuals` : source,
+    issue: result.actualCharges.length ? service.transportActualsTerm === "agency-absorbs" ? "Agency absorbs supplier actuals within the customer price; final supplier cost remains open." : "Customer pays the listed actual charges separately; displayed customer price excludes them." : undefined };
+}
+
+export function freezePrivateTransportPricing(days: ProposalDay[], tripStart: string, travellers = 0): { days: ProposalDay[]; issues: string[] } {
+  const issues: string[] = [];
+  const seenHires = new Map<string, ProposalService>();
+  const frozen = days.map((day, dayIndex) => ({ ...day, services: day.services.map((service) => {
+    if (service.kind !== "transfer" || !service.rateCardId || service.privateTransportSnapshot || !getDetailCard(service.rateCardId)?.privateTransport) return service;
+    if (service.transportHireId) {
+      const first = seenHires.get(service.transportHireId);
+      if (first && (first.rateCardId !== service.rateCardId || JSON.stringify(first.privateTransportInput) !== JSON.stringify(service.privateTransportInput))) {
+        issues.push(`${service.title}: retained hire ${service.transportHireId} has conflicting pricing details.`);
+        return service;
+      }
+      if (!first) seenHires.set(service.transportHireId, service);
+    }
+    const quote = privateTransportQuoteForService(service, { tripStart, dayIndex, travellers });
+    if (!quote || quote.result.blockers.length || quote.result.commercialAmount == null || quote.result.actualCharges.length && !service.transportActualsTerm || quote.result.supplierPayable == null && !quote.result.actualCharges.length) {
+      issues.push(`${service.title}: ${quote?.result.blockers[0] ?? (quote?.result.actualCharges.length && !service.transportActualsTerm ? "choose who bears the supplier's payable-at-actuals charges" : "complete the transport requirement")}`);
+      return service;
+    }
+    return { ...service, privateTransportSnapshot: {
+      vendorId: quote.tariff.vendorId, serviceId: quote.tariff.serviceId, vendorName: quote.card.vendor,
+      cardName: quote.card.name, currency: quote.card.currency, version: quote.tariff.version,
+      pricedAt: new Date().toISOString(), input: structuredClone(quote.input), result: structuredClone(quote.result),
+      tariff: structuredClone(quote.tariff), vehicles: structuredClone(readVehicleOfferings().filter((vehicle) => quote.tariff.vehicleIds.includes(vehicle.id))), taxProfiles: structuredClone(readSupplierTaxProfiles()),
+    } };
+  }) }));
+  return { days: frozen, issues };
+}
 
 const count = (value: number | undefined, fallback = 1) => Math.max(0, Number.isFinite(value) ? Number(value) : fallback);
 const positive = (value: number | undefined, fallback = 1) => Math.max(1, count(value, fallback));
@@ -226,6 +379,8 @@ function quoteGroundTransport(service: ProposalService, context: CostContext): C
 
 export function serviceCostBreakdown(service: ProposalService, context: CostContext = {}): CostBreakdown {
   if (service.priceState === "included") return { status: "included", total: 0, lines: [{ label: "Included", basis: "No separate supplier charge", amount: 0 }] };
+  if (service.kind === "activity" && service.rateCardId) return quoteActivity(service, context);
+  if (service.kind === "transfer" && (service.privateTransportSnapshot || service.rateCardId && getDetailCard(service.rateCardId)?.privateTransport)) return quotePrivateTransport(service, context);
   if (service.costComponents?.length && service.kind !== "stay" && service.kind !== "transfer") {
     if (service.priceState !== "priced") return blocked("Confirm the supplier's line item rates before including this service.");
     const items = service.costComponents;

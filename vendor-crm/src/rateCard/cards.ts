@@ -1,4 +1,10 @@
 import { DEFAULT_ACTIVITIES, type PolicyRow, type RateCardDetail, type RegionalTransportTariff } from "./types";
+import { PRIVATE_TRANSPORT_FIXTURES } from "../data/privateTransportFixtures";
+import { readVehicleOfferings } from "../data/vehicleOfferings";
+import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, readCreatedDirectoryServices } from "../data/vendorDirectory";
+import { TRANSPORT_TEMPLATE_LABELS, type PrivateTransportTemplate } from "./privateTransport";
+import { ACTIVITY_RATE_FIXTURES } from "../data/activityRateFixtures";
+import type { ActivityTariff } from "./activityPricing";
 
 function policy(
   id: string,
@@ -1138,15 +1144,77 @@ function airportTransferWorkbook(card: RateCardDetail): RegionalTransportTariff 
 const airportCard = DETAIL_CARDS["rc-air-2026"];
 if (airportCard?.transport) airportCard.regionalTransport = airportTransferWorkbook(airportCard);
 
-export function getDetailCard(id: string): RateCardDetail | undefined {
-  const seed = DETAIL_CARDS[id];
-  if ((!seed?.transport && !seed?.regionalTransport) || typeof window === "undefined") return seed;
+for (const fixture of PRIVATE_TRANSPORT_FIXTURES) {
+  DETAIL_CARDS[fixture.id] = {
+    ...blankHotel(), id: fixture.id, ref: fixture.ref, name: fixture.name,
+    vendor: fixture.vendorName, property: fixture.serviceName, service: "Transport",
+    currency: "INR", validity: "01 Oct 2026 – 31 Mar 2027",
+    state: fixture.tariff.status, tone: fixture.tariff.status === "Active" ? "success" : "warning",
+    ready: "Demo tariff · illustrative prices", readyTone: "warning", markupPercent: 0,
+    supplements: [], services: [], activities: [], rules: [], cancel: [], policies: [], activity: [],
+    privateTransport: structuredClone(fixture.tariff),
+  };
+}
+
+for (const fixture of ACTIVITY_RATE_FIXTURES) {
+  DETAIL_CARDS[fixture.id] = {
+    ...blankHotel(), id: fixture.id, ref: fixture.ref, name: fixture.name,
+    vendor: fixture.vendorName, property: fixture.serviceName, service: "Activities",
+    currency: "INR", validity: "01 Oct 2026 – 31 Mar 2027",
+    state: "Draft", tone: "warning", ready: "Supplier confirmation pending",
+    readyTone: "warning", markupPercent: 0,
+    supplements: [], services: [], activities: [], rules: [], cancel: [], policies: [], activity: [],
+    activityTariff: structuredClone(fixture.tariff), activityVersions: [],
+  };
+}
+
+const activityCardKey = (id: string) => `paryatech:activity-rate:v1:${id}`;
+const createdActivityIndexKey = "paryatech:activity-rate-created:v1";
+const createdTransportIndexKey = "paryatech:transport-rate-created:v3";
+
+export function listCreatedPrivateTransportCards(): RateCardDetail[] {
+  if (typeof window === "undefined") return [];
   try {
-    const stored = window.localStorage.getItem(`paryatech:transport-rate:v2:${id}`);
+    const ids = JSON.parse(window.localStorage.getItem(createdTransportIndexKey) || "[]") as string[];
+    return ids.map((id) => {
+      const raw = window.localStorage.getItem(`paryatech:transport-rate:v3:${id}`);
+      return raw ? JSON.parse(raw) as RateCardDetail : null;
+    }).filter((card): card is RateCardDetail => Boolean(card?.privateTransport?.schemaVersion === 1));
+  } catch { return []; }
+}
+
+export function listCreatedActivityCards(): RateCardDetail[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const ids = JSON.parse(window.localStorage.getItem(createdActivityIndexKey) || "[]") as string[];
+    return ids.map((id) => {
+      const raw = window.localStorage.getItem(activityCardKey(id));
+      return raw ? JSON.parse(raw) as RateCardDetail : null;
+    }).filter((card): card is RateCardDetail => Boolean(card?.activityTariff?.schemaVersion === 1));
+  } catch { return []; }
+}
+
+export function getDetailCard(id: string): RateCardDetail | undefined {
+  const seed = DETAIL_CARDS[id] ?? listCreatedActivityCards().find((card) => card.id === id) ?? listCreatedPrivateTransportCards().find((card) => card.id === id);
+  if (seed?.activityTariff && typeof window !== "undefined") {
+    try {
+      const raw = window.localStorage.getItem(activityCardKey(id));
+      const saved = raw ? JSON.parse(raw) as RateCardDetail : null;
+      return saved?.activityTariff?.schemaVersion === 1 && saved.activityTariff.vendorId === seed.activityTariff.vendorId && saved.activityTariff.serviceId === seed.activityTariff.serviceId ? saved : seed;
+    } catch { return seed; }
+  }
+  if ((!seed?.transport && !seed?.regionalTransport && !seed?.privateTransport) || typeof window === "undefined") return seed;
+  try {
+    const stored = window.localStorage.getItem(`paryatech:transport-rate:${seed.privateTransport ? "v3" : "v2"}:${id}`);
     if (!stored) return seed;
     const parsed = JSON.parse(stored) as RateCardDetail;
-    if (parsed.id !== id || !(parsed.transport?.routes && parsed.transport?.offerings || parsed.regionalTransport?.fares && parsed.regionalTransport?.seasons)) return seed;
+    if (parsed.id !== id || !(parsed.privateTransport?.schemaVersion === 1 || parsed.transport?.routes && parsed.transport?.offerings || parsed.regionalTransport?.fares && parsed.regionalTransport?.seasons)) return seed;
     if (parsed.regionalTransport && parsed.regionalTransport.schemaVersion !== 2) return seed;
+    if (parsed.privateTransport && parsed.privateTransport.illustrative === undefined && /demo tariff|illustrative/i.test(parsed.privateTransport.sourceDocument)) {
+      parsed.privateTransport = { ...parsed.privateTransport, illustrative: true, sourceConfirmed: false, status: "Draft" };
+      parsed.state = "Draft";
+      parsed.tone = "warning";
+    }
     return seed?.regionalTransport && parsed.transport && !parsed.regionalTransport ? { ...parsed, regionalTransport: airportTransferWorkbook(parsed) } : parsed;
   } catch {
     return seed;
@@ -1154,29 +1222,81 @@ export function getDetailCard(id: string): RateCardDetail | undefined {
 }
 
 export function saveTransportCard(card: RateCardDetail): void {
-  if ((!card.transport && !card.regionalTransport) || typeof window === "undefined") return;
+  if (card.activityTariff && typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(activityCardKey(card.id), JSON.stringify(card));
+      if (!DETAIL_CARDS[card.id]) {
+        const ids = JSON.parse(window.localStorage.getItem(createdActivityIndexKey) || "[]") as string[];
+        window.localStorage.setItem(createdActivityIndexKey, JSON.stringify([...new Set([...ids, card.id])]));
+      }
+    } catch { /* Keep the on-screen draft when browser storage is unavailable. */ }
+    return;
+  }
+  if ((!card.transport && !card.regionalTransport && !card.privateTransport) || typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(`paryatech:transport-rate:v2:${card.id}`, JSON.stringify(card));
+    window.localStorage.setItem(`paryatech:transport-rate:${card.privateTransport ? "v3" : "v2"}:${card.id}`, JSON.stringify(card));
+    if (card.privateTransport && !DETAIL_CARDS[card.id]) {
+      const ids = JSON.parse(window.localStorage.getItem(createdTransportIndexKey) || "[]") as string[];
+      window.localStorage.setItem(createdTransportIndexKey, JSON.stringify([...new Set([...ids, card.id])]));
+    }
   } catch {
     // The on-screen draft still works when browser storage is unavailable.
   }
 }
 
 export function listDetailCards(): RateCardDetail[] {
-  return Object.values(DETAIL_CARDS);
+  return [...Object.values(DETAIL_CARDS), ...listCreatedActivityCards(), ...listCreatedPrivateTransportCards()];
 }
 
 /** Fresh draft from an enabled template, stamped with the current vendor. */
-export function createBlankCard(templateId: string, vendorName: string): RateCardDetail {
-  const base = structuredClone(templateId === "visa" ? blankVisa() : templateId === "transport" ? regionalCard() : blankHotel());
+export function createBlankCard(templateId: string, vendorName: string, vendorId = "", serviceId = ""): RateCardDetail {
+  const transportTemplate = templateId.startsWith("transport-") ? templateId.slice(10) as PrivateTransportTemplate : null;
+  const base = structuredClone(templateId === "visa" ? blankVisa() : blankHotel());
   const stamp = Date.now().toString(36);
+  const example = transportTemplate ? PRIVATE_TRANSPORT_FIXTURES.find((fixture) => fixture.tariff.template === transportTemplate) : undefined;
+  const vehicleIds = readVehicleOfferings().filter((offering) => offering.vendorId === vendorId && offering.serviceIds.includes(serviceId)).map((offering) => offering.id);
+  const newTariff = example && transportTemplate ? structuredClone(example.tariff) : undefined;
+  const activityService = templateId === "activity" ? [...DIRECTORY_SERVICES, ...readCreatedDirectoryServices()].find((service) => service.id === serviceId && service.category === "Activities" && (service.profileVendorId === vendorId || VENDOR_SERVICE_CONNECTIONS.some((connection) => connection.vendorId === vendorId && connection.serviceId === service.id))) : undefined;
+  const activityTariff: ActivityTariff | undefined = templateId === "activity" ? {
+    schemaVersion: 1, vendorId, serviceId, version: 1, validFrom: "", validTo: "", sourceDocument: "", sourceConfirmed: false,
+    methods: [], personRates: [], bookingRates: [], unitRates: [], charges: [], adjustments: [],
+    taxMode: "exclusive", taxProfileId: null, approvedTaxRate: null, taxApprovalSource: "", commercialPolicy: "",
+  } : undefined;
+  if (newTariff) {
+    newTariff.vendorId = vendorId;
+    newTariff.serviceId = serviceId;
+    newTariff.vehicleIds = vehicleIds;
+    newTariff.coverageAreas = [];
+    newTariff.validFrom = "";
+    newTariff.validTo = "";
+    newTariff.sourceDocument = "";
+    newTariff.sourceConfirmed = false;
+    newTariff.illustrative = false;
+    newTariff.status = "Draft";
+    newTariff.taxMode = null;
+    newTariff.taxProfileId = null;
+    newTariff.routes = [];
+    newTariff.packages = [];
+    newTariff.rules = { ...newTariff.rules, minimumMethod: null, distanceBasis: "", billableDayMethod: null, timezone: "", garageKm: null, emptyReturnKm: null, fuelIncluded: null, carryUnusedKm: null, carryUnusedHours: null, excessMethod: null };
+    newTariff.routes = newTariff.routes.map((route) => ({ ...route, prices: Object.fromEntries(vehicleIds.map((id) => [id, null])) }));
+    newTariff.packagePrices = Object.fromEntries(vehicleIds.map((id) => [id, Object.fromEntries(newTariff.packages.map((pkg) => [pkg.id, null]))]));
+    newTariff.outstationPrices = Object.fromEntries(vehicleIds.map((id) => [id, { ratePerKm: null, minKmPerDay: null, driverPerDay: null }]));
+    newTariff.dailyPrices = Object.fromEntries(vehicleIds.map((id) => [id, { pricePerDay: null, includedKmPerDay: null, includedHoursPerDay: null }]));
+    newTariff.excessPrices = Object.fromEntries(vehicleIds.map((id) => [id, { extraKm: null, extraHour: null }]));
+    newTariff.charges = [];
+  }
   return {
     ...base,
     id: `rc-draft-${templateId}-${stamp}`,
+    ref: transportTemplate ? `RC-${stamp.toUpperCase()}` : base.ref,
     vendor: vendorName,
-    property: templateId === "visa" ? "Untitled visa product" : templateId === "transport" ? "Untitled transport service" : "Untitled property",
-    name: templateId === "transport" ? "New transport rate card" : base.name,
-    regionalTransport: templateId === "transport" && base.regionalTransport ? { ...base.regionalTransport, source: "No supplier source attached", sourceDocument: "No vendor tariff uploaded", sourceStatus: "illustrative", enabledMethods: [], fares: base.regionalTransport.fares.map((fare) => ({ ...fare, amount: null })) } : base.regionalTransport,
+    property: activityService?.name ?? (transportTemplate ? DIRECTORY_SERVICES.find((service) => service.id === serviceId && service.profileVendorId === vendorId)?.name || "Transport service" : templateId === "visa" ? "Untitled visa product" : "Untitled property"),
+    name: templateId === "activity" ? `${activityService?.name ?? "Activity"} supplier rates` : transportTemplate ? `New ${TRANSPORT_TEMPLATE_LABELS[transportTemplate]} rate card` : base.name,
+    service: templateId === "activity" ? "Activities" : transportTemplate ? "Transport" : base.service,
+    state: "Draft", tone: "warning", markupPercent: transportTemplate ? 0 : base.markupPercent,
+    privateTransport: newTariff,
+    activityTariff,
+    activityVersions: activityTariff ? [] : undefined,
   };
 }
 

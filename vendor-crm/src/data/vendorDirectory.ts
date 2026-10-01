@@ -1,4 +1,7 @@
 import type { ServiceType } from "./services";
+import { PRIVATE_TRANSPORT_FIXTURES } from "./privateTransportFixtures";
+import { ACTIVITY_RATE_FIXTURES } from "./activityRateFixtures";
+import type { ActivityOption } from "../rateCard/activityPricing";
 
 export type DirectoryCategory =
   | "Accommodation"
@@ -20,6 +23,8 @@ export interface DirectoryService {
   attributes?: Array<{ label: string; value: string }>;
   inclusions?: string[];
   exclusions?: string[];
+  /** Service-owned options; vendor rate cards reference their IDs. */
+  activityOptions?: ActivityOption[];
 }
 
 export interface VendorServiceConnection {
@@ -49,6 +54,20 @@ export const SUPPLIER_TYPES: SupplierType[] = [
 ];
 
 const createdServicesKey = "paryatech-vendor-directory-services";
+const deletedServicesKey = "paryatech-vendor-directory-deleted-service-ids:v1";
+
+export function readDeletedDirectoryServiceIds(): string[] {
+  try {
+    const saved = JSON.parse(localStorage.getItem(deletedServicesKey) || "[]");
+    return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveDeletedDirectoryServiceIds(ids: string[]) {
+  localStorage.setItem(deletedServicesKey, JSON.stringify(ids));
+}
 
 export function readCreatedDirectoryServices(): DirectoryService[] {
   try {
@@ -64,28 +83,12 @@ export function saveCreatedDirectoryServices(services: DirectoryService[]) {
 }
 
 export const DIRECTORY_SERVICES: DirectoryService[] = [
-  {
-    id: "kochi-local-transfers", serviceId: "svc-kochi-local", profileVendorId: "bluewave",
-    name: "Kochi airport and local transport", category: "Transport", location: "Kochi",
-    description: "Private airport transfers and local hire within the Kochi operating area.",
-    attributes: [{ label: "Service scope", value: "Fixed transfer, local package" }],
-  },
-  {
-    id: "kerala-outstation-hire", serviceId: "svc-kerala-outstation", profileVendorId: "trailmakers",
-    name: "Kerala outstation transport", category: "Transport", location: "Kerala",
-    description: "Private outstation vehicles hired by kilometre or day from Kochi.",
-    attributes: [{ label: "Service scope", value: "Outstation per km, daily hire" }],
-  },
-  {
-    id: "kerala-private-hire",
-    serviceId: "svc-kerala-private-hire",
-    profileVendorId: "bluewave",
-    name: "Kerala private transport",
-    category: "Transport",
-    location: "Kerala",
-    description: "Private vehicle hire with pickup, drop and route defined for each customer trip.",
-    attributes: [{ label: "Service scope", value: "One-way, local, outstation, daily" }],
-  },
+  ...Array.from(new Map(PRIVATE_TRANSPORT_FIXTURES.map((fixture) => [fixture.serviceId, fixture])).values()).map((fixture) => ({
+    id: fixture.serviceId, serviceId: `svc-${fixture.serviceId}`, profileVendorId: fixture.vendorId,
+    name: fixture.serviceName, category: "Transport" as const,
+    location: fixture.serviceName.includes("Kochi") ? "Kochi" : fixture.serviceName.includes("Jaipur") ? "Jaipur" : fixture.serviceName.includes("Bengaluru") ? "Bengaluru" : fixture.serviceName.includes("South") ? "South India" : "Kerala",
+    description: `Private chauffeured transport supplied by ${fixture.vendorName}.`,
+  })),
   {
     id: "taj-exotica",
     serviceId: "svc-taj-exotica",
@@ -127,20 +130,16 @@ export const DIRECTORY_SERVICES: DirectoryService[] = [
     location: "Munnar",
   },
   {
-    id: "kochi-transfer",
-    serviceId: "svc-transfer-cok",
-    profileVendorId: "trailmakers",
-    name: "Kochi Airport Transfer",
-    category: "Transport",
-    location: "Kochi",
-  },
-  {
     id: "munnar-trek",
     serviceId: "svc-trek-munnar",
     profileVendorId: "trailmakers",
     name: "Munnar Ridge Trek",
     category: "Activities",
     location: "Munnar",
+    activityOptions: [
+      { id: "trek-shared", name: "Shared guided trek", category: "Adventure", delivery: "shared", duration: "Half day", capacity: 12, session: "Morning" },
+      { id: "trek-private", name: "Private guided trek", category: "Adventure", delivery: "private", duration: "Half day", capacity: 10, session: "By arrangement" },
+    ],
   },
   {
     id: "backwater-kayak",
@@ -149,6 +148,11 @@ export const DIRECTORY_SERVICES: DirectoryService[] = [
     name: "Backwater Kayak",
     category: "Activities",
     location: "Alleppey",
+    activityOptions: [
+      { id: "kayak-guided", name: "Guided paddle", category: "Adventure", delivery: "shared", duration: "2 hours", capacity: 12, session: "Morning / sunset" },
+      { id: "kayak-private", name: "Private guided paddle", category: "Adventure", delivery: "private", duration: "2 hours", capacity: 8, session: "By arrangement" },
+      { id: "kayak-rental", name: "Kayak hire", category: "Rental", delivery: "private", duration: "2-hour session", capacity: null, session: "By arrangement" },
+    ],
   },
   {
     id: "cardamom-tour",
@@ -157,6 +161,40 @@ export const DIRECTORY_SERVICES: DirectoryService[] = [
     name: "Cardamom Plantation Tour",
     category: "Activities",
     location: "Thekkady",
+    activityOptions: [
+      { id: "cardamom-shared", name: "Shared plantation walk", category: "Guided tour", delivery: "shared", duration: "3 hours", capacity: 15, session: "09:00 / 14:00" },
+      { id: "cardamom-private", name: "Private plantation visit", category: "Guided tour", delivery: "private", duration: "Half day", capacity: 12, session: "By arrangement" },
+    ],
+  },
+  {
+    id: "sunset-cruise", serviceId: "svc-sunset-cruise", profileVendorId: "coastal",
+    name: "Alleppey Sunset Cruise", category: "Activities", location: "Alleppey",
+    activityOptions: [
+      { id: "cruise-shared", name: "Shared sunset cruise", category: "Cruise", delivery: "shared", duration: "2 hours", capacity: 30, session: "17:00" },
+      { id: "cruise-private", name: "Private sunset cruise", category: "Cruise", delivery: "private", duration: "2 hours", capacity: 12, session: "17:00" },
+    ],
+  },
+  {
+    id: "spice-cooking-class", serviceId: "svc-spice-class", profileVendorId: "spice-route",
+    name: "Kerala Spice Cooking Class", category: "Activities", location: "Kochi",
+    activityOptions: [
+      { id: "class-shared", name: "Shared cooking class", category: "Class/workshop", delivery: "shared", duration: "3 hours", capacity: 12, session: "11:00" },
+      { id: "class-private", name: "Private kitchen session", category: "Class/workshop", delivery: "private", duration: "3 hours", capacity: 8, session: "By arrangement" },
+    ],
+  },
+  {
+    id: "periyar-safari", serviceId: "svc-periyar-safari", profileVendorId: "summit",
+    name: "Periyar Wildlife Safari", category: "Activities", location: "Thekkady",
+    activityOptions: [
+      { id: "safari-jeep", name: "Private jeep safari", category: "Adventure", delivery: "private", duration: "4 hours", capacity: null, session: "Morning / afternoon" },
+    ],
+  },
+  {
+    id: "heritage-admission", serviceId: "svc-heritage-entry", profileVendorId: "kerala-heritage",
+    name: "Fort Kochi Heritage Admission", category: "Activities", location: "Kochi",
+    activityOptions: [
+      { id: "heritage-ticket", name: "Museum admission", category: "Admission", delivery: "shared", duration: "Single entry", capacity: null, session: "Opening hours" },
+    ],
   },
   {
     id: "uae-visa",
@@ -177,9 +215,16 @@ export const DIRECTORY_SERVICES: DirectoryService[] = [
 ];
 
 export const VENDOR_SERVICE_CONNECTIONS: VendorServiceConnection[] = [
-  { id: "kochi-local-bluewave", vendorId: "bluewave", serviceId: "kochi-local-transfers", supplierType: "Direct supplier", productsCovered: "Fixed transfer · Local package", rateCardId: "rc-kochi-local-transfers", rateCardName: "Kochi airport and local transfers", validity: "01 Oct 26–31 Mar 27" },
-  { id: "kerala-km-trailmakers", vendorId: "trailmakers", serviceId: "kerala-outstation-hire", supplierType: "Direct supplier", productsCovered: "Outstation per km · Daily hire", rateCardId: "rc-kerala-km-tariff", rateCardName: "Kerala outstation kilometre tariff", validity: "01 Oct 26–31 Mar 27" },
-  { id: "kerala-hire-bluewave", vendorId: "bluewave", serviceId: "kerala-private-hire", supplierType: "Direct supplier", productsCovered: "Sedan · MUV · Van · Coach", rateCardId: "rc-kerala-private-hire", rateCardName: "Kerala private hire rates", validity: "01 Oct 26–31 Mar 27" },
+  ...PRIVATE_TRANSPORT_FIXTURES.map((fixture) => ({
+    id: `${fixture.id}-${fixture.vendorId}`, vendorId: fixture.vendorId, serviceId: fixture.serviceId,
+    supplierType: "Direct supplier" as const, productsCovered: fixture.tariff.vehicleIds.length + " vehicle offerings",
+    rateCardId: fixture.id, rateCardName: fixture.name, validity: "01 Oct 26–31 Mar 27",
+  })),
+  ...ACTIVITY_RATE_FIXTURES.map((fixture) => ({
+    id: `activity-${fixture.id}`, vendorId: fixture.vendorId, serviceId: fixture.serviceId,
+    supplierType: "Direct supplier" as const, productsCovered: "Activity options",
+    rateCardId: fixture.id, rateCardName: fixture.name, validity: "01 Oct 26–31 Mar 27",
+  })),
   { id: "taj-exotica-exhosp", vendorId: "exhosp", serviceId: "taj-exotica", supplierType: "Direct supplier", productsCovered: "12 room types", rateCardId: "rc-acc-2627", rateCardName: "Accommodation tariff 2026–27", validity: "01 Apr 26–31 Mar 27" },
   { id: "taj-exotica-wanderlust", vendorId: "wanderlust", serviceId: "taj-exotica", supplierType: "DMC", productsCovered: "8 room types", rateCardId: "rc-taj-goa-wanderlust", rateCardName: "Taj Goa contracted rates", validity: "01 Oct 26–30 Sep 27" },
   { id: "taj-exotica-coastal", vendorId: "coastal", serviceId: "taj-exotica", supplierType: "Wholesaler", productsCovered: "5 room types", rateCardId: "rc-taj-goa-coastal", rateCardName: "Winter FIT tariff", validity: "01 Oct 26–31 Mar 27" },
@@ -193,23 +238,28 @@ export const VENDOR_SERVICE_CONNECTIONS: VendorServiceConnection[] = [
   { id: "lake-wanderlust", vendorId: "wanderlust", serviceId: "example-lake", supplierType: "DMC", productsCovered: "2 room types", rateCardId: "rc-acc-2526", rateCardName: "Backwater stay rates", validity: "01 Apr 26–31 Mar 27" },
   { id: "hill-exhosp", vendorId: "exhosp", serviceId: "example-hill", supplierType: "Direct supplier", productsCovered: "3 room types", rateCardId: "rc-hill-2627", rateCardName: "Hill Retreat tariff 2026–27", validity: "01 Apr 26–31 Mar 27" },
   { id: "hill-horizon", vendorId: "horizon", serviceId: "example-hill", supplierType: "DMC", productsCovered: "3 room types", rateCardId: "rc-hill-2627", rateCardName: "Munnar winter rates", validity: "01 Oct 26–31 Mar 27" },
-  { id: "transfer-bluewave", vendorId: "bluewave", serviceId: "kochi-transfer", supplierType: "Direct supplier", productsCovered: "Sedan · SUV · Tempo", rateCardId: "rc-air-2026", rateCardName: "Airport transfer rates 2026", validity: "01 Jan–31 Dec 26" },
-  { id: "transfer-trailmakers", vendorId: "trailmakers", serviceId: "kochi-transfer", supplierType: "DMC", productsCovered: "Sedan · Tempo", rateCardId: "rc-air-2026", rateCardName: "Kerala transfers 2026", validity: "01 Jan–31 Dec 26" },
-  { id: "transfer-wanderlust", vendorId: "wanderlust", serviceId: "kochi-transfer", supplierType: "DMC", productsCovered: "Sedan · SUV", rateCardId: "rc-air-2026", rateCardName: "Kochi ground rates", validity: "01 Jan–31 Dec 26" },
-  { id: "transfer-spice", vendorId: "spice-route", serviceId: "kochi-transfer", supplierType: "Wholesaler", productsCovered: "Sedan", rateCardId: "rc-air-2026", rateCardName: "Airport FIT transfers", validity: "01 Jan–31 Dec 26" },
-  { id: "trek-trailmakers", vendorId: "trailmakers", serviceId: "munnar-trek", supplierType: "Direct supplier", productsCovered: "Half day · max 12", rateCardId: "rc-acc-2627", rateCardName: "Activity tariff 2026", validity: "01 Jan–31 Dec 26" },
-  { id: "trek-summit", vendorId: "summit", serviceId: "munnar-trek", supplierType: "Direct supplier", productsCovered: "Half day · max 10", rateCardId: "rc-acc-2526", rateCardName: "Guided trek rates", validity: "01 Oct 26–31 Mar 27" },
-  { id: "trek-spice", vendorId: "spice-route", serviceId: "munnar-trek", supplierType: "DMC", productsCovered: "Private groups", rateCardId: "rc-hill-2627", rateCardName: "Munnar experiences", validity: "01 Oct 26–31 Mar 27" },
-  { id: "kayak-trailmakers", vendorId: "trailmakers", serviceId: "backwater-kayak", supplierType: "Direct supplier", productsCovered: "Single · tandem kayak", rateCardId: "rc-acc-2627", rateCardName: "Activity tariff 2026", validity: "01 Jan–31 Dec 26" },
-  { id: "kayak-spice", vendorId: "spice-route", serviceId: "backwater-kayak", supplierType: "DMC", productsCovered: "Private groups", rateCardId: "rc-acc-2526", rateCardName: "Backwater experiences", validity: "01 Oct 26–31 Mar 27" },
-  { id: "cardamom-exhosp", vendorId: "exhosp", serviceId: "cardamom-tour", supplierType: "DMC", productsCovered: "Half day tour", rateCardId: "rc-hill-2627", rateCardName: "Hill Retreat tariff 2026–27", validity: "01 Apr 26–31 Mar 27" },
-  { id: "cardamom-spice", vendorId: "spice-route", serviceId: "cardamom-tour", supplierType: "Direct supplier", productsCovered: "Private · shared", rateCardId: "rc-acc-2627", rateCardName: "Spice plantation rates", validity: "01 Jan–31 Dec 26" },
   { id: "visa-atlas", vendorId: "atlas-visa", serviceId: "uae-visa", supplierType: "Direct supplier", productsCovered: "30 · 60 · 90 days", rateCardId: "rc-visa-uae", rateCardName: "Visa services tariff · UAE", validity: "01 Apr–30 Sep 26" },
   { id: "visa-horizon", vendorId: "horizon", serviceId: "uae-visa", supplierType: "DMC", productsCovered: "30 · 60 days", rateCardId: "rc-visa-uae", rateCardName: "UAE visa handling", validity: "01 Apr–30 Sep 26" },
-  { id: "flights-trailmakers", vendorId: "trailmakers", serviceId: "kerala-flights", supplierType: "Wholesaler", productsCovered: "Domestic · international", rateCardId: "rc-air-2026", rateCardName: "Air ticketing fees 2026", validity: "01 Jan–31 Dec 26" },
-  { id: "flights-wanderlust", vendorId: "wanderlust", serviceId: "kerala-flights", supplierType: "Direct supplier", productsCovered: "Domestic · regional", rateCardId: "rc-air-2026", rateCardName: "Flight desk contract 2026", validity: "01 Jan–31 Dec 26" },
-  { id: "flights-horizon", vendorId: "horizon", serviceId: "kerala-flights", supplierType: "DMC", productsCovered: "Domestic · international", rateCardId: "rc-air-2026", rateCardName: "Air consolidation rates 2026", validity: "01 Jan–31 Dec 26" },
 ];
+
+const linkedServicesKey = "paryatech-vendor-service-connections:v1";
+try {
+  const saved = JSON.parse(localStorage.getItem(linkedServicesKey) || "[]") as VendorServiceConnection[];
+  if (Array.isArray(saved)) for (const connection of saved) {
+    if (connection?.vendorId && connection?.serviceId && !VENDOR_SERVICE_CONNECTIONS.some((item) => item.vendorId === connection.vendorId && item.serviceId === connection.serviceId)) VENDOR_SERVICE_CONNECTIONS.push(connection);
+  }
+} catch { /* Storage is optional during static rendering. */ }
+
+export function linkVendorService(vendorId: string, serviceId: string): VendorServiceConnection {
+  const existing = VENDOR_SERVICE_CONNECTIONS.find((item) => item.vendorId === vendorId && item.serviceId === serviceId);
+  if (existing) return existing;
+  const service = [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].find((item) => item.id === serviceId);
+  if (!service) throw new Error("Select an existing service before linking it to a supplier.");
+  const connection: VendorServiceConnection = { id: `linked-${vendorId}-${serviceId}`, vendorId, serviceId, supplierType: "Direct supplier", productsCovered: service.category === "Activities" ? "Activity options" : "Service offering", rateCardId: "", rateCardName: "No rate card yet", validity: "Not set" };
+  VENDOR_SERVICE_CONNECTIONS.push(connection);
+  try { localStorage.setItem(linkedServicesKey, JSON.stringify(VENDOR_SERVICE_CONNECTIONS.filter((item) => item.id.startsWith("linked-")))); } catch { /* Keep the current session usable. */ }
+  return connection;
+}
 
 export function directoryCategoryForServiceType(type: ServiceType): DirectoryCategory | null {
   if (type === "Activity") return "Activities";

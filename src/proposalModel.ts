@@ -1,4 +1,7 @@
 import { serviceCostBreakdown, type CostContext } from "./serviceCosting";
+import type { PrivateTransportQuote, PrivateTransportTariff, PrivateTransportTrip, VehicleOffering } from "../vendor-crm/src/rateCard/privateTransport";
+import type { SupplierTaxProfile } from "../vendor-crm/src/rateCard/supplierTax";
+import type { ActivityQuoteInput, ActivityQuoteResult } from "../vendor-crm/src/rateCard/activityPricing";
 
 export type ProposalStatus = "Draft" | "Itinerary shared" | "Changes requested" | "Approved" | "Declined";
 export type ProposalServiceKind = "flight" | "transfer" | "stay" | "activity" | "meal" | "other";
@@ -50,6 +53,7 @@ export interface ProposalService {
   image?: string;
   sourceType?: "vendor-crm" | "api";
   sourceId?: string;
+  sourceVendorId?: string;
   serviceCategory?: string;
   cost?: number;
   costComponents?: ServiceCostComponent[];
@@ -61,6 +65,15 @@ export interface ProposalService {
   nights?: number;
   mealPlan?: string;
   rateCardId?: string;
+  activityInput?: ActivityQuoteInput;
+  activitySnapshot?: { vendorId: string; serviceId: string; vendorName: string; cardName: string; currency: string; version: number; pricedAt: string; input: ActivityQuoteInput; result: ActivityQuoteResult };
+  privateTransportInput?: PrivateTransportTrip;
+  privateTransportSnapshot?: { vendorId: string; serviceId: string; vendorName: string; cardName: string; currency: string; version: number; pricedAt: string; input: PrivateTransportTrip; result: PrivateTransportQuote; tariff: PrivateTransportTariff; vehicles: VehicleOffering[]; taxProfiles: SupplierTaxProfile[] };
+  /** Same retained hire may appear on several itinerary days but is costed once. */
+  transportHireId?: string;
+  transportCoversEntireGroup?: boolean;
+  /** Who bears supplier charges that remain payable at actuals after quoting. */
+  transportActualsTerm?: "agency-absorbs" | "customer-pays";
   roomTypeId?: string;
   mealPlanCode?: string;
   stayCheckIn?: string;
@@ -121,6 +134,7 @@ export interface ProposalRecord {
   sharingMode?: "itinerary" | "priced";
   version?: number;
   acceptedVersion?: number;
+  acceptedRevisions?: Array<{ version: number; acceptedAt: string; days: ProposalDay[]; value: number }>;
   destination: string;
   region: string;
   travel: string;
@@ -159,14 +173,22 @@ export function serviceTotalCost(service: ProposalService, context?: CostContext
 
 export function itineraryCosting(days: ProposalDay[], context: Omit<CostContext, "dayIndex"> = {}) {
   const services = days.flatMap((day) => day.services);
-  const quotes = days.flatMap((day, dayIndex) => day.services.map((service) => ({ service, quote: serviceCostBreakdown(service, { ...context, dayIndex }) })));
+  const seenHires = new Map<string, ProposalService>();
+  const quotes = days.flatMap((day, dayIndex) => day.services.map((service) => {
+    const first = service.kind === "transfer" && service.transportHireId ? seenHires.get(service.transportHireId) : undefined;
+    if (service.kind === "transfer" && service.transportHireId && !first) seenHires.set(service.transportHireId, service);
+    const sameHire = first && first.rateCardId === service.rateCardId && JSON.stringify(first.privateTransportInput) === JSON.stringify(service.privateTransportInput);
+    return { service, quote: first ? sameHire ? { status: "included" as const, total: 0, lines: [{ label: "Retained transport hire", basis: "Costed on its first itinerary day", amount: 0 }] } : { status: "unpriced" as const, total: 0, lines: [], issue: "This retained hire has different pricing details on another day." } : serviceCostBreakdown(service, { ...context, dayIndex }) };
+  }));
   return {
     services,
+    quotes,
     stays: services.filter((service) => service.kind === "stay").length,
     unpriced: quotes.filter(({ quote }) => quote.status === "unpriced").length,
     unpricedCount: quotes.filter(({ quote }) => quote.status === "unpriced").length,
     unpricedRequired: quotes.filter(({ service, quote }) => !service.optional && quote.status === "unpriced").length,
     baseCost: quotes.reduce((sum, { service, quote }) => sum + (service.optional ? 0 : quote.total), 0),
+    markupBaseCost: quotes.reduce((sum, { service, quote }) => sum + (service.optional ? 0 : "markupBasis" in quote && typeof quote.markupBasis === "number" ? quote.markupBasis : quote.total), 0),
     optionalCost: quotes.reduce((sum, { service, quote }) => sum + (service.optional ? quote.total : 0), 0),
   };
 }

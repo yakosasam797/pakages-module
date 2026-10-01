@@ -1,6 +1,7 @@
 import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, readCreatedDirectoryServices, type DirectoryCategory } from "../vendor-crm/src/data/vendorDirectory";
 import { SEED_VENDORS } from "../vendor-crm/src/data/vendors";
 import { VENDOR_SERVICES } from "../vendor-crm/src/data/services";
+import { listDetailCards } from "../vendor-crm/src/rateCard/cards";
 import type { ProposalServiceKind } from "./proposalModel";
 
 export type PackageServiceCategory = DirectoryCategory | "DMC/Ground handling" | "Other";
@@ -13,6 +14,7 @@ export interface PackageServiceOption {
   location: string;
   description: string;
   vendor?: string;
+  vendorId?: string;
   image?: string;
   rateCardIds?: string[];
   source: PackageServiceSource;
@@ -32,10 +34,13 @@ export const kindForCategory: Record<PackageServiceCategory, ProposalServiceKind
 };
 
 export function crmServiceOptions(): PackageServiceOption[] {
-  return [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].map((service) => {
-    const connection = VENDOR_SERVICE_CONNECTIONS.find((item) => item.serviceId === service.id);
-    const vendor = SEED_VENDORS.find((item) => item.id === connection?.vendorId);
+  const cards = listDetailCards();
+  return [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].flatMap((service) => {
+    const connections = VENDOR_SERVICE_CONNECTIONS.filter((item) => item.serviceId === service.id);
+    const suppliers = connections.length ? connections.map((item) => item.vendorId) : [service.profileVendorId];
     const profile = VENDOR_SERVICES.find((item) => item.id === service.serviceId);
+    return suppliers.map((vendorId) => {
+    const vendor = SEED_VENDORS.find((item) => item.id === vendorId);
     return {
       id: service.id,
       name: service.name,
@@ -43,10 +48,16 @@ export function crmServiceOptions(): PackageServiceOption[] {
       location: service.location,
       description: service.description || service.attributes?.map((item) => item.value).join(" · ") || `${service.category} service in ${service.location}`,
       vendor: vendor?.name,
+      vendorId,
       image: vendorImage(profile?.imageUrl ?? vendor?.imageUrl),
-      rateCardIds: profile?.rateCards.map((card) => card.id) ?? [],
+      rateCardIds: service.category === "Activities"
+        ? cards.filter((card) => card.activityTariff?.serviceId === service.id && card.activityTariff.vendorId === vendorId).map((card) => card.id)
+        : service.category === "Transport"
+          ? cards.filter((card) => card.privateTransport?.serviceId === service.id && card.privateTransport.vendorId === vendorId).map((card) => card.id)
+          : profile?.rateCards.map((card) => card.id) ?? [],
       source: "vendor-crm" as const,
     };
+    });
   });
 }
 

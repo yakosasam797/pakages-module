@@ -30,6 +30,9 @@ export function ProposalBuilder({ packages, initialPackage, existing, queryConte
       sharingMode: draft.sharingMode,
       version: existing?.version ? existing.version + 1 : 1,
       acceptedVersion: existing?.acceptedVersion,
+      acceptedRevisions: existing?.status === "Approved" && !existing.acceptedRevisions?.some((revision) => revision.version === (existing.acceptedVersion ?? existing.version ?? 1))
+        ? [...(existing.acceptedRevisions ?? []), { version: existing.acceptedVersion ?? existing.version ?? 1, acceptedAt: new Date().toISOString(), days: structuredClone(existing.days), value: existing.value }]
+        : existing?.acceptedRevisions,
       inclusions: draft.inclusions,
       exclusions: draft.exclusions,
       importantNotes: draft.importantNotes,

@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } fr
 import { Button } from "@paryatech/design-system";
 import { DIRECTORY_CATEGORIES, type DirectoryCategory, type DirectoryService } from "../data/vendorDirectory";
 import type { Vendor } from "../data/vendors";
+import type { ActivityOption } from "../rateCard/activityPricing";
 import { IconBuilding, IconCheck, IconChevronDown, IconIdCard, IconPackages, IconPin, IconSearch } from "../icons";
 import { ServiceTypeIcon } from "./ServiceTypeLabel";
 import "./NewVendorPage.css";
@@ -65,7 +66,7 @@ function Section({ title, description, icon, children }: { title: string; descri
   </section>;
 }
 
-function VendorPicker({ vendors, value, invalid, onChange }: { vendors: Vendor[]; value: string; invalid: boolean; onChange: (id: string) => void }) {
+function VendorPicker({ vendors, value, invalid, disabled = false, onChange }: { vendors: Vendor[]; value: string; invalid: boolean; disabled?: boolean; onChange: (id: string) => void }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);
@@ -92,7 +93,7 @@ function VendorPicker({ vendors, value, invalid, onChange }: { vendors: Vendor[]
     }
   }}>
     <span className="new-vendor-field__label" id={labelId}>Provided by *</span>
-    <button type="button" className={`new-service-vendor-picker__trigger${open ? " is-open" : ""}`} aria-labelledby={labelId} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? listId : undefined} aria-invalid={invalid} onClick={() => { setQuery(""); setOpen((current) => !current); }}>
+    <button type="button" className={`new-service-vendor-picker__trigger${open ? " is-open" : ""}`} aria-labelledby={labelId} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? listId : undefined} aria-invalid={invalid} disabled={disabled} onClick={() => { setQuery(""); setOpen((current) => !current); }}>
       <span className="new-service-vendor-picker__avatar" aria-hidden="true">{selected?.imageUrl ? <img src={selected.imageUrl} alt="" /> : selected?.initials ?? <IconBuilding size={17} />}</span>
       <span className="new-service-vendor-picker__selection">{selected ? <><strong>{selected.name}</strong><small>{selected.code} · {selected.location}</small></> : <span className="new-service-vendor-picker__placeholder">Select vendor</span>}</span>
       <IconChevronDown size={17} />
@@ -110,49 +111,62 @@ function VendorPicker({ vendors, value, invalid, onChange }: { vendors: Vendor[]
   </div>;
 }
 
-export function NewServicePage({ existingServices, vendors, vendorId = "", onCancel, onCreated }: {
+export function NewServicePage({ existingServices, vendors, vendorId = "", service, onCancel, onCreated }: {
   existingServices: DirectoryService[];
   vendors: Vendor[];
   vendorId?: string;
+  service?: DirectoryService;
   onCancel: () => void;
   onCreated: (service: DirectoryService) => void;
 }) {
-  const [category, setCategory] = useState<DirectoryCategory>("Accommodation");
-  const [selectedVendorId, setSelectedVendorId] = useState(vendorId);
-  const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [details, setDetails] = useState<Record<string, string>>({});
+  const [category, setCategory] = useState<DirectoryCategory>(service?.category ?? "Accommodation");
+  const [selectedVendorId, setSelectedVendorId] = useState(service?.profileVendorId ?? vendorId);
+  const [name, setName] = useState(service?.name ?? "");
+  const [location, setLocation] = useState(service?.location ?? "");
+  const [activityOptions, setActivityOptions] = useState<ActivityOption[]>(service?.activityOptions ?? []);
+  const [details, setDetails] = useState<Record<string, string>>(() => Object.fromEntries(
+    (service?.attributes ?? []).flatMap(({ label, value }) => {
+      const field = typeDetails[service!.category].fields.find((item) => item.label === label);
+      return field ? [[`${service!.category}:${field.key}`, value]] : [];
+    }),
+  ));
   const [attempted, setAttempted] = useState(false);
-  const [id] = useState(() => `svc-${crypto.randomUUID().slice(0, 8)}`);
+  const [id] = useState(() => service?.id ?? `svc-${crypto.randomUUID().slice(0, 8)}`);
   const fields = typeDetails[category].fields;
-  const duplicate = existingServices.find((service) => service.profileVendorId === selectedVendorId && service.category === category && service.name.trim().toLowerCase() === name.trim().toLowerCase());
-  const missing = !selectedVendorId || !vendors.some((vendor) => vendor.id === selectedVendorId) || !name.trim() || !location.trim() || fields.some((field) => field.required && !details[`${category}:${field.key}`]?.trim());
+  const duplicate = existingServices.find((item) => item.id !== id && item.profileVendorId === selectedVendorId && item.category === category && item.name.trim().toLowerCase() === name.trim().toLowerCase());
+  const missing = !selectedVendorId || !vendors.some((vendor) => vendor.id === selectedVendorId) || !name.trim() || !location.trim() || (!service && fields.some((field) => field.required && !details[`${category}:${field.key}`]?.trim())) || (category === "Activities" && (!activityOptions.length || activityOptions.some((option) => !option.name.trim() || option.minAge != null && (option.minAge < 0 || option.maxAge != null && option.maxAge < option.minAge) || option.minParticipants != null && (option.minParticipants < 1 || option.capacity != null && option.minParticipants > option.capacity) || option.includedComponents?.some((item) => option.excludedComponents?.includes(item)))));
+  const updateActivityOption = (optionId: string, patch: Partial<ActivityOption>) => setActivityOptions((current) => current.map((option) => option.id === optionId ? { ...option, ...patch } : option));
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
     setAttempted(true);
     if (missing || duplicate) return;
     onCreated({
+      ...service,
       id,
-      serviceId: id,
+      serviceId: service?.serviceId ?? id,
       profileVendorId: selectedVendorId,
       name: name.trim(),
       category,
       location: location.trim(),
-      attributes: fields.map((field) => ({ label: field.label, value: details[`${category}:${field.key}`]?.trim() ?? "" })).filter((field) => field.value),
+      activityOptions: category === "Activities" ? activityOptions.map((option) => ({ ...option, name: option.name.trim() })) : undefined,
+      attributes: [
+        ...(service?.attributes ?? []).filter(({ label }) => !fields.some((field) => field.label === label)),
+        ...fields.map((field) => ({ label: field.label, value: details[`${category}:${field.key}`]?.trim() ?? "" })).filter((field) => field.value),
+      ],
     });
   };
 
   return <div className="new-vendor-page new-service-page">
     <form className="new-vendor-form" onSubmit={submit} noValidate>
-      <header className="new-vendor-form__head"><h1>Add service</h1></header>
+      <header className="new-vendor-form__head"><h1>{service ? "Edit service" : "Add service"}</h1></header>
       {(attempted && missing || duplicate) ? <div className="new-vendor-errors" role="alert">
         <strong>{duplicate ? "This service already exists" : "Complete the required details"}</strong>
-        <p>{duplicate ? `${duplicate.name} is already listed for this vendor under ${category}.` : "Choose a vendor and complete the required service details."}</p>
+        <p>{duplicate ? `${duplicate.name} is already listed for this vendor under ${category}.` : category === "Activities" ? "Complete the service and option names, then check minimum age, party size, capacity and included items." : "Choose a vendor and complete the required service details."}</p>
       </div> : null}
 
-      <Section title="Vendor" description="Select the vendor that provides this service." icon={<IconBuilding size={18} />}>
-        <VendorPicker vendors={vendors} value={selectedVendorId} invalid={attempted && !selectedVendorId} onChange={(id) => { setSelectedVendorId(id); setAttempted(false); }} />
+      <Section title="Vendor" description={service ? "The linked vendor stays with this service." : "Select the vendor that provides this service."} icon={<IconBuilding size={18} />}>
+        <VendorPicker vendors={vendors} value={selectedVendorId} invalid={attempted && !selectedVendorId} disabled={Boolean(service)} onChange={(id) => { setSelectedVendorId(id); setAttempted(false); }} />
       </Section>
 
       <Section title="Service identity" description="Name the service and choose the type staff will use to find it." icon={<IconPackages size={18} />}>
@@ -181,7 +195,29 @@ export function NewServicePage({ existingServices, vendors, vendorId = "", onCan
         </div>
       </Section>
 
-      <footer className="new-vendor-actions"><div><Button variant="ghost" size="sm" type="button" onClick={onCancel}>Cancel</Button><Button variant="primary" size="sm" type="submit">Create service</Button></div></footer>
+      {category === "Activities" ? <Section title="Service options" description="Define the sessions or formats that suppliers can price. These stay with the service, not the rate card." icon={<IconPackages size={18} />}>
+        <div className="new-service-options">
+          {activityOptions.map((option) => <div className="new-service-options__row" key={option.id}>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Option name *</span><input value={option.name} onChange={(event) => updateActivityOption(option.id, { name: event.target.value })} placeholder="e.g. Shared morning tour" /></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Activity category</span><select value={option.category} onChange={(event) => updateActivityOption(option.id, { category: event.target.value as ActivityOption["category"] })}>{(["Admission", "Guided tour", "Class/workshop", "Cruise", "Adventure", "Rental"] as const).map((value) => <option key={value}>{value}</option>)}</select></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Delivery type</span><select value={option.delivery} onChange={(event) => updateActivityOption(option.id, { delivery: event.target.value as ActivityOption["delivery"] })}><option value="shared">Shared</option><option value="private">Private</option><option value="either">Shared or private</option></select></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Duration</span><input value={option.duration} onChange={(event) => updateActivityOption(option.id, { duration: event.target.value })} placeholder="e.g. 2 hours" /></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Session</span><input value={option.session} onChange={(event) => updateActivityOption(option.id, { session: event.target.value })} placeholder="e.g. 09:00 or by arrangement" /></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Maximum participants</span><input type="number" min="1" value={option.capacity ?? ""} onChange={(event) => updateActivityOption(option.id, { capacity: event.target.value ? Number(event.target.value) : null })} placeholder="If applicable" /></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Minimum participants</span><input type="number" min="1" value={option.minParticipants ?? ""} onChange={(event) => updateActivityOption(option.id, { minParticipants: event.target.value ? Number(event.target.value) : null })} placeholder="If applicable" /></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Minimum age</span><input type="number" min="0" value={option.minAge ?? ""} onChange={(event) => updateActivityOption(option.id, { minAge: event.target.value ? Number(event.target.value) : null })} placeholder="If applicable" /></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Maximum age</span><input type="number" min="0" value={option.maxAge ?? ""} onChange={(event) => updateActivityOption(option.id, { maxAge: event.target.value ? Number(event.target.value) : null })} placeholder="If applicable" /></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Available session times</span><input value={(option.sessions ?? []).join(", ")} onChange={(event) => updateActivityOption(option.id, { sessions: event.target.value.split(",").map((value) => value.trim()).filter(Boolean) })} placeholder="e.g. 15:00, 17:00" /></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Supplier-confirmed sessions</span><input value={(option.availableSessions ?? []).map((item) => `${item.date} ${item.session}`).join(", ")} onChange={(event) => updateActivityOption(option.id, { availableSessions: event.target.value.split(",").map((entry) => { const [date, ...timeParts] = entry.trim().split(/\s+/); return { date, session: timeParts.join(" ") }; }).filter((entry) => /^\d{4}-\d{2}-\d{2}$/.test(entry.date) && entry.session) })} placeholder="e.g. 2026-11-18 15:00" /></label>
+            <label className="new-vendor-field"><span className="new-vendor-field__label">Unavailable sessions</span><input value={(option.unavailableSessions ?? []).map((item) => `${item.date} ${item.session}`).join(", ")} onChange={(event) => updateActivityOption(option.id, { unavailableSessions: event.target.value.split(",").map((entry) => { const [date, ...timeParts] = entry.trim().split(/\s+/); return { date, session: timeParts.join(" ") }; }).filter((entry) => /^\d{4}-\d{2}-\d{2}$/.test(entry.date) && entry.session) })} placeholder="e.g. 2026-11-18 17:00" /></label>
+            <fieldset className="new-service-options__components"><legend>Other itinerary components</legend>{(["Transport", "Admission", "Meal", "Equipment"] as const).map((component) => <div key={component}><strong>{component}</strong><label><input type="checkbox" checked={option.includedComponents?.includes(component) ?? false} onChange={(event) => updateActivityOption(option.id, { includedComponents: event.target.checked ? [...(option.includedComponents ?? []), component] : (option.includedComponents ?? []).filter((item) => item !== component), excludedComponents: (option.excludedComponents ?? []).filter((item) => item !== component) })} /> Included</label><label><input type="checkbox" checked={option.excludedComponents?.includes(component) ?? false} onChange={(event) => updateActivityOption(option.id, { excludedComponents: event.target.checked ? [...(option.excludedComponents ?? []), component] : (option.excludedComponents ?? []).filter((item) => item !== component), includedComponents: (option.includedComponents ?? []).filter((item) => item !== component) })} /> Separate</label></div>)}</fieldset>
+            <button type="button" className="new-service-options__remove" onClick={() => setActivityOptions((current) => current.filter((item) => item.id !== option.id))}>Remove option</button>
+          </div>)}
+          <button type="button" className="new-service-options__add" onClick={() => setActivityOptions((current) => [...current, { id: `option-${crypto.randomUUID().slice(0, 8)}`, name: "", category: "Guided tour", delivery: "shared", duration: "", capacity: null, session: "" }])}>Add option</button>
+        </div>
+      </Section> : null}
+
+      <footer className="new-vendor-actions"><div><Button variant="ghost" size="sm" type="button" onClick={onCancel}>Cancel</Button><Button variant="primary" size="sm" type="submit">{service ? "Save changes" : "Create service"}</Button></div></footer>
     </form>
   </div>;
 }

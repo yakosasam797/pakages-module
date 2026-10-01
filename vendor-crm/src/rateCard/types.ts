@@ -1,5 +1,7 @@
 export type CardTone = "success" | "warning" | "danger" | "neutral" | "info";
-export type DetailPageTab = "ratecard" | "test" | "policies" | "activity";
+import type { PrivateTransportTariff } from "./privateTransport";
+import type { ActivityTariff } from "./activityPricing";
+export type DetailPageTab = "ratecard" | "test" | "policies" | "versions" | "activity";
 
 export interface MealPlan {
   code: string;
@@ -278,6 +280,9 @@ export interface RateCardDetail {
   catLabels?: Partial<Record<string, string>>;
   transport?: TransportTariff;
   regionalTransport?: RegionalTransportTariff;
+  privateTransport?: PrivateTransportTariff;
+  activityTariff?: ActivityTariff;
+  activityVersions?: Array<{ version: number; savedAt: string; tariff: ActivityTariff }>;
 }
 
 export const TEMPLATES = [
@@ -316,13 +321,11 @@ export const TEMPLATES = [
     blurb: "Sailings priced per cabin grade and berth occupancy, with port charges.",
     detail: "Sailing date × cabin grade × occupancy, per-cabin quoting.",
   },
-  {
-    id: "transport",
-    label: "Transport",
-    enabled: true,
-    blurb: "Vehicles on point-to-point routes, hourly hire or per-day disposal.",
-    detail: "Journey date × vehicle class × route, per-vehicle quoting.",
-  },
+  { id: "transport-fixed-transfer", label: "Fixed transfer", enabled: true, blurb: "Private vehicle price for a defined one-way route.", detail: "Route × vehicle tariff." },
+  { id: "transport-local-package", label: "Local package", enabled: true, blurb: "Local duty with included hours and kilometres.", detail: "Vehicle × package price, plus excess usage." },
+  { id: "transport-outstation-km", label: "Outstation per km", enabled: true, blurb: "Distance-based private road travel.", detail: "Vehicle kilometre rate and shared minimum rules." },
+  { id: "transport-daily-hire", label: "Daily hire", enabled: true, blurb: "Private vehicle retained for one or more days.", detail: "Vehicle day rate, included usage and excess." },
+  { id: "activity", label: "Activity", enabled: true, blurb: "Supplier prices for an activity's linked service options.", detail: "Per person, per booking/group or per unit." },
 ] as const;
 
 export const DEFAULT_ACTIVITIES: ActivityRow[] = [

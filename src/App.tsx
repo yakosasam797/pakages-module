@@ -39,6 +39,8 @@ import { ProposalDetail } from "./ProposalDetail";
 import { ProposalBuilder } from "./ProposalBuilder";
 import { PackageBuilder } from "./PackageBuilder";
 import { BookingModule } from "./BookingModule";
+import { recordActivityBookingHandoff } from "./bookingActivityHandoff";
+import { recordTransportBookingHandoff } from "./bookingTransportHandoff";
 import { FinanceModule } from "./FinanceModule";
 import type { EmbeddedModuleHandle } from "./embeddedModuleFrame";
 import { VendorModule } from "./VendorModule";
@@ -48,6 +50,7 @@ import { searchRegions } from "./regionSearch";
 import type { RegionSuggestion } from "./regionSearch";
 import type { ItineraryMode, ProposalQueryContext, ProposalRecord, ProposalStatus } from "./proposalModel";
 import { formatProposalTravel, itineraryCosting } from "./proposalModel";
+import { freezeActivityPricing, freezePrivateTransportPricing } from "./serviceCosting";
 import type { StepNavigationHandle, StepNavigationSnapshot } from "./useStepNavigation";
 
 export type { ProposalRecord } from "./proposalModel";
@@ -951,9 +954,14 @@ export default function App() {
           record={selectedProposal}
           initialNavigation={proposalInitialNavigation}
           sourcePackage={sourcePackage}
-          onEdit={() => { setProposalSource(sourcePackage ?? null); setCreatingProposal(true); }}
+          onEdit={() => { if (selectedProposal.status === "Approved") { recordActivityBookingHandoff(selectedProposal); recordTransportBookingHandoff(selectedProposal); } setProposalSource(sourcePackage ?? null); setCreatingProposal(true); }}
           onStatusChange={(status, changeRequest) => {
-            const updated = { ...selectedProposal, status, acceptedVersion: status === "Approved" ? selectedProposal.version ?? 1 : selectedProposal.acceptedVersion, changeRequest: changeRequest || selectedProposal.changeRequest };
+            const activityPricing = status === "Approved" ? freezeActivityPricing(selectedProposal.days, selectedProposal.travelStart ?? "") : null;
+            const groupTravellers = Number(selectedProposal.travellers.match(/\d+/)?.[0] ?? 0) + Number(selectedProposal.travellers.match(/(\d+) child/)?.[1] ?? 0);
+            const pricing = activityPricing ? freezePrivateTransportPricing(activityPricing.days, selectedProposal.travelStart ?? "", groupTravellers) : null;
+            if (activityPricing?.issues.length) { showToast(`Resolve supplier pricing before approval: ${activityPricing.issues[0]}`); return; }
+            if (pricing?.issues.length) { showToast(`Resolve supplier pricing before approval: ${pricing.issues[0]}`); return; }
+            const updated = { ...selectedProposal, days: pricing?.days ?? selectedProposal.days, status, acceptedVersion: status === "Approved" ? selectedProposal.version ?? 1 : selectedProposal.acceptedVersion, changeRequest: changeRequest || selectedProposal.changeRequest };
             setProposalRecords((current) => current.map((item) => item.id === updated.id ? updated : item));
             setSelectedProposal(updated);
             showToast(`Proposal ${status.toLowerCase()}`);
@@ -979,7 +987,7 @@ export default function App() {
                 "A complete trip plan with accommodation, transport and experiences together.",
                 "Adapt each day and confirm supplier availability before sharing with a new customer.",
               ],
-              proposalDays: selectedProposal.days.map((day) => ({ ...day, services: day.services.map((service) => ({ ...service })) })),
+              proposalDays: selectedProposal.days.map((day) => ({ ...day, services: day.services.map((service) => ({ ...service, activitySnapshot: undefined })) })),
               createdFromProposal: true,
               templateId: sourcePackage?.id,
             };
@@ -990,7 +998,7 @@ export default function App() {
             setWorkspaceView("packages");
             showToast("Draft package created from proposal");
           }}
-          onOpenBookings={() => selectModule("bookings")}
+          onOpenBookings={() => { recordActivityBookingHandoff(selectedProposal); recordTransportBookingHandoff(selectedProposal); selectModule("bookings"); }}
           onOpenPackage={sourcePackage ? () => {
             recordTrailRef.current.push({ kind: "proposal", id: selectedProposal.id, navigation: proposalDetailRef.current?.snapshot() });
             setSelectedProposal(null);
@@ -1392,7 +1400,7 @@ export default function App() {
                         <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); recordTrailRef.current = []; setProposalInitialNavigation(null); setSelectedProposal(item); }}>
                           <Icon name="openExternal" size="sm" /> Open proposal
                         </button>
-                        <button type="button" role="menuitem" onClick={() => { const duplicate: ProposalRecord = { ...item, id: `PRP-${Math.floor(1000 + Math.random() * 8999)}`, name: `${item.name} (copy)`, queryId: undefined, queryContext: undefined, days: item.days.map((day) => ({ ...day, highlights: [...(day.highlights ?? [])], services: day.services.map((service) => ({ ...service, supplements: service.supplements?.map((supplement) => ({ ...supplement })) })) })), status: "Draft", version: 1, acceptedVersion: undefined, changeRequest: undefined, updated: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date()) }; setProposalRecords((current) => [duplicate, ...current]); setOpenRowMenu(null); setSelectedProposal(duplicate); showToast("Draft proposal duplicated; edit its customer details before sharing"); }}>
+                        <button type="button" role="menuitem" onClick={() => { const duplicate: ProposalRecord = { ...item, id: `PRP-${Math.floor(1000 + Math.random() * 8999)}`, name: `${item.name} (copy)`, queryId: undefined, queryContext: undefined, days: item.days.map((day) => ({ ...day, highlights: [...(day.highlights ?? [])], services: day.services.map((service) => ({ ...service, activitySnapshot: undefined, supplements: service.supplements?.map((supplement) => ({ ...supplement })) })) })), status: "Draft", version: 1, acceptedVersion: undefined, changeRequest: undefined, updated: new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date()) }; setProposalRecords((current) => [duplicate, ...current]); setOpenRowMenu(null); setSelectedProposal(duplicate); showToast("Draft proposal duplicated; edit its customer details before sharing"); }}>
                           <Icon name="copy" size="sm" /> Duplicate proposal
                         </button>
                         <button type="button" role="menuitem" onClick={() => { setOpenRowMenu(null); showToast(`${item.name} exported`); }}>

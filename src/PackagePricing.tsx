@@ -30,7 +30,7 @@ export function PackagePricing({ days, setDays, markup, setMarkup, price, setPri
 }) {
   const eligible = days.flatMap((day, dayIndex) => day.services.map((service) => ({ day, dayIndex, service })));
   const costing = itineraryCosting(days);
-  const partialSell = Math.round(costing.baseCost * (1 + Math.max(0, Number(markup) || 0) / 100));
+  const partialSell = Math.round(costing.markupBaseCost * (1 + Math.max(0, Number(markup) || 0) / 100));
 
   const updateService = (dayId: string, serviceId: string, change: (service: ProposalService) => ProposalService) => {
     setDays((current) => current.map((day) => day.id === dayId ? { ...day, services: day.services.map((service) => service.id === serviceId ? change(service) : service) } : day));
@@ -40,7 +40,7 @@ export function PackagePricing({ days, setDays, markup, setMarkup, price, setPri
   return <div className="package-pricing">
     <div className="package-pricing__intro"><div><span className="package-pricing__eyebrow">SERVICE COSTING</span><h2>Build the supplier cost</h2><p>Enter the confirmed charges for each service. Amounts stay attached to their itinerary blocks when the package is used in a proposal.</p></div><span className="package-pricing__currency">All amounts in INR</span></div>
     {eligible.length ? <div className="package-pricing__services">{eligible.map(({ day, dayIndex, service }) => {
-      if (service.serviceCategory === "Accommodation" || service.serviceCategory === "Transport") return <PackageStructuredPricing key={service.id} service={service} dayIndex={dayIndex} onChange={(patch) => updateService(day.id, service.id, (item) => ({ ...item, ...patch }))} />;
+      if (service.serviceCategory === "Accommodation" || service.serviceCategory === "Transport" || service.serviceCategory === "Activities" && Boolean(service.rateCardId)) return <PackageStructuredPricing key={service.id} service={service} dayIndex={dayIndex} onChange={(patch) => updateService(day.id, service.id, (item) => ({ ...item, ...patch }))} />;
       const charges = service.costComponents ?? defaultPackageCharges(service.serviceCategory ?? "Other");
       const quote = serviceCostBreakdown(service);
       return <section className="package-pricing__service" key={service.id} aria-label={`${service.title} costing`}>

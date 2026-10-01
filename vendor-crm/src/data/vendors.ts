@@ -277,6 +277,12 @@ function baliExampleVendor(id: string, code: string, name: string, initials: str
 }
 
 export const SEED_VENDORS: Vendor[] = [
+  seedVendor({ id: "cityride", code: "V-CITYRIDE", name: "CityRide Transfers", initials: "CT", roles: ["Transport"], location: "Kochi, India", contactName: "Arun Menon", phone: "+91 98470 36121", email: "bookings@cityride.example", labels: [], updated: "2 days ago", owner: "Priya Nair", ownerInitials: "PN" }),
+  seedVendor({ id: "kochi-local-cabs", code: "V-LOCALCABS", name: "Kochi Local Cabs", initials: "KC", roles: ["Transport"], location: "Kochi, India", contactName: "Lina Joseph", phone: "+91 98470 36122", email: "desk@kochilocal.example", labels: [], updated: "2 days ago", owner: "Priya Nair", ownerInitials: "PN" }),
+  seedVendor({ id: "jaipur-local-cabs", code: "V-JAIPURCABS", name: "Jaipur Local Cabs", initials: "JC", roles: ["Transport"], location: "Jaipur, India", contactName: "Anil Sharma", phone: "+91 98470 36125", email: "desk@jaipurlocal.example", labels: [], updated: "2 days ago", owner: "Priya Nair", ownerInitials: "PN" }),
+  seedVendor({ id: "bengaluru-city-rides", code: "V-BLRCITY", name: "Bengaluru City Rides", initials: "BR", roles: ["Transport"], location: "Bengaluru, India", contactName: "Meera Rao", phone: "+91 98470 36126", email: "desk@bengalururides.example", labels: [], updated: "2 days ago", owner: "Priya Nair", ownerInitials: "PN" }),
+  seedVendor({ id: "kerala-road-trips", code: "V-ROADTRIPS", name: "Kerala Road Trips", initials: "KR", roles: ["Transport"], location: "Kochi, India", contactName: "Manu Thomas", phone: "+91 98470 36123", email: "ops@keralaroad.example", labels: [], updated: "2 days ago", owner: "Priya Nair", ownerInitials: "PN" }),
+  seedVendor({ id: "south-coast-coaches", code: "V-SOUTHCOAST", name: "South Coast Coaches", initials: "SC", roles: ["Transport"], location: "Kochi, India", contactName: "Dev Nair", phone: "+91 98470 36124", email: "hire@southcoast.example", labels: [], updated: "2 days ago", owner: "Priya Nair", ownerInitials: "PN" }),
   seedVendor({
     id: "trailmakers",
     code: "V-TRAILMAKERS",

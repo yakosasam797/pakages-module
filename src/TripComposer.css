@@ -487,3 +487,21 @@
 @media (max-width: 850px) { .trip-composer--new-package .trip-composer__editor-section, .trip-composer--new-package .trip-composer__form-error, .trip-composer--new-package .trip-composer__form-actions { margin-inline: -20px; } .trip-composer--new-package .trip-composer__form-actions { padding-inline: 20px; } }
 @media (max-width: 650px) { .trip-composer--new-package .pt-detail__header { padding-inline: 16px; } .trip-composer--new-package .trip-composer__editor-section { display: block; margin-inline: -14px; } .trip-composer--new-package .trip-composer__editor-section > .trip-composer__section-heading { padding: 18px 16px; border-right: 0; border-bottom: 1px solid var(--line); } .trip-composer--new-package .trip-composer__editor-section > :not(.trip-composer__section-heading) { margin-left: 16px; margin-right: 16px; } .trip-composer--new-package .trip-composer__setup { grid-template-columns: 1fr; gap: 16px; } .trip-composer--new-package .trip-composer__preview-day-image { display: block; width: 100%; } .trip-composer--new-package .trip-composer__form-error, .trip-composer--new-package .trip-composer__form-actions { margin-inline: -14px; padding-inline: 16px; } .trip-composer--new-package .trip-composer__form-actions > div { width: 100%; } .trip-composer--new-package .trip-composer__form-actions .pt-btn { flex: 1; justify-content: center; } }
 @media (max-width: 650px) { .trip-composer--proposal .trip-composer__template-choice { display: flex; flex-direction: column; min-height: max(420px, calc(100dvh - 185px)); } .trip-composer--proposal .trip-composer__template-choice footer { margin-top: auto; } }
+.trip-composer__activity-participants { grid-column: 1 / -1; display: grid; gap: 10px; }
+.trip-composer__activity-participants > strong { font-size: 13px; }
+.trip-composer__activity-participants > div { display: flex; align-items: end; gap: 10px; }
+.trip-composer__activity-participants > div > .trip-composer__field { flex: 1; min-width: 0; }
+.trip-composer__activity-participants button { align-self: end; min-height: 38px; padding: 0 12px; border: 1px solid var(--line, #e0e5e9); border-radius: 8px; background: #fff; color: var(--pink-ink, #a43e72); cursor: pointer; }
+.trip-composer__activity-participants > button { justify-self: start; }
+.trip-composer__activity-on-request { display: grid; gap: 12px; margin-top: 12px; }
+.trip-composer__activity-on-request > div { display: grid; grid-template-columns: minmax(80px, .5fr) repeat(2, minmax(0, 1fr)); align-items: end; gap: 12px; }
+.trip-composer__activity-on-request strong { font-size: 12px; }
+.trip-composer__activity-extras { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 12px; padding: 12px 14px; border: 1px solid var(--line, #e0e5e9); border-radius: 8px; }
+.trip-composer__activity-extras legend { padding: 0 5px; color: var(--ink-2, #697481); font-size: 12px; }
+.trip-composer__activity-extras label { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; }
+@media (max-width: 700px) { .trip-composer__activity-participants > div { flex-wrap: wrap; } .trip-composer__activity-on-request > div { grid-template-columns: 1fr; } }
+.trip-composer__reuse-hire { display: grid; gap: 8px; margin: 0 0 16px; padding: 14px; border: 1px solid var(--line, #e0e5e9); border-radius: 9px; background: #f7faf9; }
+.trip-composer__reuse-hire > strong { font-size: 13px; }
+.trip-composer__reuse-hire > p { margin: 0; color: var(--ink-2, #697481); font-size: 12px; }
+.trip-composer__reuse-hire > button { padding: 10px 12px; border: 1px solid var(--line, #e0e5e9); border-radius: 8px; background: #fff; color: var(--ink, #1d2835); text-align: left; cursor: pointer; }
+.trip-composer__reuse-hire > button:hover { border-color: #0e7069; color: #0e7069; }

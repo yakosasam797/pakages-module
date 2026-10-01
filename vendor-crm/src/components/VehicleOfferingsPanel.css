@@ -1,0 +1,18 @@
+.vehicle-offerings { margin-top: 24px; overflow: hidden; }
+.vehicle-offerings__button { border: 1px solid #d9e0e6; border-radius: 9px; background: #fff; color: #075f57; padding: 9px 13px; font: inherit; font-weight: 600; cursor: pointer; }
+.vehicle-offerings__button--primary { background: #0e6b61; border-color: #0e6b61; color: #fff; }
+.vehicle-offerings__button:disabled { opacity: .5; cursor: default; }
+.vehicle-offerings__table { overflow-x: auto; }
+.vehicle-offerings__row { display: grid; grid-template-columns: 1.1fr 1.6fr .8fr .7fr .9fr .45fr; min-width: 760px; border-top: 1px solid #e1e6eb; }
+.vehicle-offerings__row > * { padding: 14px 16px; border-right: 1px solid #e1e6eb; }
+.vehicle-offerings__row > :last-child { border-right: 0; }
+.vehicle-offerings__row--head { background: #f8f7f5; font-size: 13px; font-weight: 600; }
+.vehicle-offerings__empty { padding: 20px; color: #687482; }
+.vehicle-offerings__link { background: transparent; border: 0; color: #0d6b60; padding: 0; font: inherit; cursor: pointer; }
+.vehicle-offerings__form { border-top: 1px solid #e1e6eb; padding: 20px; }
+.vehicle-offerings__fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.vehicle-offerings__fields label { display: grid; gap: 7px; font-weight: 600; }
+.vehicle-offerings__fields input, .vehicle-offerings__fields select { min-width: 0; border: 1px solid #d9e0e6; border-radius: 9px; padding: 11px 12px; background: #fff; font: inherit; }
+.vehicle-offerings__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+@media (max-width: 900px) { .vehicle-offerings__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .vehicle-offerings__fields { grid-template-columns: 1fr; } }

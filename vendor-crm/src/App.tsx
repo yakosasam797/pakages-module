@@ -19,13 +19,13 @@ import { RateCardDetailPage } from "./components/rateCard/RateCardDetailPage";
 import { NotesPanel } from "./components/NotesPanel";
 import { SEED_VENDORS, type Vendor } from "./data/vendors";
 import { getVendorService } from "./data/services";
-import { readCreatedDirectoryServices, saveCreatedDirectoryServices, type DirectoryService } from "./data/vendorDirectory";
+import { readCreatedDirectoryServices, readDeletedDirectoryServiceIds, saveCreatedDirectoryServices, saveDeletedDirectoryServiceIds, type DirectoryService } from "./data/vendorDirectory";
 import { buildNavGroups } from "./nav";
 import { AccountHubPage } from "./pages/account/AccountHubPage";
 import { NotificationsPage } from "./pages/notifications/NotificationsPage";
 import { SettingsHubPage } from "./pages/settings/SettingsHubPage";
-import { canOpenWorkspaceSettings, type OrgRole } from "./permissions";
-import { createBlankCard, getDetailCard } from "./rateCard/cards";
+import { can, canOpenWorkspaceSettings, type OrgRole } from "./permissions";
+import { createBlankCard, getDetailCard, saveTransportCard } from "./rateCard/cards";
 import { CreateRateCardModal } from "./components/CreateRateCardModal";
 import type { RateCardDetail } from "./rateCard/types";
 import type { PageNavigationContext } from "./pageNavigation";
@@ -81,6 +81,8 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
   );
   const [createdDirectoryServices, setCreatedDirectoryServices] = useState<DirectoryService[]>(readCreatedDirectoryServices);
   useEffect(() => saveCreatedDirectoryServices(createdDirectoryServices), [createdDirectoryServices]);
+  const [deletedServiceIds, setDeletedServiceIds] = useState<string[]>(readDeletedDirectoryServiceIds);
+  useEffect(() => saveDeletedDirectoryServiceIds(deletedServiceIds), [deletedServiceIds]);
   const [flash, setFlash] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -763,6 +765,8 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
           vendors={vendors}
           createdServices={createdDirectoryServices}
           onCreatedServicesChange={setCreatedDirectoryServices}
+          deletedServiceIds={deletedServiceIds}
+          onDeletedServiceIdsChange={setDeletedServiceIds}
           orgRole={orgRole}
           flash={flash}
           onClearFlash={() => setFlash(null)}
@@ -798,6 +802,7 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
           vendors={vendors}
           createdServices={createdDirectoryServices}
           onCreatedServicesChange={setCreatedDirectoryServices}
+          deletedServiceIds={deletedServiceIds}
           orgRole={orgRole}
           flash={flash}
           onClearFlash={() => setFlash(null)}
@@ -833,6 +838,7 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
           }
           startEditing={crmRoute.name === "rate-card-new"}
           canEditMarkup={orgRole === "Owner"}
+          canEdit={can(orgRole, "vendor.edit")}
           onDraftChange={
             crmRoute.name === "rate-card-new"
               ? (next) => setActiveDraft(next)
@@ -845,9 +851,12 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
         <CreateRateCardModal
           open={createCardOpen}
           vendorName={vendorName(crmRoute.id)}
+          vendorId={crmRoute.id}
+          createdServices={createdDirectoryServices}
           onClose={() => setCreateCardOpen(false)}
-          onCreate={(templateId) => {
-            const draft = createBlankCard(templateId, vendorName(crmRoute.id));
+          onCreate={(templateId, serviceId) => {
+            const draft = createBlankCard(templateId, vendorName(crmRoute.id), crmRoute.id, serviceId);
+            if (draft.privateTransport || draft.activityTariff) saveTransportCard(draft);
             setActiveDraft(draft);
             setCreateCardOpen(false);
             setCrmRoute({

@@ -762,6 +762,22 @@
   background: var(--surface-3, var(--side));
 }
 
+.vendors-sheet__menu .vendors-sheet__menu-danger {
+  color: var(--bad, #b43b48);
+}
+
+.service-delete-confirm .pt-modal__body p {
+  margin: 0;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.service-delete-confirm__button {
+  background: var(--bad, #b43b48) !important;
+  border-color: var(--bad, #b43b48) !important;
+  color: #fff !important;
+}
+
 .service-directory-detail {
   display: flex;
   flex-direction: column;

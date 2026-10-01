@@ -5,6 +5,8 @@ import type { PackageRecord } from "./App";
 import { packageDaysForProposal } from "./PackageDetail";
 import type { ProposalDay, ProposalService } from "./proposalModel";
 import { PackagePricing, defaultPackageCharges } from "./PackagePricing";
+import { getDetailCard } from "../vendor-crm/src/rateCard/cards";
+import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "../vendor-crm/src/data/vendorDirectory";
 import {
   crmServiceOptions, kindForCategory,
   packageServiceCategories, searchApiServices,
@@ -26,7 +28,7 @@ const makeDay = (index: number): ProposalDay => ({ id: crypto.randomUUID(), titl
 function initialDays(source?: PackageRecord | null): ProposalDay[] {
   if (source) return packageDaysForProposal(source).map((day) => ({ ...day, plannedBlockCount: Math.max(day.plannedBlockCount ?? 1, day.services.length), services: day.services.map((item) => {
     if (item.serviceCategory === "Transport") return { ...item, transportPricingMode: item.rateCardId ? undefined : item.transportPricingMode ?? "transfer", transportChargesStatus: item.transportChargesStatus ?? "to_confirm", quantity: item.quantity ?? 1, transportUnits: item.transportUnits ?? 1 };
-    if (item.costComponents || !["Activities", "Visa", "Flights", "Other"].includes(item.serviceCategory ?? "")) return { ...item, costComponents: item.costComponents?.map((charge) => ({ ...charge })) };
+    if (item.rateCardId || item.costComponents || !["Activities", "Visa", "Flights", "Other"].includes(item.serviceCategory ?? "")) return { ...item, activitySnapshot: undefined, costComponents: item.costComponents?.map((charge) => ({ ...charge })) };
     const charges = defaultPackageCharges(item.serviceCategory ?? "Other");
     if (item.cost != null) { charges[0].unitCost = item.cost; charges[0].quantity = item.quantity ?? 1; }
     return { ...item, costComponents: charges };
@@ -97,6 +99,10 @@ export function PackageComposer({ existing, initialTemplate, onCancel, onSave }:
 
   const addOption = (option: PackageServiceOption) => {
     if (!pickerDayId) return;
+    const activityCard = option.category === "Activities" ? getDetailCard(option.rateCardIds?.[0] ?? "") : undefined;
+    const tariff = activityCard?.activityTariff;
+    const serviceOption = tariff ? [...readCreatedDirectoryServices(), ...DIRECTORY_SERVICES].find((item) => item.id === tariff.serviceId)?.activityOptions?.[0] : undefined;
+    const firstPerson = tariff?.personRates.find((row) => row.optionId === serviceOption?.id);
     const service: ProposalService = {
       id: crypto.randomUUID(),
       kind: kindForCategory[option.category],
@@ -106,15 +112,18 @@ export function PackageComposer({ existing, initialTemplate, onCancel, onSave }:
       image: option.image,
       sourceType: option.source,
       sourceId: option.id,
+      sourceVendorId: option.vendorId,
       serviceCategory: option.category,
+      rateCardId: tariff ? activityCard?.id : undefined,
+      activityInput: tariff ? { date: "", optionId: serviceOption?.id ?? "", method: firstPerson ? "person" : tariff.bookingRates.some((row) => row.optionId === serviceOption?.id) ? "booking" : "unit", participants: [{ category: firstPerson?.category ?? "Everyone", age: firstPerson?.minAge ?? null, quantity: 1 }], groupSize: 1, unitRateId: tariff.unitRates.find((row) => row.optionId === serviceOption?.id)?.id ?? "", unitQuantity: 0, hours: 1, days: 1, selectedChargeIds: [], transferCostedElsewhere: false } : undefined,
       transportPricingMode: option.category === "Transport" ? "transfer" : undefined,
       transportChargesStatus: option.category === "Transport" ? "to_confirm" : undefined,
       quantity: option.category === "Transport" ? 1 : undefined,
       transportUnits: option.category === "Transport" ? 1 : undefined,
       driverIncluded: option.category === "Transport" ? true : undefined,
       vehicleTier: option.category === "Transport" ? "standard" : undefined,
-      costComponents: ["Activities", "Visa", "Flights", "Other"].includes(option.category) ? defaultPackageCharges(option.category) : undefined,
-      priceState: "unpriced",
+      costComponents: ["Activities", "Visa", "Flights", "Other"].includes(option.category) && !tariff ? defaultPackageCharges(option.category) : undefined,
+      priceState: tariff ? "priced" : "unpriced",
     };
     setDays((current) => current.map((day) => day.id === pickerDayId ? { ...day, plannedBlockCount: Math.max(day.plannedBlockCount ?? 1, day.services.length + 1), services: [...day.services, service] } : day));
     setPickerDayId(null);
@@ -158,7 +167,7 @@ export function PackageComposer({ existing, initialTemplate, onCancel, onSave }:
     <footer className="package-composer__footer"><Button type="button" variant="ghost" size="sm" onClick={phase === "details" ? onCancel : () => setPhase(phase === "content" ? "itinerary" : "details")}>{phase === "details" ? "Cancel" : "Back"}</Button>{phase === "content" ? <Button type="submit" variant="primary" size="sm">{existing ? "Save package" : "Create draft package"}</Button> : <Button type="button" variant="primary" size="sm" onClick={(event) => { event.preventDefault(); if (phase === "details" && (!name.trim() || !destination.trim())) { setError("Add a package name and destination before building the itinerary."); return; } setError(""); setPhase(phase === "details" ? "itinerary" : "content"); }}>{phase === "details" ? "Continue to itinerary" : "Continue"}</Button>}</footer>
 
     <Modal open={Boolean(pickerDayId)} onClose={() => { setPickerDayId(null); setCategory(null); }} title={category ? `Add ${blockLabels[category]} block` : "Choose a block type"} eyebrow={`Day ${days.findIndex((day) => day.id === pickerDayId) + 1}`} size="wide" className="package-composer__picker" footer={<><Button variant="ghost" size="sm" onClick={() => category ? setCategory(null) : setPickerDayId(null)}>{category ? "Back to block types" : "Cancel"}</Button></>}>
-      {!category ? <div className="package-composer__picker-types"><div className="package-composer__picker-intro"><strong>What happens on this day?</strong><p>Choose the kind of service first. You can add more than one block to any day.</p></div><div className="package-composer__picker-type-grid">{packageServiceCategories.map((item) => <button key={item} type="button" onClick={() => { setCategory(item); setQuery(""); }}><span><Icon name={icons[item]} size="md" /></span><strong>{item}</strong><small>{item === "Accommodation" ? "Hotels and stays" : item === "Transport" ? "Cars and transfers" : item === "Activities" ? "Experiences and visits" : item === "Visa" ? "Travel documents" : item === "Flights" ? "Air travel" : "Other services"}</small><Icon name="chevronRight" size="sm" /></button>)}</div></div> : <div className="package-composer__picker-service-step"><div className="package-composer__picker-intro"><strong>Find {category === "Activities" ? "an" : "a"} {blockLabels[category]} service</strong><p>Search by service name, vendor, or place. All available matches appear together.</p></div><label className="package-composer__picker-search"><span className="visually-hidden">Search {blockLabels[category]} services</span><Icon name="search" size="sm" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${blockLabels[category]} services`} /></label><div className="package-composer__picker-results">{visibleOptions.length ? visibleOptions.map((option) => <button type="button" key={`${option.source}-${option.id}`} onClick={() => addOption(option)}><span className="package-composer__result-icon">{option.image ? <img src={option.image} alt="" /> : <Icon name={icons[option.category]} size="sm" />}</span><span><strong>{option.name}</strong><small>{option.location}{option.vendor ? ` · ${option.vendor}` : ""}</small><em>{option.description}</em></span><Icon name="plus" size="sm" /></button>) : <p>No matching services. Try another name or place.</p>}{apiLoading ? <p>Finding more services…</p> : null}{apiError ? <p role="status">{apiError}</p> : null}</div></div>}
+      {!category ? <div className="package-composer__picker-types"><div className="package-composer__picker-intro"><strong>What happens on this day?</strong><p>Choose the kind of service first. You can add more than one block to any day.</p></div><div className="package-composer__picker-type-grid">{packageServiceCategories.map((item) => <button key={item} type="button" onClick={() => { setCategory(item); setQuery(""); }}><span><Icon name={icons[item]} size="md" /></span><strong>{item}</strong><small>{item === "Accommodation" ? "Hotels and stays" : item === "Transport" ? "Cars and transfers" : item === "Activities" ? "Experiences and visits" : item === "Visa" ? "Travel documents" : item === "Flights" ? "Air travel" : "Other services"}</small><Icon name="chevronRight" size="sm" /></button>)}</div></div> : <div className="package-composer__picker-service-step"><div className="package-composer__picker-intro"><strong>Find {category === "Activities" ? "an" : "a"} {blockLabels[category]} service</strong><p>Search by service name, vendor, or place. All available matches appear together.</p></div><label className="package-composer__picker-search"><span className="visually-hidden">Search {blockLabels[category]} services</span><Icon name="search" size="sm" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${blockLabels[category]} services`} /></label><div className="package-composer__picker-results">{visibleOptions.length ? visibleOptions.map((option) => <button type="button" key={`${option.source}-${option.id}-${option.vendorId ?? ""}`} onClick={() => addOption(option)}><span className="package-composer__result-icon">{option.image ? <img src={option.image} alt="" /> : <Icon name={icons[option.category]} size="sm" />}</span><span><strong>{option.name}</strong><small>{option.location}{option.vendor ? ` · ${option.vendor}` : ""}</small><em>{option.description}</em></span><Icon name="plus" size="sm" /></button>) : <p>No matching services. Try another name or place.</p>}{apiLoading ? <p>Finding more services…</p> : null}{apiError ? <p role="status">{apiError}</p> : null}</div></div>}
     </Modal>
   </form>;
 }

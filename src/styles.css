@@ -212,6 +212,31 @@ body {
 .pt-frame:has(.embedded-module) .pt-scroll { overflow: hidden; }
 .pt-content:has(> .embedded-module) { height: 100%; padding: 0; }
 .embedded-module { width: 100%; height: 100%; min-height: 0; }
+.booking-module__root { width: 100%; height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.booking-module__root .booking-module__frame { position: static; display: block; flex: 1; min-height: 0; }
+.booking-module__handoffs { flex: none; max-height: 35%; overflow: auto; border-bottom: 1px solid #dce3e6; background: #fff; }
+.booking-module__handoffs summary { display: flex; gap: 12px; align-items: center; padding: 10px 28px; color: #142936; font-size: 13px; font-weight: 700; cursor: pointer; }
+.booking-module__handoffs summary span { color: #9b4874; font-size: 12px; font-weight: 600; }
+.booking-module__handoff-list { display: grid; gap: 8px; padding: 0 28px 12px; }
+.booking-module__handoff-list section { border: 1px solid #e3e8eb; border-radius: 10px; padding: 10px 14px; }
+.booking-module__handoff-list strong { display: block; font-size: 13px; }
+.booking-module__handoff-list small { display: block; color: #647484; margin: 2px 0 8px; }
+.booking-module__handoff-list p { display: flex; justify-content: space-between; gap: 20px; margin: 5px 0 0; font-size: 12px; }
+.booking-module__handoff-list b { white-space: nowrap; }
+.booking-module__handoff-list small.is-pending { color: #a13d70; }
+.booking-module__handoff-list small.is-confirmed { color: #146a61; }
+.booking-module__transport-row { padding-top: 8px; border-top: 1px solid #e8ecef; }
+.booking-module__transport-actual { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin: 8px 0; }
+.booking-module__transport-actual label { display: grid; gap: 4px; min-width: 150px; color: #495969; font-size: 11px; }
+.booking-module__transport-actual input { min-height: 32px; padding: 5px 9px; border: 1px solid #dce3e9; border-radius: 6px; font: inherit; }
+.booking-module__transport-actual button { min-height: 32px; padding: 5px 11px; border: 1px solid #0e7069; border-radius: 6px; background: #0e7069; color: #fff; font: inherit; font-size: 11px; cursor: pointer; }
+.booking-module__transport-actual button:disabled { opacity: .45; cursor: default; }
+.finance-module__transport-obligations { flex: none; max-height: 30%; overflow: auto; border-bottom: 1px solid #dce3e6; background: #fff; }
+.finance-module__transport-obligations summary { display: flex; align-items: center; gap: 12px; padding: 10px 28px; color: #142936; font-size: 13px; font-weight: 700; cursor: pointer; }
+.finance-module__transport-obligations summary span { color: #9b4874; font-size: 12px; }
+.finance-module__transport-obligations > div { display: grid; gap: 8px; padding: 0 28px 12px; }
+.finance-module__transport-obligations p { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; margin: 0; padding: 10px 14px; border: 1px solid #e3e8eb; border-radius: 8px; font-size: 12px; }
+.finance-module__transport-obligations p small { grid-column: 1 / -1; color: #647484; }
 .embedded-module > .booking-module__frame,
 .embedded-module > .finance-module__frame {
   position: static;
