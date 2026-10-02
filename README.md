@@ -1,5 +1,8 @@
 # Paryatech UI workspace
 
+
+
+
 Packages, Destination, Vendor CRM, Booking and Finance in one website, one Git repository and one root dependency installation. This is a UI prototype with preserved sample data and browser interactions; no backend setup is required.
 
 ## Setup
