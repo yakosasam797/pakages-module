@@ -745,7 +745,9 @@
 }
 
 .vendors-sheet__menu button {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   text-align: left;
   border: none;
@@ -762,17 +764,27 @@
   background: var(--surface-3, var(--side));
 }
 
+.vendors-sheet__menu button svg {
+  flex: none;
+  color: var(--ink-2);
+}
+
 .vendors-sheet__menu .vendors-sheet__menu-danger {
   color: var(--bad, #b43b48);
 }
 
-.service-delete-confirm .pt-modal__body p {
+.vendors-sheet__menu .vendors-sheet__menu-danger svg { color: currentColor; }
+.vendors-sheet__menu .vendors-sheet__menu-danger:hover { background: #fff1f1; }
+
+.service-delete-confirm .pt-modal__body p,
+.vendors-delete-confirm .pt-modal__body p {
   margin: 0;
   color: var(--ink-2);
   line-height: 1.5;
 }
 
-.service-delete-confirm__button {
+.service-delete-confirm__button,
+.vendors-delete-confirm__button {
   background: var(--bad, #b43b48) !important;
   border-color: var(--bad, #b43b48) !important;
   color: #fff !important;

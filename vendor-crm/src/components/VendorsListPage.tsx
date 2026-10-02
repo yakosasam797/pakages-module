@@ -821,7 +821,7 @@ export function VendorsListPage({
   onAddVendor: () => void;
   onOpenRateCard: (vendorId: string, rateCardId: string) => void;
   onNavigationContextChange?: PageNavigationChange;
-  onVendorsChange: (next: Vendor[]) => void;
+  onVendorsChange: (next: Vendor[], notice?: string) => void;
 }) {
   const [perspective, setPerspective] = useState<Perspective>("vendors");
   const [openServiceId, setOpenServiceId] = useState<string | null>(null);
@@ -840,6 +840,7 @@ export function VendorsListPage({
   const [selected, setSelected] = useState<string[]>([]);
   const [modal, setModal] = useState<"edit" | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [menuId, setMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
@@ -910,6 +911,14 @@ export function VendorsListPage({
     return () => { cancelAnimationFrame(focusFrame); document.removeEventListener("keydown", onKeyDown); };
   }, [deletingService]);
 
+  useEffect(() => {
+    if (!deleteId) return;
+    const focusFrame = requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".vendors-delete-confirm__cancel")?.focus());
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setDeleteId(null); };
+    document.addEventListener("keydown", onKeyDown);
+    return () => { cancelAnimationFrame(focusFrame); document.removeEventListener("keydown", onKeyDown); };
+  }, [deleteId]);
+
   const viewTabs: TabItem[] = [
     { id: "vendors", label: "Vendors" },
     { id: "services", label: "Services" },
@@ -958,6 +967,7 @@ export function VendorsListPage({
   const visibleRows = perspective === "vendors" ? visibleVendorRows : visibleServiceRows;
   const visibleRowIds = visibleRows.map((row) => perspective === "vendors" ? (row as VendorDirectoryRow).vendor.id : (row as ServiceDirectoryRow).service.id);
   const editVendor = editId ? vendors.find((vendor) => vendor.id === editId) ?? null : null;
+  const deleteVendor = deleteId ? vendors.find((vendor) => vendor.id === deleteId) ?? null : null;
 
   useEffect(() => {
     if (!menuId && !filtersOpen) return;
@@ -1140,9 +1150,12 @@ export function VendorsListPage({
                     <DataSheetCell>
                       <div className="vendors-sheet__more" ref={menuId === row.vendor.id ? menuRef : undefined}>
                         <IconButton label={`More actions for ${row.vendor.name}`} aria-expanded={menuId === row.vendor.id} aria-haspopup="menu" onClick={() => setMenuId((current) => current === row.vendor.id ? null : row.vendor.id)}><IconMore /></IconButton>
-                        {menuId === row.vendor.id ? <div className="vendors-sheet__menu" role="menu">
-                          <button type="button" role="menuitem" onClick={() => { onOpenVendor(row.vendor.id); setMenuId(null); }}>Open vendor</button>
-                          {canEdit ? <button type="button" role="menuitem" onClick={() => { setEditId(row.vendor.id); setModal("edit"); setMenuId(null); }}>Edit vendor</button> : null}
+                        {menuId === row.vendor.id ? <div className="vendors-sheet__menu" role="menu" aria-label={`Actions for ${row.vendor.name}`}>
+                          <button type="button" role="menuitem" onClick={() => { onOpenVendor(row.vendor.id); setMenuId(null); }}><IconUser size={15} /><span>Open vendor</span></button>
+                          {canEdit ? <>
+                            <button type="button" role="menuitem" onClick={() => { setEditId(row.vendor.id); setModal("edit"); setMenuId(null); }}><IconPencil size={15} /><span>Edit vendor</span></button>
+                            <button type="button" role="menuitem" className="vendors-sheet__menu-danger" onClick={() => { setDeleteId(row.vendor.id); setMenuId(null); }}><IconTrash size={15} /><span>Delete vendor</span></button>
+                          </> : null}
                         </div> : null}
                       </div>
                     </DataSheetCell>
@@ -1237,6 +1250,20 @@ export function VendorsListPage({
         onUpdated={(updated) => { onVendorsChange(vendors.map((vendor) => vendor.id === updated.id ? updated : vendor)); setModal(null); setEditId(null); }}
         onViewExisting={onOpenVendor}
       />
+      {deleteVendor ? createPortal(
+        <div className="pt-modal-overlay open" role="presentation" onClick={() => setDeleteId(null)}>
+          <div className="pt-modal vendors-delete-confirm" role="alertdialog" aria-modal="true" aria-labelledby="delete-vendor-title" aria-describedby="delete-vendor-description" onClick={(event) => event.stopPropagation()}>
+            <header className="pt-modal__head"><h2 className="pt-modal__title" id="delete-vendor-title">Delete {deleteVendor.name}?</h2><IconButton label="Close delete confirmation" onClick={() => setDeleteId(null)}><IconClose /></IconButton></header>
+            <div className="pt-modal__body"><p id="delete-vendor-description">This vendor will be removed from the directory and its linked services.</p></div>
+            <footer className="pt-modal__foot"><Button variant="ghost" size="sm" className="vendors-delete-confirm__cancel" onClick={() => setDeleteId(null)}>Keep vendor</Button><Button variant="primary" size="sm" className="vendors-delete-confirm__button" onClick={() => {
+              onVendorsChange(vendors.filter((vendor) => vendor.id !== deleteVendor.id), `${deleteVendor.name} deleted.`);
+              setSelected((current) => current.filter((id) => id !== deleteVendor.id));
+              setDeleteId(null);
+            }}><IconTrash />Delete vendor</Button></footer>
+          </div>
+        </div>,
+        document.body,
+      ) : null}
       {deletingService ? createPortal(
         <div className="pt-modal-overlay open" role="presentation" onClick={() => setDeletingService(null)}>
           <div className="pt-modal service-delete-confirm" role="alertdialog" aria-modal="true" aria-labelledby="delete-service-title" aria-describedby="delete-service-description" onClick={(event) => event.stopPropagation()}>

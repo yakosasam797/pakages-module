@@ -777,9 +777,9 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
           onAddVendor={openNewVendor}
           onOpenRateCard={(vendorId, rateCardId) => openCard(rateCardId, vendorId)}
           onNavigationContextChange={handlePageNavigationChange}
-          onVendorsChange={(next) => {
+          onVendorsChange={(next, notice) => {
             setVendors(next);
-            setFlash("Vendor details updated successfully.");
+            setFlash(notice ?? "Vendor details updated successfully.");
           }}
         />
       ) : isNewVendor ? (
