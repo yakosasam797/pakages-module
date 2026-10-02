@@ -9,4 +9,4 @@ public/favicon.svg
 qa/consolidation-generated/
 *.log
 .DS_Store
-/T3-*-worktree/
+/T3-* - worktree/
