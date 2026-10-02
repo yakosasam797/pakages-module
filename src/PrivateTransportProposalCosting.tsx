@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { ProposalService } from "./proposalModel";
 import { availablePrivateTransportCards, privateTransportQuoteForService, serviceCostBreakdown } from "./serviceCosting";
-import { initialPrivateTransportTrip, localPackageOptions, resolvePrivateTransportDays, suggestVehicleArrangements, TRANSPORT_TEMPLATE_LABELS, type PrivateTransportTrip } from "../vendor-crm/src/rateCard/privateTransport";
-import { findPrivateTransportOptions } from "../vendor-crm/src/rateCard/transportOptions";
-import { readVehicleOfferings } from "../vendor-crm/src/data/vehicleOfferings";
-import { readSupplierTaxProfiles } from "../vendor-crm/src/rateCard/supplierTax";
+import { initialPrivateTransportTrip, localPackageOptions, resolvePrivateTransportDays, suggestVehicleArrangements, TRANSPORT_TEMPLATE_LABELS, type PrivateTransportTrip } from "./modules/vendors/rateCard/privateTransport";
+import { findPrivateTransportOptions } from "./modules/vendors/rateCard/transportOptions";
+import { readVehicleOfferings } from "./modules/vendors/data/vehicleOfferings";
+import { readSupplierTaxProfiles } from "./modules/vendors/rateCard/supplierTax";
 import "./PrivateTransportProposalCosting.css";
 
 const money = (amount: number | null | undefined) => amount == null ? "Pending" : new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(amount);

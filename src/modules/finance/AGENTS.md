@@ -1,6 +1,6 @@
 # Paryatech Finance
 
-This module is an ordinary folder in the unified root repository. Run the verification commands below from the repository root; standalone setup files under `tooling-reference/` are historical references.
+This module lives in `src/modules/finance/`. Run the verification commands below from the repository root. Historical standalone setup files are preserved in `docs/archive/finance/`.
 
 This repository owns the agency-wide Finance workspace. Booking, Customer CRM, and Vendor CRM are contextual views of the same finance records, not separate finance implementations.
 
@@ -22,7 +22,7 @@ This repository owns the agency-wide Finance workspace. Booking, Customer CRM, a
 ## Interface rules
 
 - Reuse `@paryatech/design-system` components and tokens. Do not create a separate Finance design system.
-- Follow `docs/design-direction.md` for the shared Vendor CRM visual language and Finance-specific composition rules.
+- Follow `../../../docs/modules/finance/design-direction.md` for the shared Vendor CRM visual language and Finance-specific composition rules.
 - Teal means work. Pink is reserved for person/place context. Status colours remain semantic.
 - Finance has eight primary destinations: Overview, Receivables, Payables, Transactions, Expenses, Bank & cash, Reports, and Controls.
 - Every metric must open the records that produce it. Dashboard and detail totals must share calculation rules.

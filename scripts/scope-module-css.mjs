@@ -9,8 +9,8 @@ export function scopeModuleCss() {
     postcssPlugin: "workspace-module-styles",
     Once(root) {
       const file = root.source?.input.file?.replaceAll("\\", "/") ?? "";
-      const owner = file.includes("/vendor-crm/src/") ? "vendors"
-        : file.includes("/finance-module/src/") ? "finance" : null;
+      const owner = file.includes("/src/modules/vendors/") ? "vendors"
+        : file.includes("/src/modules/finance/") ? "finance" : null;
       const isHost = file.startsWith(hostSource) && !file.endsWith("/WorkspaceNotes.css");
       if (!owner && !isHost) return;
       const condition = owner ? `[data-workspace-module="${owner}"]` : ':not([data-workspace-module="vendors"])';

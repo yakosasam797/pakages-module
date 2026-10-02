@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { calculatePrivateTransportQuote, initialPrivateTransportTrip } from "../vendor-crm/src/rateCard/privateTransport.ts";
-import { PRIVATE_TRANSPORT_FIXTURES, VEHICLE_OFFERINGS } from "../vendor-crm/src/data/privateTransportFixtures.ts";
+import { calculatePrivateTransportQuote, initialPrivateTransportTrip } from "../src/modules/vendors/rateCard/privateTransport.ts";
+import { PRIVATE_TRANSPORT_FIXTURES, VEHICLE_OFFERINGS } from "../src/modules/vendors/data/privateTransportFixtures.ts";
 import { confirmTransportSupplier, recordTransportAmendment, recordTransportBookingHandoff, readTransportBookingHandoffs, transportSupplierObligations } from "../src/bookingTransportHandoff.ts";
 
 test("an accepted transport hire and its actual-distance revision create one current supplier obligation", () => {

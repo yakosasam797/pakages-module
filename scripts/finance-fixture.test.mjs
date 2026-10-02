@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { OBLIGATIONS, TRANSACTIONS, remaining, bookingProjectedMargin } from "../finance-module/src/financeModel.ts";
+import { OBLIGATIONS, TRANSACTIONS, remaining, bookingProjectedMargin } from "../src/modules/finance/financeModel.ts";
 
 test("the preserved INR 1,20,000 booking reconciles obligations and verified cash", () => {
   const booking = "BK-2026-000003";

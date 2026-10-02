@@ -1,7 +1,7 @@
 import { serviceCostBreakdown, type CostContext } from "./serviceCosting";
-import type { PrivateTransportQuote, PrivateTransportTariff, PrivateTransportTrip, VehicleOffering } from "../vendor-crm/src/rateCard/privateTransport";
-import type { SupplierTaxProfile } from "../vendor-crm/src/rateCard/supplierTax";
-import type { ActivityQuoteInput, ActivityQuoteResult } from "../vendor-crm/src/rateCard/activityPricing";
+import type { PrivateTransportQuote, PrivateTransportTariff, PrivateTransportTrip, VehicleOffering } from "./modules/vendors/rateCard/privateTransport";
+import type { SupplierTaxProfile } from "./modules/vendors/rateCard/supplierTax";
+import type { ActivityQuoteInput, ActivityQuoteResult } from "./modules/vendors/rateCard/activityPricing";
 
 export type ProposalStatus = "Draft" | "Itinerary shared" | "Changes requested" | "Approved" | "Declined";
 export type ProposalServiceKind = "flight" | "transfer" | "stay" | "activity" | "meal" | "other";

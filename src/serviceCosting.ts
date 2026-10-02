@@ -1,10 +1,10 @@
-import { DETAIL_CARDS, getDetailCard, listDetailCards } from "../vendor-crm/src/rateCard/cards";
-import type { RateCardDetail } from "../vendor-crm/src/rateCard/types";
-import { calculateActivityQuote, type ActivityQuoteInput } from "../vendor-crm/src/rateCard/activityPricing";
-import { calculatePrivateTransportQuote, type PrivateTransportTrip } from "../vendor-crm/src/rateCard/privateTransport";
-import { readVehicleOfferings } from "../vendor-crm/src/data/vehicleOfferings";
-import { readSupplierTaxProfiles } from "../vendor-crm/src/rateCard/supplierTax";
-import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "../vendor-crm/src/data/vendorDirectory";
+import { DETAIL_CARDS, getDetailCard, listDetailCards } from "./modules/vendors/rateCard/cards";
+import type { RateCardDetail } from "./modules/vendors/rateCard/types";
+import { calculateActivityQuote, type ActivityQuoteInput } from "./modules/vendors/rateCard/activityPricing";
+import { calculatePrivateTransportQuote, type PrivateTransportTrip } from "./modules/vendors/rateCard/privateTransport";
+import { readVehicleOfferings } from "./modules/vendors/data/vehicleOfferings";
+import { readSupplierTaxProfiles } from "./modules/vendors/rateCard/supplierTax";
+import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "./modules/vendors/data/vendorDirectory";
 import type { ProposalDay, ProposalService, ServicePriceState } from "./proposalModel";
 
 export type CostLine = { label: string; basis: string; amount: number };

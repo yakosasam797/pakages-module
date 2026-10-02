@@ -1,5 +1,7 @@
 # Module consolidation
 
+This document records the September consolidation. For current source paths, see [folder structure](folder-structure.md). The October restructuring moved the former module directories into `src/modules/`.
+
 ## Starting state (30 September 2026)
 
 Root branch: `main`, tracking `origin/main`. Root has no source changes. Booking and Finance are clean. Vendor CRM has one untracked file, `pnpm-lock.yaml`; preserve its bytes (SHA-256 `d6466532413dca20d1d6aa6f03814d17f95a4f4deaa2619624d45fc3812d0d0b`). The verified sibling backup at `D:\_backup_before_module_merge_2026-09-30` is outside this work and must remain untouched.

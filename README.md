@@ -30,40 +30,25 @@ npm run preview
 ## Project tree
 
 ```text
-.
-├── .git/                         # the only repository
-├── package.json / package-lock.json
-├── vite.config.ts / tsconfig.json # single server, build and React type check
-├── src/
-│   ├── main.tsx / App.tsx         # React entry, module switcher, shared shell
-│   ├── Package*.tsx / Proposal*.tsx
-│   ├── DestinationPage.tsx        # destination UI and related records
-│   ├── VendorModule.tsx          # lazy React integration
-│   ├── BookingModule.tsx         # preserved HTML + shared-shell adapter
-│   └── FinanceModule.tsx         # lazy React integration
-├── vendor-crm/
-│   ├── src/                      # CRM screens, fixtures, rate-card engine
-│   ├── public/                   # original brand/icon assets
-│   ├── pnpm-lock.yaml            # preserved historical file; unused by npm
-│   └── tooling-reference/        # retired standalone files (*.reference)
-├── booking-module/
-│   ├── booking-redesign.html     # working Booking screens, scripts and data
-│   ├── src/imports/              # original reference HTML and images
-│   └── tooling-reference/        # retired Figma/Vite/npm setup
-├── finance-module/
-│   ├── src/FinanceApp.tsx         # eight Finance destinations
-│   ├── src/financeModel.ts        # sample records in integer paise
-│   └── tooling-reference/        # retired standalone files (*.reference)
-├── public/
-│   ├── service-thumbnails/       # tracked local media
-│   ├── brand/, icons.svg, favicon.svg # generated from Vendor source assets
-│   └── booking/index.html        # generated from the working Booking HTML
-├── scripts/                      # root asset preparation and verification
-├── docs/module-consolidation.md  # source map, decisions and verification
-└── qa/                           # preserved visual QA evidence
+src/
+  main.tsx, App.tsx          # one React entry and host navigation
+  modules/
+    bookings/               # working Booking HTML
+    finance/                # Finance screens, models and styles
+    vendors/                # CRM screens, data, rate cards and styles
+  assets/vendors/           # imported Vendor images
+public/
+  brand/, icons.svg, favicon.svg # shared tracked static assets
+  service-thumbnails/       # local service media
+  booking/index.html        # generated Booking HTML; ignored by Git
+scripts/                    # root preparation and verification
+qa/vendors/                 # preserved Vendor visual QA
+docs/modules/              # module documentation
+docs/archive/              # retired tooling, wrappers and design references
+package.json, package-lock.json, tsconfig.json, vite.config.ts
 ```
 
-The original source, assets and reference material remain in their module folders. Archived setup files have a `.reference` suffix so package managers and build tools do not treat them as active configuration. Existing standalone React entry wrappers remain as source references and are not separate app entry points.
+All active code belongs to the root app. Run commands from the root and install only its dependencies. Standalone entry wrappers and former configuration are archived as `.reference` files. Booking design reference HTML/images and Vendor reference HTML are also preserved in `docs/archive/`.
 
 ## Module entry points
 
@@ -71,9 +56,9 @@ The original source, assets and reference material remain in their module folder
 | --- | --- | --- |
 | Packages | `/` or `/?module=packages` | `src/App.tsx`, package/proposal screens, builders and pricing |
 | Destination | `/?module=destination` | `src/DestinationPage.tsx`, destination profiles and data sources |
-| Vendors | `/?module=vendors` | `src/VendorModule.tsx` -> `vendor-crm/src/App.tsx` |
-| Bookings | `/?module=bookings` | `src/BookingModule.tsx` -> `booking-module/booking-redesign.html` |
-| All finances | `/?module=finance` | `src/FinanceModule.tsx` -> `finance-module/src/FinanceApp.tsx` |
+| Vendors | `/?module=vendors` | `src/VendorModule.tsx` -> `src/modules/vendors/App.tsx` |
+| Bookings | `/?module=bookings` | `src/BookingModule.tsx` -> `src/modules/bookings/booking-redesign.html` |
+| All finances | `/?module=finance` | `src/FinanceModule.tsx` -> `src/modules/finance/FinanceApp.tsx` |
 
 Vendor settings, account and notification pages retain `?module=vendors`; browser Back/Forward and direct reload select the correct module. Production hosting must serve `index.html` for application paths such as `/settings/organization` and `/account/profile` (SPA fallback). Booking's standalone `/booking/index.html` must remain a static file.
 
@@ -81,8 +66,8 @@ Vendor settings, account and notification pages retain `?module=vendors`; browse
 
 ## Data and integration boundaries
 
-- **Booking:** the original HTML uses document-wide selectors and inline scripts. One iframe preserves those interactions inside the shared root shell. Edit `booking-module/booking-redesign.html`; root development watches it and refreshes its generated copy. Converting it to React is a separate UI rewrite. There is no separate Booking install/build.
-- **Design system:** all React modules share `@paryatech/ui`, pinned to GitHub revision `2d274eccdc8d1ea41a05576dc89f993b3dd814ed`. The former `@paryatech/design-system` import name resolves to the same root package. Fresh installation requires npm/GitHub network access. Original locks remain references, including the unchanged Vendor `pnpm-lock.yaml`.
+- **Booking:** the original HTML uses document-wide selectors and inline scripts. One iframe preserves those interactions inside the shared root shell. Edit `src/modules/bookings/booking-redesign.html`; root development watches it and refreshes its generated copy. Converting it to React is a separate UI rewrite. There is no separate Booking install/build.
+- **Design system:** all React modules share `@paryatech/ui`, pinned to GitHub revision `2d274eccdc8d1ea41a05576dc89f993b3dd814ed`. The former `@paryatech/design-system` import name resolves to the same root package. Fresh installation requires npm/GitHub network access. Original locks remain references, including the unchanged Vendor lock at `docs/archive/vendors/pnpm-lock.yaml.reference`.
 - **Mock records:** Packages/Proposals, Booking, Vendor context panels and agency Finance retain their existing fixtures. They are not a shared production ledger. For example, Booking's `BK-2026-000003` list shows ₹16,500 overdue while the Finance fixture has ₹80,000 customer outstanding. Choosing canonical cross-module amounts/IDs is a product/data decision; consolidation does not silently change either screen. Many mutations are in memory and reset on module exit/reload; browser-created Vendor services and workspace notes keep their existing localStorage persistence.
 - **Media:** existing Google Fonts and remote image URLs can need internet access; local assets and seeded data work without an API.
 - **Optional search APIs:** set `VITE_REGION_SEARCH_API_URL` and/or `VITE_SERVICE_SEARCH_API_URL` in root `.env.local`. Without them, local suggestions and demo service results work. The region endpoint receives `?q=` and uses the `RegionSuggestion` shape in `src/regionSearch.ts`. Service search receives `?q=` and returns an array (or `{ "results": [...] }`) of `{ id, name, category, location, description?, vendor?, image? }` as implemented in `src/packageServiceSearch.ts`.

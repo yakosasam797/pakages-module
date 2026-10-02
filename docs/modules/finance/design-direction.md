@@ -1,6 +1,6 @@
 # Finance visual direction
 
-Primary reference: [Paryatech Packages platform](https://github.com/yakosasam797/pakages-module), including its Packages list/detail/builder screens and shared navigation for Bookings, Vendors, and Destination. Its `design-qa.md` and `vendor-design-language-audit.md` capture the intended shell and visual rhythm. The Packages repository is read-only: apply its design direction only inside Finance. Use the local `@paryatech/design-system` package for shared components.
+Primary reference: [Paryatech Packages platform](https://github.com/yakosasam797/pakages-module), including its Packages list/detail/builder screens and shared navigation for Bookings, Vendors, and Destination. Its `design-qa.md` and `vendor-design-language-audit.md` capture the intended shell and visual rhythm. Packages and Finance now share the root app; preserve their existing screens when applying the shared design direction. Use the local `@paryatech/design-system` package for shared components.
 
 ## Shared Paryatech language
 

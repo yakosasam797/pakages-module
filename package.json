@@ -7,11 +7,11 @@
     "dev": "node scripts/prepare-assets.mjs && vite --open",
     "build": "node scripts/prepare-assets.mjs && tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
-    "lint": "oxlint src vendor-crm/src finance-module/src",
+    "lint": "oxlint src",
     "preview": "vite preview",
     "verify:ui": "node scripts/verify-ui.mjs",
     "verify:activity-flow": "node scripts/verify-activity-flow.mjs",
-    "verify:models": "node --test scripts/finance-fixture.test.mjs scripts/transport-handoff.test.mjs vendor-crm/src/rateCard/transportQuote.test.mjs vendor-crm/src/rateCard/regionalTransportQuote.test.mjs vendor-crm/src/rateCard/privateTransport.test.mjs vendor-crm/src/rateCard/privateTransport.personas.test.mjs vendor-crm/src/rateCard/activityPricing.test.mjs vendor-crm/src/rateCard/activityPricing.personas.test.mjs"
+    "verify:models": "node --test scripts/finance-fixture.test.mjs scripts/transport-handoff.test.mjs src/modules/vendors/rateCard/transportQuote.test.mjs src/modules/vendors/rateCard/regionalTransportQuote.test.mjs src/modules/vendors/rateCard/privateTransport.test.mjs src/modules/vendors/rateCard/privateTransport.personas.test.mjs src/modules/vendors/rateCard/activityPricing.test.mjs src/modules/vendors/rateCard/activityPricing.personas.test.mjs"
   },
   "dependencies": {
     "@paryatech/ui": "git+https://github.com/yakosasam797/-Design-System-03-experiment.git#2d274eccdc8d1ea41a05576dc89f993b3dd814ed",
@@ -27,5 +27,7 @@
     "typescript": "^5.7.0",
     "vite": "^6.0.0"
   },
-  "engines": { "node": ">=22.18.0" }
+  "engines": {
+    "node": ">=22.18.0"
+  }
 }

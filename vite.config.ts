@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), {
     name: "booking-prototype-refresh",
     configureServer(server) {
-      const source = fileURLToPath(new URL("./booking-module/booking-redesign.html", import.meta.url));
+      const source = fileURLToPath(new URL("./src/modules/bookings/booking-redesign.html", import.meta.url));
       const output = fileURLToPath(new URL("./public/booking/index.html", import.meta.url));
       server.watcher.add(source);
       server.watcher.on("change", (file) => {

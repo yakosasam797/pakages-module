@@ -1,4 +1,4 @@
-import { calculatePrivateTransportQuote, type PrivateTransportTrip } from "../vendor-crm/src/rateCard/privateTransport.ts";
+import { calculatePrivateTransportQuote, type PrivateTransportTrip } from "./modules/vendors/rateCard/privateTransport.ts";
 import type { ProposalRecord, ProposalService } from "./proposalModel";
 
 const storageKey = "paryatech:transport-booking-handoffs:v1";

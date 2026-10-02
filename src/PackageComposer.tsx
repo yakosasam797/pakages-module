@@ -5,8 +5,8 @@ import type { PackageRecord } from "./App";
 import { packageDaysForProposal } from "./PackageDetail";
 import type { ProposalDay, ProposalService } from "./proposalModel";
 import { PackagePricing, defaultPackageCharges } from "./PackagePricing";
-import { getDetailCard } from "../vendor-crm/src/rateCard/cards";
-import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "../vendor-crm/src/data/vendorDirectory";
+import { getDetailCard } from "./modules/vendors/rateCard/cards";
+import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "./modules/vendors/data/vendorDirectory";
 import {
   crmServiceOptions, kindForCategory,
   packageServiceCategories, searchApiServices,

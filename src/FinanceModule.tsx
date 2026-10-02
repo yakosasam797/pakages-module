@@ -4,7 +4,7 @@ import type { EmbeddedModuleHandle } from "./embeddedModuleFrame";
 import { transportSupplierObligations } from "./bookingTransportHandoff";
 import { SupplierTaxProfilesPanel } from "./SupplierTaxProfilesPanel";
 
-const FinanceApp = lazy(() => import("../finance-module/src/FinanceApp"));
+const FinanceApp = lazy(() => import("./modules/finance/FinanceApp"));
 
 interface FinanceModuleProps {
   onNavigate: (module: "packages" | "bookings" | "vendors" | "destination") => void;

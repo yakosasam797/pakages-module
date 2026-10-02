@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { DETAIL_CARDS, saveTransportCard } from "../vendor-crm/src/rateCard/cards.ts";
-import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, linkVendorService } from "../vendor-crm/src/data/vendorDirectory.ts";
+import { DETAIL_CARDS, saveTransportCard } from "./modules/vendors/rateCard/cards.ts";
+import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, linkVendorService } from "./modules/vendors/data/vendorDirectory.ts";
 import { activityQuoteForService, freezeActivityPricing } from "./serviceCosting.ts";
 
 const storage = new Map();

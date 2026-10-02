@@ -139,7 +139,7 @@ Detail experience ported from `references/Vendor-Rate-Card.dc.html`. List **Open
 
 # Communication & Activity (new-direction-03)
 
-Layouts follow [`yakosasam797/new-direction-03`](https://github.com/yakosasam797/new-direction-03) (`booking-redesign.html` Communication + Activity panels). Reference copy: `references/Booking-ND03-communication-activity.html`.
+Layouts follow [`yakosasam797/new-direction-03`](https://github.com/yakosasam797/new-direction-03) (`booking-redesign.html` Communication + Activity panels). Reference copy: `docs/archive/vendors/references/Booking-ND03-communication-activity.html`.
 
 | Surface | Where | Pattern |
 | --- | --- | --- |

@@ -7,10 +7,10 @@ import { ProposalCustomerView } from "./ProposalDetail";
 import type { ItineraryMode, ProposalDay, ProposalQueryContext, ProposalRecord, ProposalService, ProposalServiceKind, ProposalStatus, ServicePriceState, ServiceSupplement } from "./proposalModel";
 import { formatProposalTravel, itineraryCosting, servicePriceState } from "./proposalModel";
 import { availableAccommodationCards, availableTransportCards, availablePrivateTransportCards, availableActivityCards, serviceCostBreakdown, type CostBreakdown } from "./serviceCosting";
-import { initialPrivateTransportTrip, type PrivateTransportTrip } from "../vendor-crm/src/rateCard/privateTransport";
+import { initialPrivateTransportTrip, type PrivateTransportTrip } from "./modules/vendors/rateCard/privateTransport";
 import { PrivateTransportProposalCosting } from "./PrivateTransportProposalCosting";
-import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "../vendor-crm/src/data/vendorDirectory";
-import { applicableOnRequestRows, type ActivityQuoteInput } from "../vendor-crm/src/rateCard/activityPricing";
+import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "./modules/vendors/data/vendorDirectory";
+import { applicableOnRequestRows, type ActivityQuoteInput } from "./modules/vendors/rateCard/activityPricing";
 import { crmServiceOptions, kindForCategory, searchApiServices, type PackageServiceOption } from "./packageServiceSearch";
 import "./TripComposer.css";
 

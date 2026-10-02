@@ -1,7 +1,7 @@
-import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, readCreatedDirectoryServices, type DirectoryCategory } from "../vendor-crm/src/data/vendorDirectory";
-import { SEED_VENDORS } from "../vendor-crm/src/data/vendors";
-import { VENDOR_SERVICES } from "../vendor-crm/src/data/services";
-import { listDetailCards } from "../vendor-crm/src/rateCard/cards";
+import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, readCreatedDirectoryServices, type DirectoryCategory } from "./modules/vendors/data/vendorDirectory";
+import { SEED_VENDORS } from "./modules/vendors/data/vendors";
+import { VENDOR_SERVICES } from "./modules/vendors/data/services";
+import { listDetailCards } from "./modules/vendors/rateCard/cards";
 import type { ProposalServiceKind } from "./proposalModel";
 
 export type PackageServiceCategory = DirectoryCategory | "DMC/Ground handling" | "Other";

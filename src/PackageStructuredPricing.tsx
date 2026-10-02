@@ -1,10 +1,10 @@
 import { Icon } from "@paryatech/ui";
 import type { ProposalService, StayChild } from "./proposalModel";
 import { availableAccommodationCards, availableTransportCards, availablePrivateTransportCards, availableActivityCards, serviceCostBreakdown, type CostBreakdown } from "./serviceCosting";
-import { initialPrivateTransportTrip } from "../vendor-crm/src/rateCard/privateTransport";
+import { initialPrivateTransportTrip } from "./modules/vendors/rateCard/privateTransport";
 import { PrivateTransportProposalCosting } from "./PrivateTransportProposalCosting";
-import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "../vendor-crm/src/data/vendorDirectory";
-import { applicableOnRequestRows, type ActivityQuoteInput } from "../vendor-crm/src/rateCard/activityPricing";
+import { DIRECTORY_SERVICES, readCreatedDirectoryServices } from "./modules/vendors/data/vendorDirectory";
+import { applicableOnRequestRows, type ActivityQuoteInput } from "./modules/vendors/rateCard/activityPricing";
 import "./PackageStructuredPricing.css";
 
 const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });

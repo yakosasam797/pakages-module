@@ -1,7 +1,7 @@
-import baliImage from "../assets/location-suggestions/bali.jpg";
-import dubaiImage from "../assets/location-suggestions/dubai.jpg";
-import keralaImage from "../assets/location-suggestions/kerala.jpg";
-import rajasthanImage from "../assets/location-suggestions/rajasthan.jpg";
+import baliImage from "../../../assets/vendors/location-suggestions/bali.jpg";
+import dubaiImage from "../../../assets/vendors/location-suggestions/dubai.jpg";
+import keralaImage from "../../../assets/vendors/location-suggestions/kerala.jpg";
+import rajasthanImage from "../../../assets/vendors/location-suggestions/rajasthan.jpg";
 import type { DirectoryService } from "./vendorDirectory";
 import type { Vendor } from "./vendors";
 

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
-import "../vendor-crm/src/index.css";
+import "./modules/vendors/index.css";
 
-const VendorApp = lazy(() => import("../vendor-crm/src/App"));
+const VendorApp = lazy(() => import("./modules/vendors/App"));
 
 interface VendorModuleProps {
   onNavigate: (module: "packages" | "bookings" | "destination" | "finance") => void;

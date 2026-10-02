@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { readSupplierTaxProfiles, saveSupplierTaxProfiles } from "../vendor-crm/src/rateCard/supplierTax";
+import { readSupplierTaxProfiles, saveSupplierTaxProfiles } from "./modules/vendors/rateCard/supplierTax";
 
 /** Shared Finance-owned supplier tax settings consumed by Vendor CRM and Proposal. */
 export function SupplierTaxProfilesPanel() {
