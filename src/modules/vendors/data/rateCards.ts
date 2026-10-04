@@ -1,6 +1,7 @@
 import { PRIVATE_TRANSPORT_FIXTURES } from "./privateTransportFixtures";
 import { ACTIVITY_RATE_FIXTURES } from "./activityRateFixtures";
 import { TRANSPORT_TEMPLATE_LABELS } from "../rateCard/privateTransport";
+import { SUPPLIER_RATE_FIXTURES } from "./supplierRateFixtures";
 import type { StatusTone } from "@paryatech/design-system";
 
 export type RateCardStatus = "published" | "expired" | "draft" | "review" | "active";
@@ -61,6 +62,13 @@ function propertyMedia(name: string) {
 }
 
 export const RATE_CARDS: RateCard[] = [
+  ...SUPPLIER_RATE_FIXTURES.map((fixture) => ({
+    id: fixture.id, ref: fixture.id.toUpperCase(), title: fixture.name, category: fixture.service,
+    currency: "INR", property: "Supplier service", propertyImageUrl: "", propertyImageAlt: "",
+    validity: `${fixture.validFrom} ? ${fixture.validTo}`, validityNote: "Supplier prices pending",
+    status: "draft" as const, coverageCount: 0, coverageUnit: "prices", coverageDetail: "Enter supplier rates", action: "continue" as const,
+  })),
+
   ...ACTIVITY_RATE_FIXTURES.map((fixture) => ({
     id: fixture.id, ref: fixture.ref, title: fixture.name, category: "Activities", currency: "INR",
     ...propertyMedia("Example Lake Resort"), property: fixture.serviceName, validity: "01 Oct 2026 – 31 Mar 2027",

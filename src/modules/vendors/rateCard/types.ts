@@ -244,6 +244,9 @@ export interface RegionalTransportTariff {
 
 export interface RateCardDetail {
   id: string;
+  /** Supplier ownership and service discovery reference for newly created cards. */
+  vendorId?: string;
+  serviceId?: string;
   name: string;
   ref: string;
   vendor: string;

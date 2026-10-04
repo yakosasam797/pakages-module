@@ -14,6 +14,7 @@ export function CreateRateCardModal({
   vendorName,
   vendorId,
   createdServices = [],
+  initialService,
   onClose,
   onCreate,
 }: {
@@ -21,6 +22,7 @@ export function CreateRateCardModal({
   vendorName: string;
   vendorId: string;
   createdServices?: DirectoryService[];
+  initialService?: DirectoryService;
   onClose: () => void;
   onCreate: (templateId: string, serviceId: string) => void;
 }) {
@@ -31,8 +33,12 @@ export function CreateRateCardModal({
 
   useEffect(() => {
     if (!open) return;
-    setPick(hasTransport ? "transport-fixed-transfer" : "hotel");
-    setServiceId("");
+    setPick(initialService?.category === "Activities" ? "activity" : initialService?.category === "Accommodation" ? "hotel" : initialService?.category === "Visa" ? "visa" : initialService?.category === "Flights" ? "flight" : hasTransport || initialService?.category === "Transport" ? "transport-fixed-transfer" : "hotel");
+    setServiceId(initialService?.id ?? "");
+  }, [open, vendorId, hasTransport, initialService]);
+
+  useEffect(() => {
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -42,7 +48,7 @@ export function CreateRateCardModal({
       window.removeEventListener("keydown", onKey);
       document.body.classList.remove("modal-open");
     };
-  }, [open, onClose, hasTransport]);
+  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -51,7 +57,8 @@ export function CreateRateCardModal({
   const needsService = isTransport || pick === "activity";
   const matchingServices = [...DIRECTORY_SERVICES, ...createdServices].filter((service) => (service.profileVendorId === vendorId || VENDOR_SERVICE_CONNECTIONS.some((connection) => connection.vendorId === vendorId && connection.serviceId === service.id)) && service.category === (isTransport ? "Transport" : "Activities") && (isTransport || Boolean(service.activityOptions?.length)));
   const orderedTemplates = hasTransport ? [...TEMPLATES.filter((template) => template.id.startsWith("transport-")), ...TEMPLATES.filter((template) => !template.id.startsWith("transport-"))] : TEMPLATES;
-  const canCreate = Boolean(selected?.enabled && (!needsService || serviceId));
+  const availableTemplates = initialService ? orderedTemplates.filter((template) => initialService.category === "Transport" ? template.id.startsWith("transport-") : initialService.category === "Activities" ? template.id === "activity" : initialService.category === "Accommodation" ? template.id === "hotel" : initialService.category === "Visa" ? template.id === "visa" : template.id === "flight") : orderedTemplates;
+  const canCreate = Boolean(selected?.enabled && availableTemplates.some((template) => template.id === pick) && (!needsService || serviceId));
 
   return (
     <div className="pt-modal-overlay" role="presentation" onClick={onClose}>
@@ -74,9 +81,9 @@ export function CreateRateCardModal({
         </div>
 
         <div className="pt-modal__body create-rc-modal__body">
-          {needsService ? <label className="create-rc-modal__service"><span>{isTransport ? "Transport" : "Activity"} service *</span><select value={serviceId} onChange={(event) => setServiceId(event.target.value)}><option value="">Select this vendor's service</option>{matchingServices.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}</select>{matchingServices.length === 0 ? <small>Add an {isTransport ? "transport" : "activity"} service to this vendor before creating its rate card.</small> : null}</label> : null}
+          {initialService ? <div className="create-rc-modal__service"><span>Service</span><strong>{initialService.name}</strong></div> : needsService ? <label className="create-rc-modal__service"><span>{isTransport ? "Transport" : "Activity"} service *</span><select value={serviceId} onChange={(event) => setServiceId(event.target.value)}><option value="">Select this vendor's service</option>{matchingServices.map((service) => <option key={service.id} value={service.id}>{service.name}</option>)}</select>{matchingServices.length === 0 ? <small>Add an {isTransport ? "transport" : "activity"} service to this vendor before creating its rate card.</small> : null}</label> : null}
           <div className="create-rc-modal__list" role="listbox" aria-label="Rate card templates">
-            {orderedTemplates.map((tp) => {
+            {availableTemplates.map((tp) => {
               const on = pick === tp.id;
               return (
                 <button
@@ -89,7 +96,7 @@ export function CreateRateCardModal({
                   className={`create-rc-modal__option${on ? " create-rc-modal__option--on" : ""}${
                     !tp.enabled ? " create-rc-modal__option--off" : ""
                   }`}
-                  onClick={() => { if (tp.enabled) { setPick(tp.id); setServiceId(""); } }}
+                  onClick={() => { if (tp.enabled) { setPick(tp.id); setServiceId(initialService?.id ?? ""); } }}
                 >
                   <div className="create-rc-modal__option-top">
                     <span className="create-rc-modal__option-label">{tp.label}</span>

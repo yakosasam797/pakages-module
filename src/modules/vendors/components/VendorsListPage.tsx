@@ -31,7 +31,8 @@ import {
 import { visibleVendorsForRole, type Vendor } from "../data/vendors";
 import { can, type OrgRole } from "../permissions";
 import type { PageNavigationChange } from "../pageNavigation";
-import { BED_LABEL, formatMoney, getDetailCard, listCreatedPrivateTransportCards } from "../rateCard/cards";
+import { BED_LABEL, formatMoney, getDetailCard } from "../rateCard/cards";
+import { serviceRateCardConnections } from "../data/serviceRateCards";
 import { readVehicleOfferings } from "../data/vehicleOfferings";
 import type { RateCardDetail } from "../rateCard/types";
 import {
@@ -58,6 +59,7 @@ import { AnchoredImport } from "./AnchoredImport";
 import { DashboardDataSheetFill } from "./DashboardDataSheet";
 import { SummaryStrip, type SummaryField } from "./SummaryStrip";
 import { ServiceTestRate } from "./ServiceTestRate";
+import { ServiceRateCardsPanel } from "./ServiceRateCardsPanel";
 import { ServiceRateCardTable } from "./ServiceRateCardTable";
 import { TransportRateDetails, TransportTestRate } from "./TransportRateWorkspace";
 import { RegionalTransportRates, RegionalTransportTest } from "./RegionalTransportWorkspace";
@@ -71,7 +73,7 @@ import "./VendorsListPage.css";
 
 type Perspective = "vendors" | "services";
 const DIRECTORY_PAGE_SIZE = 6;
-type ServiceDetailTab = "overview" | "vendors" | "test-rate" | "policies";
+type ServiceDetailTab = "overview" | "vendors" | "rate-cards" | "test-rate" | "policies";
 
 type VendorDirectoryRow = {
   vendor: Vendor;
@@ -507,6 +509,7 @@ function ServiceDirectoryDetail({
   canEdit,
   onOpenVendor,
   onOpenRateCard,
+  onNewRateCard,
   onEdit,
 }: {
   service: DirectoryService;
@@ -514,22 +517,19 @@ function ServiceDirectoryDetail({
   canEdit: boolean;
   onOpenVendor: (id: string) => void;
   onOpenRateCard: (vendorId: string, rateCardId: string) => void;
+  onNewRateCard?: (vendorId: string, serviceId: string) => void;
   onEdit: () => void;
 }) {
   const [tab, setTab] = useState<ServiceDetailTab>("overview");
+  const [rateCardVendorId, setRateCardVendorId] = useState("all");
   const [selectedVendorIds, setSelectedVendorIds] = useState<string[]>([]);
   const [vendorMenuId, setVendorMenuId] = useState<string | null>(null);
   const vendorMenuRef = useRef<HTMLDivElement>(null);
   const vendorIds = useMemo(() => new Set(vendors.map((vendor) => vendor.id)), [vendors]);
   const connections = useMemo(() => {
     const linked = VENDOR_SERVICE_CONNECTIONS.filter((connection) => connection.serviceId === service.id && vendorIds.has(connection.vendorId));
-    const created = listCreatedPrivateTransportCards().filter((card) => card.privateTransport?.serviceId === service.id && vendorIds.has(card.privateTransport.vendorId)).map((card) => ({
-      id: `${card.privateTransport!.vendorId}-${card.id}`, vendorId: card.privateTransport!.vendorId,
-      serviceId: service.id, supplierType: "Direct supplier" as const,
-      productsCovered: card.property, rateCardId: card.id, rateCardName: card.name,
-      validity: `${card.privateTransport!.validFrom} – ${card.privateTransport!.validTo}`,
-    }));
-    if (linked.length || created.length || !vendorIds.has(service.profileVendorId)) return [...linked, ...created];
+    const connections = serviceRateCardConnections(service.id, linked).filter((item) => vendorIds.has(item.vendorId));
+    if (connections.length || !vendorIds.has(service.profileVendorId)) return connections;
     return [{ id: `created-${service.id}`, vendorId: service.profileVendorId, serviceId: service.id, supplierType: "Direct supplier" as const, productsCovered: service.category, rateCardId: "", rateCardName: "No rate card linked", validity: "Not set" }];
   }, [service, vendorIds]);
   const transportCard = connections.map((connection) => getDetailCard(connection.rateCardId)).find((card) => card?.privateTransport || card?.transport || card?.regionalTransport);
@@ -577,6 +577,7 @@ function ServiceDirectoryDetail({
   const tabs: TabItem[] = [
     { id: "overview", label: "Overview" },
     { id: "vendors", label: "Vendors" },
+    { id: "rate-cards", label: "Rate cards" },
     { id: "test-rate", label: "Test rate" },
     { id: "policies", label: "Policies" },
   ];
@@ -621,7 +622,7 @@ function ServiceDirectoryDetail({
       </header>
 
       <div className="service-directory-detail__tabs">
-        <TabBar items={tabs} value={tab} onValueChange={(value) => setTab(value as ServiceDetailTab)} aria-label="Service sections" />
+        <TabBar items={tabs} value={tab} onValueChange={(value) => { if (value === "rate-cards") setRateCardVendorId("all"); setTab(value as ServiceDetailTab); }} aria-label="Service sections" />
       </div>
 
       {tab === "overview" ? (
@@ -690,6 +691,8 @@ function ServiceDirectoryDetail({
           </div>
           {service.category === "Transport" ? <VehicleOfferingsPanel vendorId={service.profileVendorId} serviceId={service.id} canEdit={canEdit} /> : null}
         </div>
+      ) : tab === "rate-cards" ? (
+        <ServiceRateCardsPanel service={service} connections={connections} vendors={vendors} canEdit={canEdit} initialVendorId={rateCardVendorId} onOpenRateCard={onOpenRateCard} onNewRateCard={onNewRateCard} />
       ) : tab === "test-rate" ? (
         !connections.some((connection) => connection.rateCardId)
           ? <EmptyState title="No rate card linked" description="Add a supplier rate card before testing this service's price." />
@@ -746,7 +749,7 @@ function ServiceDirectoryDetail({
                   <DataSheetCell><DirectoryEntity vendor={vendor} title={vendor.name} subtitle={vendor.code} onClick={() => onOpenVendor(vendor.id)} /></DataSheetCell>
                   <DataSheetCell>{service.category === "Transport" ? service.location : <span className="directory-relationship"><strong>{connection.supplierType}</strong><span>{connection.productsCovered}</span></span>}</DataSheetCell>
                   <DataSheetCell>{service.category === "Transport" ? readVehicleOfferings().filter((item) => item.vendorId === vendor.id && item.serviceIds.includes(service.id)).map((item) => item.label).join(" / ") || "None yet" : <span className="vendors-sheet__location"><IconPin size={14} />{vendor.location}</span>}</DataSheetCell>
-                  <DataSheetCell>{service.category === "Transport" ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => onOpenVendor(vendor.id)} aria-label={`Open ${vendor.name} rate cards`}><IconCard size={16} aria-hidden="true" /><span>{connections.filter((item) => item.vendorId === vendor.id && item.rateCardId).length} rate card{connections.filter((item) => item.vendorId === vendor.id && item.rateCardId).length === 1 ? "" : "s"}</span></button> : connection.rateCardId ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => onOpenRateCard(vendor.id, connection.rateCardId)} aria-label={`Open ${connection.rateCardName} for ${vendor.name}`}><IconCard size={16} aria-hidden="true" /><span>{connection.rateCardName}</span></button> : <span>No rate card linked</span>}</DataSheetCell>
+                  <DataSheetCell>{service.category === "Transport" ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => { setRateCardVendorId(vendor.id); setTab("rate-cards"); }} aria-label={`Show rate cards for ${vendor.name}`}><IconCard size={16} aria-hidden="true" /><span>{connections.filter((item) => item.vendorId === vendor.id && item.rateCardId).length} rate card{connections.filter((item) => item.vendorId === vendor.id && item.rateCardId).length === 1 ? "" : "s"}</span></button> : connection.rateCardId ? <button type="button" className="directory-link service-suppliers-sheet__rate-card" onClick={() => onOpenRateCard(vendor.id, connection.rateCardId)} aria-label={`Open ${connection.rateCardName} for ${vendor.name}`}><IconCard size={16} aria-hidden="true" /><span>{connection.rateCardName}</span></button> : <span>No rate card linked</span>}</DataSheetCell>
                   <DataSheetCell className="service-suppliers-sheet__action">
                     <div
                       className="vendors-sheet__more"
@@ -806,6 +809,7 @@ export function VendorsListPage({
   onOpenVendor,
   onAddVendor,
   onOpenRateCard,
+  onNewRateCard,
   onNavigationContextChange,
   onVendorsChange,
 }: {
@@ -820,6 +824,7 @@ export function VendorsListPage({
   onOpenVendor: (id: string) => void;
   onAddVendor: () => void;
   onOpenRateCard: (vendorId: string, rateCardId: string) => void;
+  onNewRateCard?: (vendorId: string, serviceId: string) => void;
   onNavigationContextChange?: PageNavigationChange;
   onVendorsChange: (next: Vendor[], notice?: string) => void;
 }) {
@@ -1022,6 +1027,7 @@ export function VendorsListPage({
         canEdit={canEdit}
         onOpenVendor={onOpenVendor}
         onOpenRateCard={onOpenRateCard}
+        onNewRateCard={onNewRateCard}
         onEdit={() => setEditingService(activeService)}
       />
     );

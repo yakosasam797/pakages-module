@@ -50,7 +50,7 @@ import { VendorProfileHeader } from "./VendorProfileHeader";
 import { DashboardDataSheetFill } from "./DashboardDataSheet";
 import { SERVICE_TYPE_FILTERS, getVendorService, servicesForVendor, type VendorService } from "../data/services";
 import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, linkVendorService, readCreatedDirectoryServices, type DirectoryService } from "../data/vendorDirectory";
-import { getDetailCard, listCreatedActivityCards, listCreatedPrivateTransportCards } from "../rateCard/cards";
+import { getDetailCard, listCreatedActivityCards, listCreatedPrivateTransportCards, listCreatedSupplierCards } from "../rateCard/cards";
 import { TRANSPORT_TEMPLATE_LABELS } from "../rateCard/privateTransport";
 import type { DraftLinkedService } from "./AddServicesModal";
 import { NewServicePage } from "./NewServicePage";
@@ -387,6 +387,7 @@ export function VendorRateCardsPage({
   onClearFlash,
   onOpenCard,
   onNewCard,
+  onNewRateCard,
   onVendorsChange,
   onOpenVendor,
   openServiceId = null,
@@ -403,6 +404,7 @@ export function VendorRateCardsPage({
   onClearFlash?: () => void;
   onOpenCard: (id: string, vendorId?: string) => void;
   onNewCard?: () => void;
+  onNewRateCard?: (vendorId: string, serviceId: string) => void;
   onVendorsChange: (next: Vendor[]) => void;
   onOpenVendor: (id: string) => void;
   openServiceId?: string | null;
@@ -470,7 +472,7 @@ export function VendorRateCardsPage({
         : createdServices.find((item) => item.id === connection.serviceId) ?? DIRECTORY_SERVICES.find((item) => item.id === connection.serviceId);
       const card = RATE_CARDS.find((item) => item.id === connection.rateCardId);
       if (!card) return;
-      const id = `${card.id}:${connection.rateCardName}`;
+      const id = card.id;
       const current = linked.get(id);
       if (current) {
         if (service && !current.services.some((item) => item.id === service.id)) current.services.push(service);
@@ -495,6 +497,16 @@ export function VendorRateCardsPage({
         property: detail.property, propertyImageUrl: "", propertyImageAlt: "", validity: `${tariff.validFrom} – ${tariff.validTo}`,
         validityNote: "Supplier cost", status: "draft", coverageCount: tariff.personRates.length + tariff.bookingRates.length + tariff.unitRates.length,
         coverageUnit: "prices", coverageDetail: "Vendor activity tariff", action: "continue",
+      };
+      linked.set(detail.id, { id: detail.id, card, title: detail.name, services: service ? [service] : [] });
+    });
+    listCreatedSupplierCards().filter((detail) => detail.vendorId === vendor.id).forEach((detail) => {
+      const service = createdServices.find((item) => item.id === detail.serviceId) ?? DIRECTORY_SERVICES.find((item) => item.id === detail.serviceId);
+      const card: RateCard = {
+        id: detail.id, ref: detail.ref, title: detail.name, category: detail.service as RateCard["category"], currency: detail.currency,
+        property: detail.property, propertyImageUrl: "", propertyImageAlt: "", validity: detail.validity,
+        validityNote: "Supplier tariff", status: "draft", coverageCount: detail.rooms.length,
+        coverageUnit: "products", coverageDetail: "Vendor tariff", action: "continue",
       };
       linked.set(detail.id, { id: detail.id, card, title: detail.name, services: service ? [service] : [] });
     });
@@ -766,6 +778,7 @@ export function VendorRateCardsPage({
             if (id) setTab("services");
           }}
           onOpenRateCard={onOpenCard}
+          onNewRateCard={onNewRateCard}
           onOpenVendor={onOpenVendor}
         /></>
       ) : tab === "packages" ? (

@@ -19,7 +19,7 @@ import { RateCardDetailPage } from "./components/rateCard/RateCardDetailPage";
 import { NotesPanel } from "./components/NotesPanel";
 import { SEED_VENDORS, type Vendor } from "./data/vendors";
 import { getVendorService } from "./data/services";
-import { readCreatedDirectoryServices, readDeletedDirectoryServiceIds, saveCreatedDirectoryServices, saveDeletedDirectoryServiceIds, type DirectoryService } from "./data/vendorDirectory";
+import { DIRECTORY_SERVICES, readCreatedDirectoryServices, readDeletedDirectoryServiceIds, saveCreatedDirectoryServices, saveDeletedDirectoryServiceIds, type DirectoryService } from "./data/vendorDirectory";
 import { buildNavGroups } from "./nav";
 import { AccountHubPage } from "./pages/account/AccountHubPage";
 import { NotificationsPage } from "./pages/notifications/NotificationsPage";
@@ -89,6 +89,7 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
   const [notifOpen, setNotifOpen] = useState(false);
   const [openServiceId, setOpenServiceId] = useState<string | null>(null);
   const [createCardOpen, setCreateCardOpen] = useState(false);
+  const [createCardContext, setCreateCardContext] = useState<{ vendorId: string; serviceId?: string } | null>(null);
   const [activeDraft, setActiveDraft] = useState<RateCardDetail | null>(null);
   const [universalSearchOpen, setUniversalSearchOpen] = useState(false);
   const [pageNavigation, setPageNavigation] = useState<PageNavigationContext | null>(null);
@@ -152,6 +153,12 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
     setOpenServiceId(null);
     setCrmRoute({ name: "vendor-new" });
   };
+  const requestNewRateCard = (vendorId: string, serviceId?: string) => {
+    setCreateCardContext({ vendorId, serviceId });
+    setCreateCardOpen(true);
+  };
+  const creationService = createCardContext?.serviceId ? [...createdDirectoryServices, ...DIRECTORY_SERVICES].find((service) => service.id === createCardContext.serviceId) : undefined;
+
   const openCard = (id: string, vendorId: string) => {
     setPageNavigation(null);
     leaveHub();
@@ -776,6 +783,7 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
           }}
           onAddVendor={openNewVendor}
           onOpenRateCard={(vendorId, rateCardId) => openCard(rateCardId, vendorId)}
+          onNewRateCard={requestNewRateCard}
           onNavigationContextChange={handlePageNavigationChange}
           onVendorsChange={(next, notice) => {
             setVendors(next);
@@ -815,7 +823,8 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
             setFlash("Vendor details updated successfully.");
           }}
           onOpenCard={(id, vendorId) => openCard(id, vendorId ?? crmRoute.id)}
-          onNewCard={() => setCreateCardOpen(true)}
+          onNewCard={() => requestNewRateCard(crmRoute.id)}
+          onNewRateCard={requestNewRateCard}
         />
       ) : (
         <RateCardDetailPage
@@ -847,22 +856,24 @@ export default function App({ onNavigateModule, onWorkspaceNotes }: AppProps = {
         />
       )}
 
-      {isVendorDetail && crmRoute.name === "vendor" ? (
+      {createCardContext ? (
         <CreateRateCardModal
           open={createCardOpen}
-          vendorName={vendorName(crmRoute.id)}
-          vendorId={crmRoute.id}
+          vendorName={vendorName(createCardContext.vendorId)}
+          vendorId={createCardContext.vendorId}
+          initialService={creationService}
           createdServices={createdDirectoryServices}
           onClose={() => setCreateCardOpen(false)}
           onCreate={(templateId, serviceId) => {
-            const draft = createBlankCard(templateId, vendorName(crmRoute.id), crmRoute.id, serviceId);
-            if (draft.privateTransport || draft.activityTariff) saveTransportCard(draft);
+            const draft = createBlankCard(templateId, vendorName(createCardContext.vendorId), createCardContext.vendorId, serviceId);
+            if (creationService) draft.property = creationService.name;
+            saveTransportCard(draft);
             setActiveDraft(draft);
             setCreateCardOpen(false);
             setCrmRoute({
               name: "rate-card-new",
               templateId,
-              vendorId: crmRoute.id,
+              vendorId: createCardContext.vendorId,
             });
           }}
         />

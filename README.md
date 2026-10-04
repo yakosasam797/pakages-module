@@ -75,3 +75,7 @@ Vendor settings, account and notification pages retain `?module=vendors`; browse
 Package creation retains its basic-details and day/service-block workflow, shared Vendor service picker, optional catalogue search, media, itemised costs, supplier quote/rate-card pricing, markup and catalogue starting price. Published accommodation and transport rate cards can feed package costing and carry into proposals; no backend is required to explore those screens.
 
 The verified sibling backup at `D:\_backup_before_module_merge_2026-09-30` was left untouched. Retired Git metadata and stale generated Vendor/Finance previews were archived separately at `D:\_module_git_metadata_archive_2026-09-30`, outside this repository.
+
+## Module context guides
+
+[Open the context library](docs/modules/module-context-index.md) for Packages/Proposals, Booking, Vendor CRM, Finance and Destinations. Each module has operational text and a visual guide with current UI screens and user-flow context.

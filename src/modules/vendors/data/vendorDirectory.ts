@@ -2,6 +2,7 @@ import type { ServiceType } from "./services";
 import { PRIVATE_TRANSPORT_FIXTURES } from "./privateTransportFixtures";
 import { ACTIVITY_RATE_FIXTURES } from "./activityRateFixtures";
 import type { ActivityOption } from "../rateCard/activityPricing";
+import { SUPPLIER_RATE_FIXTURES } from "./supplierRateFixtures";
 
 export type DirectoryCategory =
   | "Accommodation"
@@ -243,6 +244,10 @@ export const VENDOR_SERVICE_CONNECTIONS: VendorServiceConnection[] = [
 ];
 
 const linkedServicesKey = "paryatech-vendor-service-connections:v1";
+for (const fixture of SUPPLIER_RATE_FIXTURES) {
+  const connection = VENDOR_SERVICE_CONNECTIONS.find((item) => item.id === fixture.connectionId);
+  if (connection) connection.rateCardId = fixture.id;
+}
 try {
   const saved = JSON.parse(localStorage.getItem(linkedServicesKey) || "[]") as VendorServiceConnection[];
   if (Array.isArray(saved)) for (const connection of saved) {

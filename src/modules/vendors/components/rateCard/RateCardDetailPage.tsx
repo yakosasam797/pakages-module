@@ -307,12 +307,17 @@ export function RateCardDetailPage({
   const saveMarkup = () => {
     if (!canEditMarkup) return;
     const next = Number(markupDraft);
-    if (Number.isNaN(next)) {
+    if (!Number.isFinite(next) || !markupDraft.trim()) {
       cancelMarkupEdit();
       return;
     }
     const clamped = Math.min(100, Math.max(0, Math.round(next * 10) / 10));
-    updateCard((base) => ({ ...base, markupPercent: clamped }));
+    const saved = { ...card, markupPercent: clamped };
+    setDraft(saved);
+    // Activity tariff edits have their own validation/save action.
+    const persisted = card.activityTariff && editing ? { ...(getDetailCard(card.id) ?? seed ?? card), markupPercent: clamped } : saved;
+    saveTransportCard(persisted);
+    onDraftChange?.(saved);
     setMarkupDraft(String(clamped));
     setMarkupEditing(false);
   };
@@ -562,6 +567,71 @@ export function RateCardDetailPage({
     updateCard((base) => ({ ...base, services: base.services.map((row, rowIndex) => rowIndex === index ? { ...row, ...patch } : row) }));
   };
 
+  const markupSection = (
+    <section className="rc-markup" aria-labelledby="rc-markup-title">
+      <div className="rc-markup__copy">
+        <h2 id="rc-markup-title" className="rc-markup__title">Markup</h2>
+        <p className="rc-markup__desc">
+          Percentage added to contracted rates when calculating the selling price.
+          {!canEditMarkup ? " Only owners can edit this value." : ""}
+        </p>
+      </div>
+      <div className="rc-markup__aside">
+        {markupEditing ? (
+          <>
+            <div className="rc-markup__field">
+              <label className="rc-markup__label" htmlFor="rc-markup-pct">
+                Percentage
+              </label>
+              <div className="rc-markup__control">
+                <input
+                  ref={markupInputRef}
+                  id="rc-markup-pct"
+                  className="rc-markup__input"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={0.5}
+                  inputMode="decimal"
+                  value={markupDraft}
+                  onChange={(e) => setMarkupDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      saveMarkup();
+                    }
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      cancelMarkupEdit();
+                    }
+                  }}
+                />
+                <span className="rc-markup__suffix" aria-hidden="true">%</span>
+              </div>
+            </div>
+            <div className="rc-markup__actions">
+              <Button variant="brand" size="sm" onClick={cancelMarkupEdit}>Cancel</Button>
+              <Button variant="primary" size="sm" onClick={saveMarkup}>Save</Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="rc-markup__value" aria-live="polite">
+              <span className="rc-markup__value-num pt-mono">{card.markupPercent}</span>
+              <span className="rc-markup__value-unit">%</span>
+            </div>
+            {canEditMarkup ? (
+              <Button variant="brand" size="sm" onClick={beginMarkupEdit}>
+                <IconPencil />
+                Edit
+              </Button>
+            ) : null}
+          </>
+        )}
+      </div>
+    </section>
+  );
+
   return (
     <div className="rc-detail">
       <RecordHeader
@@ -639,15 +709,15 @@ export function RateCardDetailPage({
 
       {saveErrors.length ? <div className="activity-rate-save-errors" role="alert"><strong>Complete these rate-card details</strong><ul>{saveErrors.map((error) => <li key={error}>{error}</li>)}</ul></div> : null}
 
-      {page === "ratecard" && card.activityTariff ? <div className="rc-ratecard rc-ratecard--transport"><ActivityRateDetails card={card} options={activityOptions} editing={editing && canEdit} onChange={(activityTariff) => { setSaveErrors([]); updateCard((base) => ({ ...base, activityTariff })); }} /></div> : page === "ratecard" && card.privateTransport ? (
-        <div className="rc-ratecard rc-ratecard--transport"><PrivateTransportRates card={card} editing={editing} onChange={(privateTransport) => updateCard((base) => ({ ...base, privateTransport, state: privateTransport.status, tone: privateTransport.status === "Active" ? "success" : "warning", validity: `${privateTransport.validFrom} – ${privateTransport.validTo}` }))} /></div>
+      {page === "ratecard" && card.activityTariff ? <div className="rc-ratecard rc-ratecard--transport"><ActivityRateDetails card={card} options={activityOptions} editing={editing && canEdit} onChange={(activityTariff) => { setSaveErrors([]); updateCard((base) => ({ ...base, activityTariff })); }} />{markupSection}</div> : page === "ratecard" && card.privateTransport ? (
+        <div className="rc-ratecard rc-ratecard--transport"><PrivateTransportRates card={card} editing={editing} onChange={(privateTransport) => updateCard((base) => ({ ...base, privateTransport, state: privateTransport.status, tone: privateTransport.status === "Active" ? "success" : "warning", validity: `${privateTransport.validFrom} – ${privateTransport.validTo}` }))} />{markupSection}</div>
       ) : page === "ratecard" && card.regionalTransport ? (
         <div className="rc-ratecard rc-ratecard--transport"><RegionalTransportRates card={card} editing={editing} onChange={(regionalTransport) => updateCard((base) => {
           const ordered = [...regionalTransport.seasons].sort((a, b) => a.start.localeCompare(b.start));
           const formatDate = (value: string) => new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(`${value}T00:00:00Z`));
           const validity = ordered.length ? `${formatDate(ordered[0].start)} – ${formatDate(ordered.reduce((latest, item) => item.end > latest ? item.end : latest, ordered[0].end))}` : base.validity;
           return { ...base, regionalTransport, validity, seasons: regionalTransport.seasons.map((item) => ({ name: item.name, colorToken: "accent" as const, dates: `${formatDate(item.start)} – ${formatDate(item.end)}`, summary: "Supplier cost", nights: Math.max(1, Math.round((Date.parse(item.end) - Date.parse(item.start)) / 86400000) + 1), priority: "Base" })) };
-        })} /></div>
+        })} />{markupSection}</div>
       ) : page === "ratecard" && card.transport ? (
         <div className="rc-ratecard rc-ratecard--transport">
           <TransportRateDetails
@@ -659,6 +729,7 @@ export function RateCardDetailPage({
               prices: transport.routes.map((route) => transport.offerings.map((offering) => [route.prices[offering.id] ?? null])),
             }))}
           />
+          {markupSection}
         </div>
       ) : page === "ratecard" ? (
         <div className="rc-ratecard">
@@ -1076,68 +1147,7 @@ export function RateCardDetailPage({
             </DataSheet>
           </Section>
 
-          <section className="rc-markup" aria-labelledby="rc-markup-title">
-            <div className="rc-markup__copy">
-              <h2 id="rc-markup-title" className="rc-markup__title">Markup</h2>
-              <p className="rc-markup__desc">
-                Percentage added to contracted rates when calculating the selling price.
-                {!canEditMarkup ? " Only owners can edit this value." : ""}
-              </p>
-            </div>
-            <div className="rc-markup__aside">
-              {markupEditing ? (
-                <>
-                  <div className="rc-markup__field">
-                    <label className="rc-markup__label" htmlFor="rc-markup-pct">
-                      Percentage
-                    </label>
-                    <div className="rc-markup__control">
-                      <input
-                        ref={markupInputRef}
-                        id="rc-markup-pct"
-                        className="rc-markup__input"
-                        type="number"
-                        min={0}
-                        max={100}
-                        step={0.5}
-                        inputMode="decimal"
-                        value={markupDraft}
-                        onChange={(e) => setMarkupDraft(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            saveMarkup();
-                          }
-                          if (e.key === "Escape") {
-                            e.preventDefault();
-                            cancelMarkupEdit();
-                          }
-                        }}
-                      />
-                      <span className="rc-markup__suffix" aria-hidden="true">%</span>
-                    </div>
-                  </div>
-                  <div className="rc-markup__actions">
-                    <Button variant="brand" size="sm" onClick={cancelMarkupEdit}>Cancel</Button>
-                    <Button variant="primary" size="sm" onClick={saveMarkup}>Save</Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="rc-markup__value" aria-live="polite">
-                    <span className="rc-markup__value-num pt-mono">{card.markupPercent}</span>
-                    <span className="rc-markup__value-unit">%</span>
-                  </div>
-                  {canEditMarkup ? (
-                    <Button variant="brand" size="sm" onClick={beginMarkupEdit}>
-                      <IconPencil />
-                      Edit
-                    </Button>
-                  ) : null}
-                </>
-              )}
-            </div>
-          </section>
+          {markupSection}
         </div>
       ) : null}
 

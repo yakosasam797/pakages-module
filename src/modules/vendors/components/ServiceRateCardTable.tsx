@@ -10,12 +10,14 @@ import "./ServiceRateCardTable.css";
 
 const PAGE_SIZE = 5;
 
-export function ServiceRateCardTable({ connections, vendors, activeId, onSelect, onOpenRateCard }: {
+export function ServiceRateCardTable({ connections, vendors, activeId, onSelect, onOpenRateCard, serviceLocation, directNavigation = false }: {
   connections: VendorServiceConnection[];
   vendors: Vendor[];
   activeId: string;
   onSelect: (id: string) => void;
   onOpenRateCard: (vendorId: string, rateCardId: string) => void;
+  directNavigation?: boolean;
+  serviceLocation?: string;
 }) {
   const cards = connections.filter((connection) => connection.rateCardId);
   const [selected, setSelected] = useState<string[]>([]);
@@ -51,18 +53,18 @@ export function ServiceRateCardTable({ connections, vendors, activeId, onSelect,
         <DataSheetHeader>
           <DataSheetCell check><Checkbox state={headerState} label="Select all rate cards on this page" onCheckedChange={(state) => setSelected((current) => state === "on" ? [...new Set([...current, ...visibleIds])] : current.filter((id) => !visibleIds.includes(id)))} /></DataSheetCell>
           <DataSheetCell>Rate card</DataSheetCell>
-          <DataSheetCell>Vendors</DataSheetCell>
+          <DataSheetCell>Vendor</DataSheetCell>
           <DataSheetCell>Regions served</DataSheetCell>
           <DataSheetCell className="service-rate-card-sheet__action">Action</DataSheetCell>
         </DataSheetHeader>
         {visible.map((item) => {
           const vendor = vendors.find((candidate) => candidate.id === item.vendorId);
           const detail = getDetailCard(item.rateCardId);
-          return <DataSheetRow key={item.id} className={`data-row--interactive${activeId === item.id ? " service-rate-card-sheet__row--active" : ""}`} role="button" tabIndex={0} aria-label={`Show details for ${item.rateCardName}`} onClick={(event) => { if (!(event.target as HTMLElement).closest("button, input")) onSelect(item.id); }} onKeyDown={(event) => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect(item.id); } }}>
+          return <DataSheetRow key={item.id} className={`data-row--interactive${activeId === item.id ? " service-rate-card-sheet__row--active" : ""}`} role={directNavigation ? "link" : "button"} tabIndex={0} aria-label={`${directNavigation ? "Open" : "Show details for"} ${detail?.name ?? item.rateCardName}`} onClick={(event) => { if (!(event.target as HTMLElement).closest("button, input")) onSelect(item.id); }} onKeyDown={(event) => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect(item.id); } }}>
             <DataSheetCell check><Checkbox state={selected.includes(item.id) ? "on" : "off"} label={`Select ${item.rateCardName}`} onCheckedChange={(state) => setSelected((current) => state === "on" ? [...new Set([...current, item.id])] : current.filter((id) => id !== item.id))} /></DataSheetCell>
-            <DataSheetCell><LeadCell icon={<IconCard size={18} />} title={item.rateCardName} subtitle={detail?.ref ?? item.rateCardId.toUpperCase()} /></DataSheetCell>
+            <DataSheetCell><LeadCell icon={<IconCard size={18} />} title={detail?.name ?? item.rateCardName} subtitle={detail?.ref ?? item.rateCardId.toUpperCase()} /></DataSheetCell>
             <DataSheetCell><span className="service-rate-card-sheet__vendor">{vendor?.imageUrl ? <img src={vendor.imageUrl} alt="" width={34} height={34} /> : <span aria-hidden="true">{vendor?.initials ?? "?"}</span>}<strong>{vendor?.name ?? "Vendor unavailable"}</strong></span></DataSheetCell>
-            <DataSheetCell><span className="service-rate-card-sheet__region"><IconPin size={15} />{vendor?.location ?? "Not set"}</span></DataSheetCell>
+            <DataSheetCell><span className="service-rate-card-sheet__region"><IconPin size={15} />{detail?.privateTransport?.coverageAreas?.join(", ") || serviceLocation || vendor?.location || "Not set"}</span></DataSheetCell>
             <DataSheetCell className="service-rate-card-sheet__action"><IconButton label={`More actions for ${item.rateCardName}`} aria-haspopup="menu" aria-expanded={menu?.id === item.id} onClick={(event) => { const rect = event.currentTarget.getBoundingClientRect(); setMenu((current) => current?.id === item.id ? null : { id: item.id, top: rect.bottom + 6, left: Math.max(12, Math.min(window.innerWidth - 184, rect.right - 172)) }); }}><IconMore /></IconButton></DataSheetCell>
           </DataSheetRow>;
         })}
@@ -71,7 +73,7 @@ export function ServiceRateCardTable({ connections, vendors, activeId, onSelect,
       <Pagination rangeLabel={`Showing ${first + 1}–${Math.min(first + PAGE_SIZE, cards.length)} of ${cards.length} rate cards`} page={currentPage} pageCount={pageCount} onPageChange={setPage} />
     </div>
     {menu && menuConnection ? createPortal(<div className="service-rate-card-sheet__menu" role="menu" aria-label="Rate card actions" style={{ top: menu.top, left: menu.left }} onPointerDown={(event) => event.stopPropagation()}>
-      <button type="button" role="menuitem" onClick={() => { onSelect(menuConnection.id); setMenu(null); }}>View rate details</button>
+      {!directNavigation ? <button type="button" role="menuitem" onClick={() => { onSelect(menuConnection.id); setMenu(null); }}>View rate details</button> : null}
       <button type="button" role="menuitem" onClick={() => { onOpenRateCard(menuConnection.vendorId, menuConnection.rateCardId); setMenu(null); }}>Open rate card</button>
     </div>, document.body) : null}
   </section>;

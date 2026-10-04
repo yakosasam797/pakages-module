@@ -11,7 +11,7 @@ export function readVehicleOfferings(): VehicleOffering[] {
       const merged = stored.map((item: VehicleOffering) => {
       const seed = VEHICLE_OFFERINGS.find((offering) => offering.id === item.id);
       const oldDemoCoach = ["city-coach", "coast-coach"].includes(item.id) && item.passengerSeats === 27 && item.mediumBags === 20;
-      return { ...seed, ...item, passengerSeats: oldDemoCoach ? seed?.passengerSeats ?? item.passengerSeats : item.passengerSeats, mediumBags: oldDemoCoach ? seed?.mediumBags ?? item.mediumBags : item.mediumBags, largeBags: item.largeBags ?? seed?.largeBags ?? null, cabinBags: item.cabinBags ?? seed?.cabinBags ?? null };
+      return { ...seed, ...item, passengerSeats: oldDemoCoach ? seed?.passengerSeats ?? item.passengerSeats : item.passengerSeats, mediumBags: oldDemoCoach ? seed?.mediumBags ?? item.mediumBags : item.mediumBags, largeBags: "largeBags" in item ? item.largeBags : seed?.largeBags ?? null, cabinBags: "cabinBags" in item ? item.cabinBags : seed?.cabinBags ?? null };
       });
       return [...merged, ...VEHICLE_OFFERINGS.filter((seed) => !merged.some((item) => item.id === seed.id))];
     }

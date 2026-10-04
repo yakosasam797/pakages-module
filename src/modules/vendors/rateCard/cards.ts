@@ -5,6 +5,8 @@ import { DIRECTORY_SERVICES, VENDOR_SERVICE_CONNECTIONS, readCreatedDirectorySer
 import { TRANSPORT_TEMPLATE_LABELS, type PrivateTransportTemplate } from "./privateTransport";
 import { ACTIVITY_RATE_FIXTURES } from "../data/activityRateFixtures";
 import type { ActivityTariff } from "./activityPricing";
+import { SUPPLIER_RATE_FIXTURES } from "../data/supplierRateFixtures";
+import { getVendor } from "../data/vendors";
 
 function policy(
   id: string,
@@ -1170,6 +1172,19 @@ for (const fixture of ACTIVITY_RATE_FIXTURES) {
 
 const activityCardKey = (id: string) => `paryatech:activity-rate:v1:${id}`;
 const createdActivityIndexKey = "paryatech:activity-rate-created:v1";
+for (const fixture of SUPPLIER_RATE_FIXTURES) {
+  const service = DIRECTORY_SERVICES.find((item) => item.id === fixture.serviceId);
+  DETAIL_CARDS[fixture.id] = {
+    ...(fixture.service === "Visa" ? blankVisa() : blankHotel()),
+    id: fixture.id, ref: fixture.id.toUpperCase(), name: fixture.name,
+    vendorId: fixture.vendorId, serviceId: fixture.serviceId,
+    vendor: getVendor(fixture.vendorId)?.name ?? fixture.vendorId,
+    property: service?.name ?? "Supplier service", service: fixture.service,
+    validity: `${fixture.validFrom} – ${fixture.validTo}`,
+    ready: "Supplier prices pending", readyTone: "warning",
+  };
+}
+
 const createdTransportIndexKey = "paryatech:transport-rate-created:v3";
 
 export function listCreatedPrivateTransportCards(): RateCardDetail[] {
@@ -1195,7 +1210,8 @@ export function listCreatedActivityCards(): RateCardDetail[] {
 }
 
 export function getDetailCard(id: string): RateCardDetail | undefined {
-  const seed = DETAIL_CARDS[id] ?? listCreatedActivityCards().find((card) => card.id === id) ?? listCreatedPrivateTransportCards().find((card) => card.id === id);
+  const seed = DETAIL_CARDS[id] ?? listCreatedActivityCards().find((card) => card.id === id) ?? listCreatedPrivateTransportCards().find((card) => card.id === id) ?? listCreatedSupplierCards().find((card) => card.id === id);
+  if (seed && !seed.privateTransport && !seed.activityTariff && !seed.transport && !seed.regionalTransport) return listCreatedSupplierCards().find((card) => card.id === id && card.vendorId === seed.vendorId) ?? seed;
   if (seed?.activityTariff && typeof window !== "undefined") {
     try {
       const raw = window.localStorage.getItem(activityCardKey(id));
@@ -1222,6 +1238,13 @@ export function getDetailCard(id: string): RateCardDetail | undefined {
 }
 
 export function saveTransportCard(card: RateCardDetail): void {
+  if (!card.transport && !card.regionalTransport && !card.privateTransport && !card.activityTariff && card.vendorId && card.serviceId && typeof window !== "undefined") {
+    try {
+      const cards = listCreatedSupplierCards().filter((item) => item.id !== card.id);
+      window.localStorage.setItem("paryatech:supplier-rate-cards:v1", JSON.stringify([...cards, card]));
+    } catch { /* Keep the on-screen draft when browser storage is unavailable. */ }
+    return;
+  }
   if (card.activityTariff && typeof window !== "undefined") {
     try {
       window.localStorage.setItem(activityCardKey(card.id), JSON.stringify(card));
@@ -1244,8 +1267,16 @@ export function saveTransportCard(card: RateCardDetail): void {
   }
 }
 
+export function listCreatedSupplierCards(): RateCardDetail[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const cards = JSON.parse(window.localStorage.getItem("paryatech:supplier-rate-cards:v1") || "[]");
+    return Array.isArray(cards) ? cards.filter((card) => card && typeof card.id === "string" && typeof card.vendorId === "string" && typeof card.serviceId === "string") : [];
+  } catch { return []; }
+}
+
 export function listDetailCards(): RateCardDetail[] {
-  return [...Object.values(DETAIL_CARDS), ...listCreatedActivityCards(), ...listCreatedPrivateTransportCards()];
+  return Array.from(new Map([...Object.values(DETAIL_CARDS), ...listCreatedActivityCards(), ...listCreatedPrivateTransportCards(), ...listCreatedSupplierCards()].map((card) => [card.id, card])).values());
 }
 
 /** Fresh draft from an enabled template, stamped with the current vendor. */
@@ -1288,6 +1319,8 @@ export function createBlankCard(templateId: string, vendorName: string, vendorId
   return {
     ...base,
     id: `rc-draft-${templateId}-${stamp}`,
+    vendorId,
+    serviceId,
     ref: transportTemplate ? `RC-${stamp.toUpperCase()}` : base.ref,
     vendor: vendorName,
     property: activityService?.name ?? (transportTemplate ? DIRECTORY_SERVICES.find((service) => service.id === serviceId && service.profileVendorId === vendorId)?.name || "Transport service" : templateId === "visa" ? "Untitled visa product" : "Untitled property"),

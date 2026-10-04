@@ -1,5 +1,8 @@
 # Finance module
 
+- [UX flows and operational context](finance-module-ux-operational-context.md)
+- [Screenshots, UI inventory and user-flow guide](finance-module-ui-context.html)
+
 Run `npm ci`, `npm run dev`, and `npm run build` from the repository root.
 
 The active entry is `src/modules/finance/FinanceApp.tsx`. Source, styles and module data live in `src/modules/finance/`; shared static assets live in `public/`. Imported Vendor images live in `src/assets/vendors/`.
