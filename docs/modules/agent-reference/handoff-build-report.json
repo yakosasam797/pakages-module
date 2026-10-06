@@ -1,0 +1,102 @@
+[
+  {
+    "schemaVersion": 1,
+    "module": "bookings",
+    "title": "Booking",
+    "reviewed": "5 October 2026",
+    "sourceCommit": "cfc0335998cde94795561b7381bbfe1d6a2c35e9",
+    "sourceIncludesWorkingCopy": true,
+    "screenStates": 89,
+    "images": 104,
+    "sourceFiles": 48,
+    "currentStates": 51,
+    "earlierStates": 38,
+    "contextualStates": 0,
+    "remainingStateGroups": 4,
+    "imageEncoding": {
+      "webpQuality": 95,
+      "resized": false,
+      "originalCapturesRetained": true,
+      "policy": "High-quality WebP only when smaller; otherwise original image bytes",
+      "maxHtmlBytes": 20000000
+    },
+    "truthBoundary": "Current inspected source and real captures, not every possible permutation or a production backend. Remaining screenshot gaps are explicit.",
+    "path": "bookings/booking-agent-handoff.html",
+    "bytes": 13013742
+  },
+  {
+    "schemaVersion": 1,
+    "module": "finance",
+    "title": "All Finance",
+    "reviewed": "5 October 2026",
+    "sourceCommit": "cfc0335998cde94795561b7381bbfe1d6a2c35e9",
+    "sourceIncludesWorkingCopy": true,
+    "screenStates": 113,
+    "images": 136,
+    "sourceFiles": 59,
+    "currentStates": 53,
+    "earlierStates": 45,
+    "contextualStates": 15,
+    "remainingStateGroups": 5,
+    "imageEncoding": {
+      "webpQuality": 95,
+      "resized": false,
+      "originalCapturesRetained": true,
+      "policy": "High-quality WebP only when smaller; otherwise original image bytes",
+      "maxHtmlBytes": 20000000
+    },
+    "truthBoundary": "Current inspected source and real captures, not every possible permutation or a production backend. Remaining screenshot gaps are explicit.",
+    "path": "finance/finance-agent-handoff.html",
+    "bytes": 17344113
+  },
+  {
+    "schemaVersion": 1,
+    "module": "destinations",
+    "title": "Destination",
+    "reviewed": "5 October 2026",
+    "sourceCommit": "cfc0335998cde94795561b7381bbfe1d6a2c35e9",
+    "sourceIncludesWorkingCopy": true,
+    "screenStates": 43,
+    "images": 65,
+    "sourceFiles": 49,
+    "currentStates": 26,
+    "earlierStates": 17,
+    "contextualStates": 0,
+    "remainingStateGroups": 5,
+    "imageEncoding": {
+      "webpQuality": 95,
+      "resized": false,
+      "originalCapturesRetained": true,
+      "policy": "High-quality WebP only when smaller; otherwise original image bytes",
+      "maxHtmlBytes": 20000000
+    },
+    "truthBoundary": "Current inspected source and real captures, not every possible permutation or a production backend. Remaining screenshot gaps are explicit.",
+    "path": "destinations/destination-agent-handoff.html",
+    "bytes": 13591607
+  },
+  {
+    "schemaVersion": 1,
+    "module": "packages",
+    "title": "Packages and Proposals",
+    "reviewed": "5 October 2026",
+    "sourceCommit": "cfc0335998cde94795561b7381bbfe1d6a2c35e9",
+    "sourceIncludesWorkingCopy": true,
+    "screenStates": 128,
+    "images": 203,
+    "sourceFiles": 62,
+    "currentStates": 47,
+    "earlierStates": 81,
+    "contextualStates": 0,
+    "remainingStateGroups": 7,
+    "imageEncoding": {
+      "webpQuality": 90,
+      "resized": false,
+      "originalCapturesRetained": true,
+      "policy": "High-quality WebP only when smaller; otherwise original image bytes",
+      "maxHtmlBytes": 20000000
+    },
+    "truthBoundary": "Current inspected source and real captures, not every possible permutation or a production backend. Remaining screenshot gaps are explicit.",
+    "path": "packages/packages-proposals-agent-handoff.html",
+    "bytes": 19926163
+  }
+]

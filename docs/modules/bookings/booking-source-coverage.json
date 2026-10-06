@@ -1,0 +1,1252 @@
+{
+  "scope": "Meaningful source-supported module states; current and earlier real UI evidence, with explicit remaining conditions",
+  "reviewed": "5 October 2026",
+  "currentStates": 51,
+  "earlierStates": 38,
+  "contextualStates": 0,
+  "stateCount": 89,
+  "imageCount": 104,
+  "remainingStates": [
+    {
+      "id": "accepted-transport",
+      "description": "Accepted transport panel: initial payable, actuals validation, amendment, pending/reconfirmation and confirmed result",
+      "source": "src/TransportBookingHandoffPanel.tsx",
+      "reason": "Requires stored accepted snapshots. Clean source baseline contains none; no default UI image.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    },
+    {
+      "id": "accepted-activity",
+      "description": "Accepted activity panel: confirmed session versus pending availability",
+      "source": "src/BookingModule.tsx",
+      "reason": "Conditional on stored approved Activity snapshots, absent from clean baseline.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    },
+    {
+      "id": "more-overflow",
+      "description": "Narrow Booking tab overflow / More menu",
+      "source": "src/modules/bookings/booking-redesign.html",
+      "reason": "Desktop captures show all tabs; this viewport-dependent overflow state was not separately captured.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    },
+    {
+      "id": "native-pickers",
+      "description": "Native select options, calendar/file chooser, every filtered table/selection variant",
+      "source": "src/modules/bookings/booking-redesign.html",
+      "reason": "Fields/options and source handlers are inventoried. Platform UI and all data permutations are not individually photographed.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    }
+  ],
+  "sourceMarkers": [
+    {
+      "path": "src/App.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useEffect, useLayoutEffect, useMemo, useRef, useState } from \"react\";"
+        },
+        {
+          "line": 359,
+          "text": "  const [activeModule, setActiveModule] = useState<WorkspaceModule>(moduleFromUrl);"
+        },
+        {
+          "line": 360,
+          "text": "  const [workspaceView, setWorkspaceView] = useState<\"packages\" | \"proposals\">(\"packages\");"
+        },
+        {
+          "line": 361,
+          "text": "  const [statusFilter, setStatusFilter] = useState(\"all\");"
+        },
+        {
+          "line": 362,
+          "text": "  const [sourceFilter, setSourceFilter] = useState(\"all\");"
+        },
+        {
+          "line": 363,
+          "text": "  const [query, setQuery] = useState(\"\");"
+        },
+        {
+          "line": 364,
+          "text": "  const [region, setRegion] = useState(\"all\");"
+        },
+        {
+          "line": 365,
+          "text": "  const [page, setPage] = useState(1);"
+        },
+        {
+          "line": 366,
+          "text": "  const [pageSize, setPageSize] = useState(5);"
+        },
+        {
+          "line": 367,
+          "text": "  const [selectedSearchRegion, setSelectedSearchRegion] = useState<RegionSuggestion | null>(null);"
+        },
+        {
+          "line": 368,
+          "text": "  const [regionSuggestions, setRegionSuggestions] = useState<RegionSuggestion[]>([]);"
+        },
+        {
+          "line": 369,
+          "text": "  const [regionSearchOpen, setRegionSearchOpen] = useState(false);"
+        },
+        {
+          "line": 370,
+          "text": "  const [regionSearchLoading, setRegionSearchLoading] = useState(false);"
+        },
+        {
+          "line": 371,
+          "text": "  const [creatingPackage, setCreatingPackage] = useState(false);"
+        },
+        {
+          "line": 372,
+          "text": "  const [creatingProposal, setCreatingProposal] = useState(false);"
+        },
+        {
+          "line": 373,
+          "text": "  const [proposalSource, setProposalSource] = useState<PackageRecord | null>(null);"
+        },
+        {
+          "line": 374,
+          "text": "  const [toast, setToast] = useState<string | null>(null);"
+        },
+        {
+          "line": 375,
+          "text": "  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());"
+        },
+        {
+          "line": 376,
+          "text": "  const [selectedPackage, setSelectedPackage] = useState<PackageRecord | null>(null);"
+        },
+        {
+          "line": 377,
+          "text": "  const [selectedProposal, setSelectedProposal] = useState<ProposalRecord | null>(null);"
+        },
+        {
+          "line": 378,
+          "text": "  const [queryPreview, setQueryPreview] = useState<ProposalRecord | null>(null);"
+        },
+        {
+          "line": 379,
+          "text": "  const [packageRecords, setPackageRecords] = useState<PackageRecord[]>(packages);"
+        },
+        {
+          "line": 380,
+          "text": "  const [proposalRecords, setProposalRecords] = useState<ProposalRecord[]>(proposals);"
+        },
+        {
+          "line": 381,
+          "text": "  const [openRowMenu, setOpenRowMenu] = useState<string | null>(null);"
+        },
+        {
+          "line": 387,
+          "text": "  const [packageInitialNavigation, setPackageInitialNavigation] = useState<StepNavigationSnapshot | null>(null);"
+        },
+        {
+          "line": 388,
+          "text": "  const [proposalInitialNavigation, setProposalInitialNavigation] = useState<StepNavigationSnapshot | null>(null);"
+        },
+        {
+          "line": 1295,
+          "text": "                      <div className=\"package-row-menu\" role=\"menu\" aria-label={`Actions for ${item.name}`}>"
+        },
+        {
+          "line": 1399,
+          "text": "                      <div className=\"package-row-menu\" role=\"menu\" aria-label={`Actions for ${item.name}`}>"
+        },
+        {
+          "line": 1432,
+          "text": "      <Modal open={Boolean(queryPreview)} onClose={() => setQueryPreview(null)} title={queryPreview?.queryId ?? \"Linked query\"} eyebrow=\"Linked query\" footer={<Button variant=\"ghost\" size=\"sm\" onClick={() => setQueryPreview(null)}>Close</Button>}>"
+        }
+      ]
+    },
+    {
+      "path": "src/BookingModule.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from \"react\";"
+        },
+        {
+          "line": 17,
+          "text": "  const [activityHandoffs] = useState(readActivityBookingHandoffs);"
+        },
+        {
+          "line": 18,
+          "text": "  const [transportHandoffs, setTransportHandoffs] = useState(readTransportBookingHandoffs);"
+        }
+      ]
+    },
+    {
+      "path": "src/TransportBookingHandoffPanel.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useState } from \"react\";"
+        },
+        {
+          "line": 7,
+          "text": "  const [actualKm, setActualKm] = useState<Record<string, string>>({});"
+        },
+        {
+          "line": 8,
+          "text": "  const [actualAmounts, setActualAmounts] = useState<Record<string, string>>({});"
+        },
+        {
+          "line": 9,
+          "text": "  const [reason, setReason] = useState<Record<string, string>>({});"
+        },
+        {
+          "line": 10,
+          "text": "  const [confirmationRefs, setConfirmationRefs] = useState<Record<string, string>>({});"
+        }
+      ]
+    },
+    {
+      "path": "src/WorkspaceNotes.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useEffect, useState } from \"react\";"
+        },
+        {
+          "line": 46,
+          "text": "  const [notes, setNotes] = useState<Note[]>(() => readNotes(module));"
+        },
+        {
+          "line": 47,
+          "text": "  const [open, setOpen] = useState(false);"
+        },
+        {
+          "line": 48,
+          "text": "  const [mode, setMode] = useState<NotesMode>(\"browse\");"
+        },
+        {
+          "line": 49,
+          "text": "  const [filter, setFilter] = useState(\"all\");"
+        },
+        {
+          "line": 50,
+          "text": "  const [search, setSearch] = useState(\"\");"
+        },
+        {
+          "line": 51,
+          "text": "  const [draft, setDraft] = useState(\"\");"
+        },
+        {
+          "line": 52,
+          "text": "  const [related, setRelated] = useState(\"\");"
+        },
+        {
+          "line": 53,
+          "text": "  const [pin, setPin] = useState(false);"
+        },
+        {
+          "line": 113,
+          "text": "    {createPortal(<NotesDrawer"
+        }
+      ]
+    },
+    {
+      "path": "src/modules/bookings/booking-redesign.html",
+      "markers": [
+        {
+          "line": 1398,
+          "text": "      <button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-directBooking\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14\"/><path d=\"M5 12h14\"/></svg>Direct booking</button>"
+        },
+        {
+          "line": 1709,
+          "text": "            <button class=\"btn btn-primary\" style=\"height:36px\" type=\"button\" data-open-modal=\"modal-uploadVoucher\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><path d=\"m17 8-5-5-5 5\"/><path d=\"M12 3v12\"/></svg>Upload voucher</button>"
+        },
+        {
+          "line": 1796,
+          "text": "                <button class=\"btn btn-brand btn-sm\" type=\"button\" data-open-modal=\"modal-manageMargin\">Manage margin</button>"
+        },
+        {
+          "line": 1797,
+          "text": "                <button class=\"btn btn-brand btn-sm\" type=\"button\" data-open-modal=\"modal-catalog\">Add from catalog</button>"
+        },
+        {
+          "line": 1798,
+          "text": "                <button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-addService\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14\"/><path d=\"M5 12h14\"/></svg>Add service line</button>"
+        },
+        {
+          "line": 1866,
+          "text": "                      <button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-contact\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg>Contact</button>"
+        },
+        {
+          "line": 1902,
+          "text": "                      <button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-contact\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg>Contact</button>"
+        },
+        {
+          "line": 1937,
+          "text": "                      <button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-contact\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg>Contact</button>"
+        },
+        {
+          "line": 1972,
+          "text": "                      <button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-contact\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg>Contact</button>"
+        },
+        {
+          "line": 2007,
+          "text": "                      <button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-assignVendor\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M19 8v6M16 11h6\"/></svg>Assign vendor</button>"
+        },
+        {
+          "line": 2090,
+          "text": "              <button class=\"btn btn-primary\" style=\"height:36px\" type=\"button\" data-open-modal=\"modal-addTask\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14\"/><path d=\"M5 12h14\"/></svg>Add task</button>"
+        },
+        {
+          "line": 2216,
+          "text": "            <button class=\"btn btn-primary\" style=\"height:36px\" type=\"button\" data-open-modal=\"modal-addTraveller\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14\"/><path d=\"M5 12h14\"/></svg>Add traveller</button>"
+        },
+        {
+          "line": 2253,
+          "text": "                <button class=\"btn btn-secondary btn-sm\" type=\"button\" data-open-modal=\"modal-requestDoc\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg>Request documents</button>"
+        },
+        {
+          "line": 2291,
+          "text": "            <button class=\"btn btn-brand\" style=\"height:36px\" type=\"button\" data-open-modal=\"modal-requestDoc\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg>Request documents</button>"
+        },
+        {
+          "line": 2292,
+          "text": "            <button class=\"btn btn-primary\" style=\"height:36px\" type=\"button\" data-open-modal=\"modal-attachFile\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><path d=\"m17 8-5-5-5 5\"/><path d=\"M12 3v12\"/></svg>Upload file</button>"
+        },
+        {
+          "line": 2356,
+          "text": "                <button class=\"btn btn-secondary btn-sm\" type=\"button\" data-open-modal=\"modal-requestDoc\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg>Request</button>"
+        },
+        {
+          "line": 2396,
+          "text": "              <button class=\"btn btn-brand\" style=\"height:36px\" type=\"button\" data-open-modal=\"modal-addInstalment\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14\"/><path d=\"M5 12h14\"/></svg>Add instalment</button>"
+        },
+        {
+          "line": 2397,
+          "text": "              <button class=\"btn btn-primary\" style=\"height:36px\" type=\"button\" data-open-modal=\"modal-recordPayment\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/></svg>Record payment</button>"
+        },
+        {
+          "line": 2412,
+          "text": "                  <div class=\"row-acts\"><button class=\"btn btn-brand btn-sm\" type=\"button\" data-open-modal=\"modal-editInstalment\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>View</button><button class=\"btn btn-ghost btn-sm btn-icon more-btn\" type=\"button\" data-tip=\"More\" aria-label=\"More\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"19\" cy=\"12\" r=\"1.6\"/></svg></button></div>"
+        },
+        {
+          "line": 2421,
+          "text": "                  <div class=\"row-acts\"><button class=\"btn btn-brand btn-sm\" type=\"button\" data-open-modal=\"modal-editInstalment\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>View</button><button class=\"btn btn-ghost btn-sm btn-icon more-btn\" type=\"button\" data-tip=\"More\" aria-label=\"More\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"19\" cy=\"12\" r=\"1.6\"/></svg></button></div>"
+        },
+        {
+          "line": 2430,
+          "text": "                  <div class=\"row-acts\"><button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-recordPayment\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/></svg>Record</button><button class=\"btn btn-ghost btn-sm btn-icon more-btn\" type=\"button\" data-tip=\"More\" aria-label=\"More\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"19\" cy=\"12\" r=\"1.6\"/></svg></button></div>"
+        },
+        {
+          "line": 2436,
+          "text": "                  <button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-recordPayment\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/></svg>Record</button>"
+        },
+        {
+          "line": 2467,
+          "text": "              <button class=\"btn btn-primary\" style=\"height:36px\" type=\"button\" data-open-modal=\"modal-supplierPay\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/></svg>Record payment</button>"
+        },
+        {
+          "line": 2483,
+          "text": "                  <div class=\"row-acts\"><button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-supplierPay\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 3h6v6\"/><path d=\"M10 14 21 3\"/><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\"/></svg>Open</button><button class=\"btn btn-ghost btn-sm btn-icon more-btn\" type=\"button\" data-tip=\"More\" aria-label=\"More\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"19\" cy=\"12\" r=\"1.6\"/></svg></button></div>"
+        },
+        {
+          "line": 2493,
+          "text": "                  <div class=\"row-acts\"><button class=\"btn btn-brand btn-sm\" type=\"button\" data-open-modal=\"modal-supplierPay\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 3h6v6\"/><path d=\"M10 14 21 3\"/><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\"/></svg>Open</button><button class=\"btn btn-ghost btn-sm btn-icon more-btn\" type=\"button\" data-tip=\"More\" aria-label=\"More\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"19\" cy=\"12\" r=\"1.6\"/></svg></button></div>"
+        },
+        {
+          "line": 2503,
+          "text": "                  <div class=\"row-acts\"><button class=\"btn btn-brand btn-sm\" type=\"button\" data-open-modal=\"modal-supplierPay\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 3h6v6\"/><path d=\"M10 14 21 3\"/><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\"/></svg>Open</button><button class=\"btn btn-ghost btn-sm btn-icon more-btn\" type=\"button\" data-tip=\"More\" aria-label=\"More\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"19\" cy=\"12\" r=\"1.6\"/></svg></button></div>"
+        },
+        {
+          "line": 2513,
+          "text": "                  <div class=\"row-acts\"><button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-supplierPay\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 3h6v6\"/><path d=\"M10 14 21 3\"/><path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\"/></svg>Open</button><button class=\"btn btn-ghost btn-sm btn-icon more-btn\" type=\"button\" data-tip=\"More\" aria-label=\"More\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"19\" cy=\"12\" r=\"1.6\"/></svg></button></div>"
+        },
+        {
+          "line": 2529,
+          "text": "                  <button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-supplierPay\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/></svg>Record</button>"
+        },
+        {
+          "line": 2549,
+          "text": "              <div class=\"comm-lhead\"><span class=\"lbl\">Conversations</span><div style=\"display:flex;align-items:center;gap:8px\"><span class=\"sum\" id=\"commSum\">2 unread</span><button class=\"btn btn-primary btn-xs\" type=\"button\" data-open-modal=\"modal-newMessage\">New message</button></div></div>"
+        },
+        {
+          "line": 2563,
+          "text": "                    <button class=\"btn btn-brand btn-sm\" type=\"button\" data-open-modal=\"modal-requestDoc\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z\"/><path d=\"M14 2v6h6\"/></svg>Request document</button>"
+        },
+        {
+          "line": 2684,
+          "text": "<div class=\"modal-overlay\" id=\"modal-directBooking\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Bookings</p><h2 class=\"modal-title\">Direct booking</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"db-name\">Booking name</label><input class=\"mf-i\" id=\"db-name\" type=\"text\" placeholder=\"e.g. Sharma Family · Dubai\"></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"db-start\">Travel start</label><input class=\"mf-i\" id=\"db-start\" type=\"text\" placeholder=\"18 Aug 2026\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"db-end\">Travel end</label><input class=\"mf-i\" id=\"db-end\" type=\"text\" placeholder=\"22 Aug 2026\"></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-directBooking\">Create booking</button></div></div></div>"
+        },
+        {
+          "line": 2685,
+          "text": "<div class=\"modal-overlay\" id=\"modal-editBooking\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">BK-2026-000003</p><h2 class=\"modal-title\">Edit booking</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"eb-name\">Booking name</label><input class=\"mf-i\" id=\"eb-name\" type=\"text\" value=\"XYZ Family · Dubai\"></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"eb-start\">Travel start</label><input class=\"mf-i\" id=\"eb-start\" type=\"text\" value=\"18 Aug 2026\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"eb-end\">Travel end</label><input class=\"mf-i\" id=\"eb-end\" type=\"text\" value=\"22 Aug 2026\"></div></div><div class=\"mf\"><label class=\"mf-l\" for=\"eb-owner\">Owner</label><select class=\"mf-i\" id=\"eb-owner\"><option selected>Vrushabh Jain</option><option>Neha Kapoor</option><option>Rahul Sharma</option><option>Meera Iyer</option></select></div><p class=\"mf-note\">Working team: Neha Kapoor, Meera Iyer (+2 on the header).</p></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-editBooking\">Save changes</button></div></div></div>"
+        },
+        {
+          "line": 2686,
+          "text": "<div class=\"modal-overlay\" id=\"modal-manageMargin\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Services & Vendors</p><h2 class=\"modal-title\">Manage margin</h2></div><div class=\"modal-body\"><fieldset class=\"mf-radios\"><legend class=\"mf-l\">Pricing method</legend><label class=\"mf-radio\"><input type=\"radio\" name=\"mm-scope\" value=\"overall\" checked> Overall markup</label><label class=\"mf-radio\"><input type=\"radio\" name=\"mm-scope\" value=\"per\"> Per-service selling price</label></fieldset><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"mm-type\">Markup type</label><select class=\"mf-i\" id=\"mm-type\"><option>Percentage</option><option>Fixed amount</option></select></div><div class=\"mf\"><label class=\"mf-l\" for=\"mm-value\">Markup</label><input class=\"mf-i mono\" id=\"mm-value\" type=\"text\" value=\"12\"></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Close</button><button type=\"button\" class=\"btn btn-primary\" data-open-modal=\"modal-priceAmend\">Create price amendment</button></div></div></div>"
+        },
+        {
+          "line": 2687,
+          "text": "<div class=\"modal-overlay\" id=\"modal-priceAmend\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Finance</p><h2 class=\"modal-title\">Create price amendment</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"pa-reason\">Reason</label><input class=\"mf-i\" id=\"pa-reason\" type=\"text\" placeholder=\"Customer added Desert Safari\"></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\">Adjustment</label><select class=\"mf-i\" id=\"pa-dir\"><option>Increase</option><option>Decrease</option></select></div><div class=\"mf\"><label class=\"mf-l\" for=\"pa-amount\">Amount</label><input class=\"mf-i mono\" id=\"pa-amount\" type=\"text\" placeholder=\"₹\"></div></div><div class=\"mf\"><label class=\"mf-l\" for=\"pa-note\">Internal note</label><textarea class=\"mf-i\" id=\"pa-note\" rows=\"2\"></textarea></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-priceAmend\">Create amendment</button></div></div></div>"
+        },
+        {
+          "line": 2688,
+          "text": "<div class=\"modal-overlay\" id=\"modal-catalog\" aria-hidden=\"true\"><div class=\"modal modal-wide\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Services & Vendors</p><h2 class=\"modal-title\">Add from catalog</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"cat-search\">Search Dubai catalog</label><input class=\"mf-i\" id=\"cat-search\" type=\"search\" placeholder=\"Hotels, transfers, activities, visa…\"></div><ul class=\"catalog-list\" id=\"catalogList\"><li class=\"catalog-item\" data-cat=\"desert safari · evening\"><span class=\"catalog-title\">Desert Safari · Evening</span><span class=\"catalog-meta\">Activity · Desert Gate</span><span class=\"catalog-cost mono\">₹ 6,500</span><button type=\"button\" class=\"btn btn-brand btn-sm\" data-catalog-add data-kind=\"Activity\" data-title=\"Desert Safari · Evening\" data-vendor=\"Desert Gate\" data-cost=\"6500\">Add</button></li><li class=\"catalog-item\" data-cat=\"burj khalifa · level 124/125\"><span class=\"catalog-title\">Burj Khalifa · Level 124/125</span><span class=\"catalog-meta\">Activity · SkyLink Travel Services</span><span class=\"catalog-cost mono\">₹ 4,200</span><button type=\"button\" class=\"btn btn-brand btn-sm\" data-catalog-add data-kind=\"Activity\" data-title=\"Burj Khalifa · Level 124/125\" data-vendor=\"SkyLink Travel Services\" data-cost=\"4200\">Add</button></li><li class=\"catalog-item\" data-cat=\"dhow cruise dinner · marina\"><span class=\"catalog-title\">Dhow Cruise Dinner · Marina</span><span class=\"catalog-meta\">Activity · Desert Gate</span><span class=\"catalog-cost mono\">₹ 3,800</span><button type=\"button\" class=\"btn btn-brand btn-sm\" data-catalog-add data-kind=\"Activity\" data-title=\"Dhow Cruise Dinner · Marina\" data-vendor=\"Desert Gate\" data-cost=\"3800\">Add</button></li><li class=\"catalog-item\" data-cat=\"private airport transfer · sedan\"><span class=\"catalog-title\">Private airport transfer · sedan</span><span class=\"catalog-meta\">Transfer · Desert Wheels</span><span class=\"catalog-cost mono\">₹ 3,500</span><button type=\"button\" class=\"btn btn-brand btn-sm\" data-catalog-add data-kind=\"Transfer\" data-title=\"Private airport transfer · sedan\" data-vendor=\"Desert Wheels\" data-cost=\"3500\">Add</button></li><li class=\"catalog-item\" data-cat=\"tamara hotel · deluxe upgrade\"><span class=\"catalog-title\">Tamara Hotel · Deluxe upgrade</span><span class=\"catalog-meta\">Hotel · ABC DMC Dubai</span><span class=\"catalog-cost mono\">₹ 12,000</span><button type=\"button\" class=\"btn btn-brand btn-sm\" data-catalog-add data-kind=\"Hotel\" data-title=\"Tamara Hotel · Deluxe upgrade\" data-vendor=\"ABC DMC Dubai\" data-cost=\"12000\">Add</button></li><li class=\"catalog-item\" data-cat=\"uae visa · express processing\"><span class=\"catalog-title\">UAE visa · express processing</span><span class=\"catalog-meta\">Visa · SkyLink Travel Services</span><span class=\"catalog-cost mono\">₹ 7,500</span><button type=\"button\" class=\"btn btn-brand btn-sm\" data-catalog-add data-kind=\"Visa\" data-title=\"UAE visa · express processing\" data-vendor=\"SkyLink Travel Services\" data-cost=\"7500\">Add</button></li></ul></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Close</button></div></div></div>"
+        },
+        {
+          "line": 2689,
+          "text": "<div class=\"modal-overlay\" id=\"modal-addService\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Services & Vendors</p><h2 class=\"modal-title\">Add service line</h2></div><div class=\"modal-body\"><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"as-kind\">Kind</label><select class=\"mf-i\" id=\"as-kind\"><option>Hotel</option><option>Transfer</option><option>Activity</option><option>Visa</option><option>Flight</option><option>Insurance</option></select></div><div class=\"mf\"><label class=\"mf-l\" for=\"as-title\">Title</label><input class=\"mf-i\" id=\"as-title\" type=\"text\" placeholder=\"Desert Safari · Evening\"></div></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"as-loc\">Location</label><input class=\"mf-i\" id=\"as-loc\" type=\"text\" value=\"Dubai\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"as-sched\">Schedule</label><input class=\"mf-i\" id=\"as-sched\" type=\"text\" placeholder=\"20 Aug\"></div></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"as-vendor\">Vendor — optional</label><input class=\"mf-i\" id=\"as-vendor\" type=\"text\" placeholder=\"Not assigned\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"as-cost\">Supplier cost</label><input class=\"mf-i mono\" id=\"as-cost\" type=\"text\" placeholder=\"₹\"></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-addService\">Add service line</button></div></div></div>"
+        },
+        {
+          "line": 2690,
+          "text": "<div class=\"modal-overlay\" id=\"modal-editPrice\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Services</p><h2 class=\"modal-title\">Edit selling price</h2></div><div class=\"modal-body\"><div class=\"mf\"><span class=\"mf-l\">Old selling price</span><output class=\"mf-ro mono\" id=\"ep-old\">₹46,000</output></div><div class=\"mf\"><label class=\"mf-l\" for=\"ep-new\">New selling price</label><input class=\"mf-i mono\" id=\"ep-new\" type=\"text\"></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-editPrice\">Save change</button></div></div></div>"
+        },
+        {
+          "line": 2691,
+          "text": "<div class=\"modal-overlay\" id=\"modal-editCost\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Services</p><h2 class=\"modal-title\">Edit supplier cost</h2></div><div class=\"modal-body\"><div class=\"mf-row\"><div class=\"mf\"><span class=\"mf-l\">Old supplier cost</span><output class=\"mf-ro mono\" id=\"ec-old\">₹46,000</output></div><div class=\"mf\"><label class=\"mf-l\" for=\"ec-new\">New supplier cost</label><input class=\"mf-i mono\" id=\"ec-new\" type=\"text\"></div></div><div class=\"mf\"><label class=\"mf-l\" for=\"ec-reason\">Reason</label><select class=\"mf-i\" id=\"ec-reason\"><option>Vendor revised rate</option><option>Seasonal surcharge</option><option>Currency fluctuation</option><option>Booking scope changed</option><option>Data correction</option></select></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-editCost\">Save change</button></div></div></div>"
+        },
+        {
+          "line": 2692,
+          "text": "<div class=\"modal-overlay\" id=\"modal-assignVendor\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Services</p><h2 class=\"modal-title\">Assign vendor</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"av-name\">Vendor name</label><input class=\"mf-i\" id=\"av-name\" type=\"text\" placeholder=\"Gulf Coast Tours\"></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-assignVendor\">Assign</button></div></div></div>"
+        },
+        {
+          "line": 2693,
+          "text": "<div class=\"modal-overlay\" id=\"modal-contact\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Services</p><h2 class=\"modal-title\">Contact vendor</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"ct-msg\">Message</label><textarea class=\"mf-i\" id=\"ct-msg\" rows=\"4\">Hi, following up on confirmation for this booking. Please confirm by today 4 PM. Thanks.</textarea></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-contact\">Send</button></div></div></div>"
+        },
+        {
+          "line": 2694,
+          "text": "<div class=\"modal-overlay\" id=\"modal-watchers\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Services</p><h2 class=\"modal-title\">Watchers</h2></div><div class=\"modal-body\"><p class=\"mf-note\" style=\"margin:0 0 14px\">People notified when this service changes.</p><div class=\"mf\"><label class=\"mf-l\" for=\"wt-people\">Add watcher</label><select class=\"mf-i\" id=\"wt-people\"><option selected>Neha Kapoor</option><option>Meera Iyer</option><option>Rahul Sharma</option><option>Vrushabh Jain</option></select></div><div style=\"display:flex;flex-wrap:wrap;gap:8px;margin-top:4px\"><span class=\"tag t-info\"><span class=\"d\"></span>Vrushabh Jain</span><span class=\"tag t-info\"><span class=\"d\"></span>Neha Kapoor</span></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-watchers\">Save</button></div></div></div>"
+        },
+        {
+          "line": 2695,
+          "text": "<div class=\"modal-overlay\" id=\"modal-addTraveller\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Travellers</p><h2 class=\"modal-title\">Add traveller</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"at-name\">Full name</label><input class=\"mf-i\" id=\"at-name\" type=\"text\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"at-details\">Details</label><input class=\"mf-i\" id=\"at-details\" type=\"text\" placeholder=\"Adult · Indian\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"at-phone\">Phone — optional</label><input class=\"mf-i\" id=\"at-phone\" type=\"text\"></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-addTraveller\">Add traveller</button></div></div></div>"
+        },
+        {
+          "line": 2696,
+          "text": "<div class=\"modal-overlay\" id=\"modal-addTask\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Tasks</p><h2 class=\"modal-title\">Add task</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"tk-title\">Task</label><input class=\"mf-i\" id=\"tk-title\" type=\"text\"></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"tk-assignee\">Assignee</label><select class=\"mf-i\" id=\"tk-assignee\"><option>Neha Kapoor</option><option>Rahul Sharma</option><option>Vrushabh Jain</option><option>Meera Iyer</option></select></div><div class=\"mf\"><label class=\"mf-l\" for=\"tk-priority\">Priority</label><select class=\"mf-i\" id=\"tk-priority\"><option>P1</option><option>P2</option><option>P0</option><option>P3</option></select></div></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"tk-due\">Due</label><input class=\"mf-i\" id=\"tk-due\" type=\"text\" placeholder=\"14 Aug\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"tk-related\">Related to</label><input class=\"mf-i\" id=\"tk-related\" type=\"text\" placeholder=\"Booking generally\"></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-addTask\">Create task</button></div></div></div>"
+        },
+        {
+          "line": 2697,
+          "text": "<div class=\"modal-overlay\" id=\"modal-recordPayment\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Finance · Customer payment</p><h2 class=\"modal-title\">Record customer payment</h2></div><div class=\"modal-body\"><div class=\"mf\"><span class=\"mf-l\">Customer</span><output class=\"mf-ro\">XYZ Family</output></div><div class=\"mf\"><span class=\"mf-l\">Against</span><output class=\"mf-ro\">Final balance · ₹75,000 remaining</output></div><div class=\"mf\"><label class=\"mf-l\" for=\"rp-amount\">Amount</label><input class=\"mf-i mono\" id=\"rp-amount\" type=\"text\" value=\"75000\"></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"rp-date\">Payment date</label><input class=\"mf-i\" id=\"rp-date\" type=\"text\" value=\"13 Aug 2026\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"rp-method\">Method</label><select class=\"mf-i\" id=\"rp-method\"><option>UPI</option><option>Bank transfer</option><option>Card</option><option>Cash</option></select></div></div><div class=\"mf\"><label class=\"mf-l\" for=\"rp-ref\">Reference — optional</label><input class=\"mf-i\" id=\"rp-ref\" type=\"text\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"rp-note\">Internal note — optional</label><textarea class=\"mf-i\" id=\"rp-note\" rows=\"2\"></textarea></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-recordPayment\">Record payment</button></div></div></div>"
+        },
+        {
+          "line": 2698,
+          "text": "<div class=\"modal-overlay\" id=\"modal-addInstalment\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Finance · Customer payments</p><h2 class=\"modal-title\">Add instalment</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"ai-label\">Instalment name</label><input class=\"mf-i\" id=\"ai-label\" type=\"text\" placeholder=\"Third instalment\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"ai-due\">Due date</label><input class=\"mf-i\" id=\"ai-due\" type=\"text\" placeholder=\"12 Aug 2026\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"ai-amount\">Amount</label><input class=\"mf-i mono\" id=\"ai-amount\" type=\"text\" placeholder=\"₹30,000\"></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-addInstalment\">Add instalment</button></div></div></div>"
+        },
+        {
+          "line": 2699,
+          "text": "<div class=\"modal-overlay\" id=\"modal-editInstalment\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Finance</p><h2 class=\"modal-title\">Edit instalment</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"ei-label\">Instalment label</label><input class=\"mf-i\" id=\"ei-label\" type=\"text\" value=\"Final balance\"></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"ei-due\">Due date</label><input class=\"mf-i\" id=\"ei-due\" type=\"text\" value=\"14 Aug\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"ei-amount\">Amount</label><input class=\"mf-i mono\" id=\"ei-amount\" type=\"text\" value=\"75000\"></div></div><div class=\"mf\"><label class=\"mf-l\" for=\"ei-status\">Status</label><select class=\"mf-i\" id=\"ei-status\"><option>Due</option><option>Partially paid</option><option>Paid</option><option>Overdue</option></select></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-editInstalment\">Save changes</button></div></div></div>"
+        },
+        {
+          "line": 2700,
+          "text": "<div class=\"modal-overlay\" id=\"modal-supplierPay\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Finance · Supplier payment</p><h2 class=\"modal-title\">Record supplier payment</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"sp-vendor\">Vendor</label><input class=\"mf-i\" id=\"sp-vendor\" type=\"text\" value=\"ABC DMC Dubai\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"sp-service\">Service</label><input class=\"mf-i\" id=\"sp-service\" type=\"text\" value=\"Tamara Hotel · Deluxe room\"></div><div class=\"mf-row\"><div class=\"mf\"><label class=\"mf-l\" for=\"sp-amount\">Amount</label><input class=\"mf-i mono\" id=\"sp-amount\" type=\"text\" value=\"30000\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"sp-method\">Method</label><select class=\"mf-i\" id=\"sp-method\"><option>Bank transfer</option><option>UPI</option><option>Cheque</option></select></div></div><div class=\"mf\"><label class=\"mf-l\" for=\"sp-ref\">Reference — optional</label><input class=\"mf-i\" id=\"sp-ref\" type=\"text\"></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-supplierPay\">Record payment</button></div></div></div>"
+        },
+        {
+          "line": 2701,
+          "text": "<div class=\"modal-overlay\" id=\"modal-voucherFile\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Voucher</p><h2 class=\"modal-title\">Voucher file</h2></div><div class=\"modal-body\"><div class=\"mf\"><span class=\"mf-l\">File</span><output class=\"mf-ro\" id=\"vf-name\">transfer-voucher.pdf</output></div><div class=\"mf-row\"><div class=\"mf\"><span class=\"mf-l\">Received from</span><output class=\"mf-ro\" id=\"vf-from\">Desert Wheels</output></div><div class=\"mf\"><span class=\"mf-l\">Received via</span><output class=\"mf-ro\" id=\"vf-via\">WhatsApp</output></div></div><div class=\"mf-row\"><div class=\"mf\"><span class=\"mf-l\">Sent to</span><output class=\"mf-ro\" id=\"vf-to\">Amit XYZ</output></div><div class=\"mf\"><span class=\"mf-l\">Version</span><output class=\"mf-ro mono\" id=\"vf-ver\">v2 · Current</output></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Close</button><button type=\"button\" class=\"btn btn-primary\" data-open-modal=\"modal-uploadVoucher\">Replace voucher</button></div></div></div>"
+        },
+        {
+          "line": 2702,
+          "text": "<div class=\"modal-overlay\" id=\"modal-uploadVoucher\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Vouchers</p><h2 class=\"modal-title\">Upload voucher</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"uv-name\">File name</label><input class=\"mf-i\" id=\"uv-name\" type=\"text\" placeholder=\"hotel-voucher.pdf\"></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-uploadVoucher\">Upload</button></div></div></div>"
+        },
+        {
+          "line": 2703,
+          "text": "<div class=\"modal-overlay\" id=\"modal-requestDoc\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Documents</p><h2 class=\"modal-title\">Request documents</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"rd-msg\">Message</label><textarea class=\"mf-i\" id=\"rd-msg\" rows=\"5\">Hi Amit, could you please share the pending travel documents for your Dubai booking (visa copy, photograph) at your earliest convenience? Thank you!</textarea></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-requestDoc\">Send request</button></div></div></div>"
+        },
+        {
+          "line": 2704,
+          "text": "<div class=\"modal-overlay\" id=\"modal-attachFile\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Documents</p><h2 class=\"modal-title\">Attach / upload file</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"af-name\">File name</label><input class=\"mf-i\" id=\"af-name\" type=\"text\" placeholder=\"document.pdf\"></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-attachFile\">Attach</button></div></div></div>"
+        },
+        {
+          "line": 2705,
+          "text": "<div class=\"modal-overlay\" id=\"modal-newMessage\" aria-hidden=\"true\"><div class=\"modal\" role=\"dialog\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Communication</p><h2 class=\"modal-title\">New message</h2></div><div class=\"modal-body\"><div class=\"mf\"><label class=\"mf-l\" for=\"nm-recipient\">Recipient</label><input class=\"mf-i\" id=\"nm-recipient\" type=\"text\" placeholder=\"Customer or vendor\"></div><div class=\"mf\"><label class=\"mf-l\" for=\"nm-channel\">Channel</label><select class=\"mf-i\" id=\"nm-channel\"><option>WhatsApp</option><option>Email</option></select></div><div class=\"mf\"><label class=\"mf-l\" for=\"nm-msg\">Message</label><textarea class=\"mf-i\" id=\"nm-msg\" rows=\"4\"></textarea></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Cancel</button><button type=\"button\" class=\"btn btn-primary\" data-submit=\"modal-newMessage\">Send</button></div></div></div>"
+        },
+        {
+          "line": 2710,
+          "text": "  <aside class=\"nd\" role=\"dialog\" aria-modal=\"true\" aria-label=\"Booking notes\">"
+        },
+        {
+          "line": 3514,
+          "text": "          ? '<button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-contact\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m22 2-7 20-4-9-9-4Z\"/><path d=\"M22 2 11 13\"/></svg>Contact</button>'"
+        },
+        {
+          "line": 3515,
+          "text": "          : '<button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-assignVendor\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M19 8v6M16 11h6\"/></svg>Assign vendor</button>')+"
+        },
+        {
+          "line": 3534,
+          "text": "  function handleSubmit(id){"
+        },
+        {
+          "line": 3592,
+          "text": "            '<div class=\"row-acts\"><button class=\"btn btn-primary btn-sm\" type=\"button\" data-open-modal=\"modal-recordPayment\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/></svg>Record</button><button class=\"btn btn-ghost btn-sm btn-icon more-btn\" type=\"button\" data-tip=\"More\" aria-label=\"More\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"19\" cy=\"12\" r=\"1.6\"/></svg></button></div>';"
+        },
+        {
+          "line": 3804,
+          "text": "  var mmAmend = document.querySelector('#modal-manageMargin [data-open-modal=\"modal-priceAmend\"]');"
+        },
+        {
+          "line": 3855,
+          "text": "  rowDetail.innerHTML = '<div class=\"modal modal-wide\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"booking-row-title\"><div class=\"modal-head\"><p class=\"modal-eyebrow\">Booking record</p><h2 class=\"modal-title\" id=\"booking-row-title\"></h2></div><div class=\"modal-body\"><dl class=\"booking-row-facts\"></dl></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-ghost\" data-close-modal>Close</button></div></div>';"
+        }
+      ]
+    },
+    {
+      "path": "src/useStepNavigation.ts",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useCallback, useRef, useState } from \"react\";"
+        },
+        {
+          "line": 16,
+          "text": "  const [current, setCurrent] = useState<T>((restored?.current as T | undefined) ?? initial);"
+        }
+      ]
+    }
+  ],
+  "markerLimit": "Marker search identifies review candidates, not every semantic branch. The complete source bytes are embedded; receiving agent must enumerate all branches before implementation.",
+  "bookingSourceInventory": {
+    "namedDialogs": [
+      "modal-directBooking",
+      "modal-editBooking",
+      "modal-manageMargin",
+      "modal-priceAmend",
+      "modal-catalog",
+      "modal-addService",
+      "modal-editPrice",
+      "modal-editCost",
+      "modal-assignVendor",
+      "modal-contact",
+      "modal-watchers",
+      "modal-addTraveller",
+      "modal-addTask",
+      "modal-recordPayment",
+      "modal-addInstalment",
+      "modal-editInstalment",
+      "modal-supplierPay",
+      "modal-voucherFile",
+      "modal-uploadVoucher",
+      "modal-requestDoc",
+      "modal-attachFile",
+      "modal-newMessage"
+    ],
+    "fields": [
+      {
+        "tag": "input",
+        "type": "search",
+        "placeholder": "Search anything",
+        "aria-label": "Search the workspace"
+      },
+      {
+        "tag": "input",
+        "id": "bkSearch",
+        "type": "search",
+        "placeholder": "Search booking, customer, or destination",
+        "aria-label": "Search bookings"
+      },
+      {
+        "tag": "select",
+        "id": "bkScope",
+        "aria-label": "Filter by owner"
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "placeholder": "Search service or voucher file"
+      },
+      {
+        "tag": "input",
+        "id": "svcSearch",
+        "type": "search",
+        "placeholder": "Search service, vendor or assignee",
+        "aria-label": "Search services and vendors"
+      },
+      {
+        "tag": "select",
+        "id": "svcKind",
+        "aria-label": "Filter by service type"
+      },
+      {
+        "tag": "select",
+        "id": "svcFilter",
+        "aria-label": "Filter by status"
+      },
+      {
+        "tag": "input",
+        "id": "tskSearch",
+        "type": "text",
+        "placeholder": "Search task or assignee"
+      },
+      {
+        "tag": "select",
+        "id": "tskFilter",
+        "aria-label": "Filter by status"
+      },
+      {
+        "tag": "input",
+        "id": "tskDoneSearch",
+        "type": "text",
+        "placeholder": "Search completed task"
+      },
+      {
+        "tag": "input",
+        "id": "trvSearch",
+        "type": "search",
+        "placeholder": "Search traveller or phone",
+        "aria-label": "Search travellers"
+      },
+      {
+        "tag": "select",
+        "id": "trvFilter",
+        "aria-label": "Filter by document status"
+      },
+      {
+        "tag": "input",
+        "id": "docSearch",
+        "type": "search",
+        "placeholder": "Search document, traveller or file",
+        "aria-label": "Search documents"
+      },
+      {
+        "tag": "select",
+        "id": "docTraveller",
+        "aria-label": "Filter by traveller"
+      },
+      {
+        "tag": "select",
+        "id": "docType",
+        "aria-label": "Filter by document type"
+      },
+      {
+        "tag": "input",
+        "id": "paySearch",
+        "type": "search",
+        "placeholder": "Search instalment",
+        "aria-label": "Search instalments"
+      },
+      {
+        "tag": "select",
+        "id": "payFilter",
+        "aria-label": "Filter instalments by status"
+      },
+      {
+        "tag": "input",
+        "id": "venSearch",
+        "type": "search",
+        "placeholder": "Search service or vendor",
+        "aria-label": "Search supplier payables"
+      },
+      {
+        "tag": "select",
+        "id": "venFilter",
+        "aria-label": "Filter payables by status"
+      },
+      {
+        "tag": "textarea",
+        "id": "thReply",
+        "rows": "2",
+        "placeholder": "Reply…"
+      },
+      {
+        "tag": "input",
+        "type": "search",
+        "id": "actSearch",
+        "placeholder": "Search event, member or module",
+        "aria-label": "Search activity"
+      },
+      {
+        "tag": "select",
+        "id": "actModule",
+        "aria-label": "Filter by module"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "db-name",
+        "type": "text",
+        "placeholder": "e.g. Sharma Family · Dubai"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "db-start",
+        "type": "text",
+        "placeholder": "18 Aug 2026"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "db-end",
+        "type": "text",
+        "placeholder": "22 Aug 2026"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "eb-name",
+        "type": "text",
+        "value": "XYZ Family · Dubai"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "eb-start",
+        "type": "text",
+        "value": "18 Aug 2026"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "eb-end",
+        "type": "text",
+        "value": "22 Aug 2026"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "eb-owner"
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "mm-scope",
+        "value": "overall",
+        "checked": null
+      },
+      {
+        "tag": "input",
+        "type": "radio",
+        "name": "mm-scope",
+        "value": "per"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "mm-type"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i mono",
+        "id": "mm-value",
+        "type": "text",
+        "value": "12"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "pa-reason",
+        "type": "text",
+        "placeholder": "Customer added Desert Safari"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "pa-dir"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i mono",
+        "id": "pa-amount",
+        "type": "text",
+        "placeholder": "₹"
+      },
+      {
+        "tag": "textarea",
+        "class": "mf-i",
+        "id": "pa-note",
+        "rows": "2"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "cat-search",
+        "type": "search",
+        "placeholder": "Hotels, transfers, activities, visa…"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "as-kind"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "as-title",
+        "type": "text",
+        "placeholder": "Desert Safari · Evening"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "as-loc",
+        "type": "text",
+        "value": "Dubai"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "as-sched",
+        "type": "text",
+        "placeholder": "20 Aug"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "as-vendor",
+        "type": "text",
+        "placeholder": "Not assigned"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i mono",
+        "id": "as-cost",
+        "type": "text",
+        "placeholder": "₹"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i mono",
+        "id": "ep-new",
+        "type": "text"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i mono",
+        "id": "ec-new",
+        "type": "text"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "ec-reason"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "av-name",
+        "type": "text",
+        "placeholder": "Gulf Coast Tours"
+      },
+      {
+        "tag": "textarea",
+        "class": "mf-i",
+        "id": "ct-msg",
+        "rows": "4"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "wt-people"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "at-name",
+        "type": "text"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "at-details",
+        "type": "text",
+        "placeholder": "Adult · Indian"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "at-phone",
+        "type": "text"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "tk-title",
+        "type": "text"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "tk-assignee"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "tk-priority"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "tk-due",
+        "type": "text",
+        "placeholder": "14 Aug"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "tk-related",
+        "type": "text",
+        "placeholder": "Booking generally"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i mono",
+        "id": "rp-amount",
+        "type": "text",
+        "value": "75000"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "rp-date",
+        "type": "text",
+        "value": "13 Aug 2026"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "rp-method"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "rp-ref",
+        "type": "text"
+      },
+      {
+        "tag": "textarea",
+        "class": "mf-i",
+        "id": "rp-note",
+        "rows": "2"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "ai-label",
+        "type": "text",
+        "placeholder": "Third instalment"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "ai-due",
+        "type": "text",
+        "placeholder": "12 Aug 2026"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i mono",
+        "id": "ai-amount",
+        "type": "text",
+        "placeholder": "₹30,000"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "ei-label",
+        "type": "text",
+        "value": "Final balance"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "ei-due",
+        "type": "text",
+        "value": "14 Aug"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i mono",
+        "id": "ei-amount",
+        "type": "text",
+        "value": "75000"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "ei-status"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "sp-vendor",
+        "type": "text",
+        "value": "ABC DMC Dubai"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "sp-service",
+        "type": "text",
+        "value": "Tamara Hotel · Deluxe room"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i mono",
+        "id": "sp-amount",
+        "type": "text",
+        "value": "30000"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "sp-method"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "sp-ref",
+        "type": "text"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "uv-name",
+        "type": "text",
+        "placeholder": "hotel-voucher.pdf"
+      },
+      {
+        "tag": "textarea",
+        "class": "mf-i",
+        "id": "rd-msg",
+        "rows": "5"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "af-name",
+        "type": "text",
+        "placeholder": "document.pdf"
+      },
+      {
+        "tag": "input",
+        "class": "mf-i",
+        "id": "nm-recipient",
+        "type": "text",
+        "placeholder": "Customer or vendor"
+      },
+      {
+        "tag": "select",
+        "class": "mf-i",
+        "id": "nm-channel"
+      },
+      {
+        "tag": "textarea",
+        "class": "mf-i",
+        "id": "nm-msg",
+        "rows": "4"
+      },
+      {
+        "tag": "input",
+        "type": "text",
+        "id": "ndFind",
+        "placeholder": "Search notes"
+      },
+      {
+        "tag": "textarea",
+        "class": "nd-ta",
+        "id": "ndText",
+        "placeholder": "What should the team know about this booking?"
+      }
+    ],
+    "entryAttributes": [
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-directBooking"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary",
+        "style": "height:36px",
+        "type": "button",
+        "data-open-modal": "modal-uploadVoucher"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-brand btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-manageMargin"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-brand btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-catalog"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-addService"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-contact"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-contact"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-contact"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-contact"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-assignVendor"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary",
+        "style": "height:36px",
+        "type": "button",
+        "data-open-modal": "modal-addTask"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary",
+        "style": "height:36px",
+        "type": "button",
+        "data-open-modal": "modal-addTraveller"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-secondary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-requestDoc"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-brand",
+        "style": "height:36px",
+        "type": "button",
+        "data-open-modal": "modal-requestDoc"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary",
+        "style": "height:36px",
+        "type": "button",
+        "data-open-modal": "modal-attachFile"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-secondary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-requestDoc"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-brand",
+        "style": "height:36px",
+        "type": "button",
+        "data-open-modal": "modal-addInstalment"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary",
+        "style": "height:36px",
+        "type": "button",
+        "data-open-modal": "modal-recordPayment"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-brand btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-editInstalment"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-brand btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-editInstalment"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-recordPayment"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-recordPayment"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary",
+        "style": "height:36px",
+        "type": "button",
+        "data-open-modal": "modal-supplierPay"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-supplierPay"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-brand btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-supplierPay"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-brand btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-supplierPay"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-supplierPay"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-supplierPay"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-primary btn-xs",
+        "type": "button",
+        "data-open-modal": "modal-newMessage"
+      },
+      {
+        "tag": "button",
+        "class": "btn btn-brand btn-sm",
+        "type": "button",
+        "data-open-modal": "modal-requestDoc"
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "class": "btn btn-primary",
+        "data-open-modal": "modal-priceAmend"
+      },
+      {
+        "tag": "button",
+        "type": "button",
+        "class": "btn btn-primary",
+        "data-open-modal": "modal-uploadVoucher"
+      }
+    ],
+    "generatedDialog": "booking-row-detail"
+  },
+  "excludedIncompleteCaptures": []
+}

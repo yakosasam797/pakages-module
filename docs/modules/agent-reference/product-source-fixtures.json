@@ -1,0 +1,2645 @@
+{
+  "schemaVersion": 1,
+  "evidence": "Evaluated source fixture baseline; no browser or production database export",
+  "packages": [
+    {
+      "id": "PKG-0241",
+      "name": "Bali Indonesia",
+      "destination": "Bali, Indonesia",
+      "region": "Southeast Asia",
+      "duration": "7 days · 6 nights",
+      "startingPrice": 145000,
+      "updated": "Aug 14, 2026",
+      "status": "Published",
+      "source": "Your catalog",
+      "image": "/src/assets/package-images/bali.jpg"
+    },
+    {
+      "id": "PKG-0238",
+      "name": "Bali Honeymoon",
+      "destination": "Bali, Indonesia",
+      "region": "Southeast Asia",
+      "duration": "7 days · 6 nights",
+      "startingPrice": 145000,
+      "updated": "Aug 4, 2026",
+      "status": "Draft",
+      "source": "Your catalog",
+      "image": "/src/assets/package-images/bali.jpg",
+      "imagePosition": "center 62%"
+    },
+    {
+      "id": "PKG-0232",
+      "name": "Himachal stays",
+      "destination": "Himachal Pradesh, India",
+      "region": "North India",
+      "duration": "6 days · 5 nights",
+      "startingPrice": 62000,
+      "updated": "Aug 1, 2026",
+      "status": "Draft",
+      "source": "Your catalog",
+      "image": "/src/assets/package-images/himachal.jpg"
+    },
+    {
+      "id": "PKG-0226",
+      "name": "Rajasthan heritage experiences",
+      "destination": "Rajasthan, India",
+      "region": "Western India",
+      "duration": "8 days · 7 nights",
+      "startingPrice": 78000,
+      "updated": "Jul 25, 2026",
+      "status": "Published",
+      "source": "Your catalog",
+      "image": "/src/assets/package-images/rajasthan.jpg"
+    },
+    {
+      "id": "PKG-0219",
+      "name": "Dubai visa assistance",
+      "destination": "Dubai, UAE",
+      "region": "Middle East",
+      "duration": "5 days · 4 nights",
+      "startingPrice": 96000,
+      "updated": "Jul 18, 2026",
+      "status": "Draft",
+      "source": "Paryatech",
+      "image": "/src/assets/package-images/dubai.jpg"
+    },
+    {
+      "id": "PKG-0204",
+      "name": "Kerala private transfers",
+      "destination": "Kerala, India",
+      "region": "South India",
+      "duration": "6 days · 5 nights",
+      "startingPrice": 54000,
+      "updated": "Jun 30, 2026",
+      "status": "Archived",
+      "source": "Your catalog",
+      "image": "/src/assets/package-images/kerala.jpg"
+    },
+    {
+      "id": "PKG-0198",
+      "name": "Delhi to Denpasar flight plan",
+      "destination": "Bali, Indonesia",
+      "region": "Southeast Asia",
+      "duration": "Return journey",
+      "startingPrice": 42000,
+      "updated": "Jun 24, 2026",
+      "status": "Draft",
+      "source": "Paryatech",
+      "image": "/src/assets/package-images/bali.jpg",
+      "imagePosition": "center 72%"
+    },
+    {
+      "id": "PKG-0192",
+      "name": "Bangalore city discovery",
+      "destination": "Bangalore, India",
+      "region": "South India",
+      "duration": "4 days · 3 nights",
+      "startingPrice": 36000,
+      "updated": "Jun 18, 2026",
+      "status": "Published",
+      "source": "Your catalog",
+      "image": "/src/assets/package-images/kerala.jpg",
+      "imagePosition": "center 42%"
+    },
+    {
+      "id": "PKG-0189",
+      "name": "Bangalore airport transfers",
+      "destination": "Bengaluru, Karnataka",
+      "region": "South India",
+      "duration": "Private transfer",
+      "startingPrice": 4800,
+      "updated": "Jun 12, 2026",
+      "status": "Draft",
+      "source": "Paryatech",
+      "image": "/src/assets/package-images/kerala.jpg",
+      "imagePosition": "center 55%"
+    }
+  ],
+  "proposals": [
+    {
+      "id": "PRP-1092",
+      "name": "Sharma Rajasthan journey",
+      "customer": "Aditi Sharma",
+      "customerEmail": "aditi.sharma@example.com",
+      "queryId": "QRY-2042",
+      "sourcePackageId": "PKG-0226",
+      "packageName": "Rajasthan heritage experiences",
+      "itineraryMode": "advanced",
+      "sharingMode": "priced",
+      "version": 2,
+      "acceptedVersion": 2,
+      "destination": "Rajasthan, India",
+      "region": "Western India",
+      "travel": "14–21 Jan 2027",
+      "travelStart": "2027-01-14",
+      "travelEnd": "2027-01-21",
+      "travellers": "2 adults",
+      "requirements": "Heritage stays, a relaxed Jaipur day and private transfers.",
+      "note": "A comfortable Rajasthan route with time for local experiences.",
+      "days": [
+        {
+          "id": "day-1",
+          "title": "Arrival in Jaipur",
+          "place": "Jaipur",
+          "services": [
+            {
+              "id": "arrival-flight",
+              "kind": "flight",
+              "title": "Flight required: New Delhi to Jaipur",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            },
+            {
+              "id": "arrival-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Jaipur",
+              "detail": "Private AC vehicle · Meet and assist · Flight-tracked pickup with one comfort stop on request."
+            },
+            {
+              "id": "first-stay",
+              "kind": "stay",
+              "title": "Samode Haveli Jaipur · 3 nights",
+              "detail": "Deluxe room · Breakfast included · Flexible check-in requested; confirmation pending from the property."
+            }
+          ]
+        },
+        {
+          "id": "day-2",
+          "title": "Amber Fort and old-city walk",
+          "place": "Jaipur",
+          "services": [
+            {
+              "id": "breakfast-2",
+              "kind": "meal",
+              "title": "Breakfast at Samode Haveli Jaipur",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-a",
+              "kind": "activity",
+              "title": "Amber Fort and old-city walk",
+              "detail": "Private experience · 8 hours · Local guide · Pickup, entry coordination and destination transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-3",
+          "title": "Travel to Udaipur",
+          "place": "Udaipur",
+          "services": [
+            {
+              "id": "breakfast-3",
+              "kind": "meal",
+              "title": "Breakfast at Samode Haveli Jaipur",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-a",
+              "kind": "stay",
+              "title": "Checkout from Samode Haveli Jaipur",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "intercity",
+              "kind": "transfer",
+              "title": "Jaipur to Udaipur",
+              "detail": "Private AC vehicle · Luggage included · Driver and vehicle details are shared 24 hours before pickup."
+            },
+            {
+              "id": "second-stay",
+              "kind": "stay",
+              "title": "Lakeview House Udaipur · 3 nights",
+              "detail": "Superior room · Breakfast included"
+            }
+          ]
+        },
+        {
+          "id": "day-4",
+          "title": "Udaipur lakes and palace circuit",
+          "place": "Udaipur",
+          "services": [
+            {
+              "id": "breakfast-4",
+              "kind": "meal",
+              "title": "Breakfast at Lakeview House Udaipur",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-b",
+              "kind": "activity",
+              "title": "Udaipur lakes and palace circuit",
+              "detail": "Full day · Shared boat and private road transfers · Admission, local coordination and scheduled transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-5",
+          "title": "Flexible day in Udaipur",
+          "place": "Udaipur",
+          "services": [
+            {
+              "id": "breakfast-5",
+              "kind": "meal",
+              "title": "Breakfast at Lakeview House Udaipur",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "leisure",
+              "kind": "activity",
+              "title": "Open time for an optional experience",
+              "detail": "No activity booked · Add a spa, food walk, cultural show or private local excursion."
+            }
+          ]
+        },
+        {
+          "id": "day-6",
+          "title": "Departure from Jaipur",
+          "place": "Jaipur",
+          "services": [
+            {
+              "id": "breakfast-6",
+              "kind": "meal",
+              "title": "Breakfast at Lakeview House Udaipur",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-b",
+              "kind": "stay",
+              "title": "Checkout from Lakeview House Udaipur",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "departure-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Jaipur airport",
+              "detail": "Pickup scheduled to flight time"
+            },
+            {
+              "id": "departure-flight",
+              "kind": "flight",
+              "title": "Flight required: Jaipur to New Delhi",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            }
+          ]
+        }
+      ],
+      "value": 184000,
+      "updated": "Sep 28, 2026",
+      "status": "Approved"
+    },
+    {
+      "id": "PRP-1090",
+      "name": "Fernandes Bali escape",
+      "customer": "Maya Fernandes",
+      "customerEmail": "maya.fernandes@example.com",
+      "sourcePackageId": "PKG-0238",
+      "packageName": "Bali Honeymoon",
+      "itineraryMode": "advanced",
+      "sharingMode": "priced",
+      "version": 1,
+      "acceptedVersion": 1,
+      "destination": "Bali, Indonesia",
+      "region": "Southeast Asia",
+      "travel": "09–15 Mar 2027",
+      "travelStart": "2027-03-09",
+      "travelEnd": "2027-03-15",
+      "travellers": "2 adults",
+      "requirements": "A quiet beach stay with private experiences.",
+      "note": "A relaxed Bali escape adapted from the honeymoon package.",
+      "days": [
+        {
+          "id": "day-1",
+          "title": "Arrival in Denpasar",
+          "place": "Denpasar",
+          "services": [
+            {
+              "id": "arrival-flight",
+              "kind": "flight",
+              "title": "Flight required: New Delhi to Denpasar",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            },
+            {
+              "id": "arrival-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Ubud",
+              "detail": "Private AC vehicle · Meet and assist · Flight-tracked pickup with one comfort stop on request."
+            },
+            {
+              "id": "first-stay",
+              "kind": "stay",
+              "title": "Ubud Valley Retreat · 3 nights",
+              "detail": "Deluxe room · Breakfast included · Flexible check-in requested; confirmation pending from the property."
+            }
+          ]
+        },
+        {
+          "id": "day-2",
+          "title": "Private Ubud culture trail",
+          "place": "Ubud",
+          "services": [
+            {
+              "id": "breakfast-2",
+              "kind": "meal",
+              "title": "Breakfast at Ubud Valley Retreat",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-a",
+              "kind": "activity",
+              "title": "Private Ubud culture trail",
+              "detail": "Private experience · 8 hours · Local guide · Pickup, entry coordination and destination transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-3",
+          "title": "Travel to Nusa Dua",
+          "place": "Nusa Dua",
+          "services": [
+            {
+              "id": "breakfast-3",
+              "kind": "meal",
+              "title": "Breakfast at Ubud Valley Retreat",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-a",
+              "kind": "stay",
+              "title": "Checkout from Ubud Valley Retreat",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "intercity",
+              "kind": "transfer",
+              "title": "Ubud to Nusa Dua",
+              "detail": "Private AC vehicle · Luggage included · Driver and vehicle details are shared 24 hours before pickup."
+            },
+            {
+              "id": "second-stay",
+              "kind": "stay",
+              "title": "Nusa Dua Beach Resort · 3 nights",
+              "detail": "Superior room · Breakfast included"
+            }
+          ]
+        },
+        {
+          "id": "day-4",
+          "title": "Sunset coast experience",
+          "place": "Nusa Dua",
+          "services": [
+            {
+              "id": "breakfast-4",
+              "kind": "meal",
+              "title": "Breakfast at Nusa Dua Beach Resort",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-b",
+              "kind": "activity",
+              "title": "Sunset coast experience",
+              "detail": "Full day · Shared boat and private road transfers · Admission, local coordination and scheduled transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-5",
+          "title": "Flexible day in Nusa Dua",
+          "place": "Nusa Dua",
+          "services": [
+            {
+              "id": "breakfast-5",
+              "kind": "meal",
+              "title": "Breakfast at Nusa Dua Beach Resort",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "leisure",
+              "kind": "activity",
+              "title": "Open time for an optional experience",
+              "detail": "No activity booked · Add a spa, food walk, cultural show or private local excursion."
+            }
+          ]
+        },
+        {
+          "id": "day-6",
+          "title": "Departure from Denpasar",
+          "place": "Denpasar",
+          "services": [
+            {
+              "id": "breakfast-6",
+              "kind": "meal",
+              "title": "Breakfast at Nusa Dua Beach Resort",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-b",
+              "kind": "stay",
+              "title": "Checkout from Nusa Dua Beach Resort",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "departure-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Denpasar airport",
+              "detail": "Pickup scheduled to flight time"
+            },
+            {
+              "id": "departure-flight",
+              "kind": "flight",
+              "title": "Flight required: Denpasar to New Delhi",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            }
+          ]
+        }
+      ],
+      "value": 298000,
+      "updated": "Sep 28, 2026",
+      "status": "Approved"
+    },
+    {
+      "id": "PRP-1088",
+      "name": "Menon family Kerala",
+      "customer": "Devika Menon",
+      "customerEmail": "devika.menon@example.com",
+      "queryId": "QRY-2038",
+      "packageName": "Custom itinerary",
+      "itineraryMode": "simple",
+      "sharingMode": "itinerary",
+      "version": 1,
+      "destination": "Kerala, India",
+      "region": "South India",
+      "travel": "08–10 Feb 2027",
+      "travelStart": "2027-02-08",
+      "travelEnd": "2027-02-10",
+      "travellers": "2 adults · 1 child",
+      "requirements": "A gentle first visit with time in Kochi and the backwaters.",
+      "note": "A short Kerala journey to review together before choosing the final stays.",
+      "inclusions": "Private airport pickup; accommodation basis to confirm.",
+      "exclusions": "Flights; personal expenses.",
+      "days": [
+        {
+          "id": "menon-day-1",
+          "title": "Arrive in Kochi",
+          "place": "Kochi",
+          "description": "Arrive in Kochi and meet your private transfer. Settle in, then spend the evening at your own pace.",
+          "highlights": [
+            "Easy arrival",
+            "Evening at leisure"
+          ],
+          "services": [
+            {
+              "id": "menon-transfer",
+              "kind": "transfer",
+              "title": "Kochi airport transfer",
+              "detail": "Private vehicle, timing to follow flight confirmation.",
+              "priceState": "unpriced",
+              "routeFrom": "Kochi airport",
+              "routeTo": "Kochi stay",
+              "vehicleType": "SUV",
+              "vehicleCapacity": 4
+            }
+          ]
+        },
+        {
+          "id": "menon-day-2",
+          "title": "Kochi & the backwaters",
+          "place": "Kochi",
+          "description": "Discover the old harbour and local streets before an unhurried afternoon near the backwaters.",
+          "highlights": [
+            "Fort Kochi walk",
+            "Backwater views"
+          ],
+          "services": []
+        },
+        {
+          "id": "menon-day-3",
+          "title": "Departure",
+          "place": "Kochi",
+          "description": "Enjoy breakfast and transfer onward. The final departure time will follow the booked service.",
+          "highlights": [],
+          "services": []
+        }
+      ],
+      "value": 0,
+      "updated": "Sep 27, 2026",
+      "status": "Itinerary shared"
+    },
+    {
+      "id": "PRP-1087",
+      "name": "Rao family Bali",
+      "customer": "Nisha Rao",
+      "customerEmail": "nisha.rao@example.com",
+      "sourcePackageId": "PKG-0241",
+      "packageName": "Bali Indonesia",
+      "itineraryMode": "advanced",
+      "version": 1,
+      "destination": "Bali, Indonesia",
+      "region": "Southeast Asia",
+      "travel": "12–17 Jan 2027",
+      "travelStart": "2027-01-12",
+      "travelEnd": "2027-01-17",
+      "travellers": "4 adults",
+      "requirements": "A family-paced route with more time in Ubud, two rooms and private transport.",
+      "note": "Bali at a gentler pace, tailored for the Rao family.",
+      "days": [
+        {
+          "id": "day-1",
+          "title": "Arrival in Denpasar",
+          "place": "Denpasar",
+          "services": [
+            {
+              "id": "arrival-flight",
+              "kind": "flight",
+              "title": "Flight required: New Delhi to Denpasar",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            },
+            {
+              "id": "arrival-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Ubud",
+              "detail": "Private AC vehicle · Meet and assist · Flight-tracked pickup with one comfort stop on request."
+            },
+            {
+              "id": "first-stay",
+              "kind": "stay",
+              "title": "Teras Ubud Resort · 3 nights",
+              "detail": "Deluxe room · Breakfast included · Flexible check-in requested; confirmation pending from the property.",
+              "rooms": 2
+            }
+          ]
+        },
+        {
+          "id": "day-2",
+          "title": "Ubud temples and rice terraces",
+          "place": "Ubud",
+          "services": [
+            {
+              "id": "breakfast-2",
+              "kind": "meal",
+              "title": "Breakfast at Teras Ubud Resort",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-a",
+              "kind": "activity",
+              "title": "Ubud temples and rice terraces",
+              "detail": "Private experience · 8 hours · Local guide · Pickup, entry coordination and destination transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-3",
+          "title": "Travel to Seminyak",
+          "place": "Seminyak",
+          "services": [
+            {
+              "id": "breakfast-3",
+              "kind": "meal",
+              "title": "Breakfast at Teras Ubud Resort",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-a",
+              "kind": "stay",
+              "title": "Checkout from Teras Ubud Resort",
+              "detail": "Checkout by 11:00",
+              "rooms": 2
+            },
+            {
+              "id": "intercity",
+              "kind": "transfer",
+              "title": "Ubud to Seminyak",
+              "detail": "Private AC vehicle · Luggage included · Driver and vehicle details are shared 24 hours before pickup."
+            },
+            {
+              "id": "second-stay",
+              "kind": "stay",
+              "title": "The Coast Seminyak · 3 nights",
+              "detail": "Superior room · Breakfast included",
+              "rooms": 2
+            }
+          ]
+        },
+        {
+          "id": "day-4",
+          "title": "Nusa Penida island experience",
+          "place": "Seminyak",
+          "services": [
+            {
+              "id": "breakfast-4",
+              "kind": "meal",
+              "title": "Breakfast at The Coast Seminyak",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-b",
+              "kind": "activity",
+              "title": "Nusa Penida island experience",
+              "detail": "Full day · Shared boat and private road transfers · Admission, local coordination and scheduled transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-5",
+          "title": "Flexible day in Seminyak",
+          "place": "Seminyak",
+          "services": [
+            {
+              "id": "breakfast-5",
+              "kind": "meal",
+              "title": "Breakfast at The Coast Seminyak",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "leisure",
+              "kind": "activity",
+              "title": "Open time for an optional experience",
+              "detail": "No activity booked · Add a spa, food walk, cultural show or private local excursion."
+            }
+          ]
+        },
+        {
+          "id": "day-6",
+          "title": "Departure from Denpasar",
+          "place": "Denpasar",
+          "services": [
+            {
+              "id": "breakfast-6",
+              "kind": "meal",
+              "title": "Breakfast at The Coast Seminyak",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-b",
+              "kind": "stay",
+              "title": "Checkout from The Coast Seminyak",
+              "detail": "Checkout by 11:00",
+              "rooms": 2
+            },
+            {
+              "id": "departure-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Denpasar airport",
+              "detail": "Pickup scheduled to flight time"
+            },
+            {
+              "id": "departure-flight",
+              "kind": "flight",
+              "title": "Flight required: Denpasar to New Delhi",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            }
+          ]
+        }
+      ],
+      "value": 360000,
+      "updated": "Sep 26, 2026",
+      "status": "Draft"
+    },
+    {
+      "id": "PRP-1084",
+      "name": "Mehta family Bali",
+      "customer": "Ananya Mehta",
+      "customerEmail": "ananya.mehta@example.com",
+      "queryId": "QRY-2029",
+      "sourcePackageId": "PKG-0241",
+      "packageName": "Bali Indonesia",
+      "sharingMode": "priced",
+      "destination": "Bali, Indonesia",
+      "region": "Southeast Asia",
+      "travel": "05–10 Nov 2026",
+      "travellers": "2 adults · 1 child",
+      "requirements": "A relaxed family pace, private airport transfers, cultural experiences and two comfortable stays.",
+      "note": "We've balanced guided days with time to explore Bali together.",
+      "days": [
+        {
+          "id": "day-1",
+          "title": "Arrival in Denpasar",
+          "place": "Denpasar",
+          "services": [
+            {
+              "id": "arrival-flight",
+              "kind": "flight",
+              "title": "Flight required: New Delhi to Denpasar",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            },
+            {
+              "id": "arrival-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Ubud",
+              "detail": "Private AC vehicle · Meet and assist · Flight-tracked pickup with one comfort stop on request."
+            },
+            {
+              "id": "first-stay",
+              "kind": "stay",
+              "title": "Teras Ubud Resort · 3 nights",
+              "detail": "Deluxe room · Breakfast included · Flexible check-in requested; confirmation pending from the property."
+            }
+          ]
+        },
+        {
+          "id": "day-2",
+          "title": "Ubud temples and rice terraces",
+          "place": "Ubud",
+          "services": [
+            {
+              "id": "breakfast-2",
+              "kind": "meal",
+              "title": "Breakfast at Teras Ubud Resort",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-a",
+              "kind": "activity",
+              "title": "Ubud temples and rice terraces",
+              "detail": "Private experience · 8 hours · Local guide · Pickup, entry coordination and destination transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-3",
+          "title": "Travel to Seminyak",
+          "place": "Seminyak",
+          "services": [
+            {
+              "id": "breakfast-3",
+              "kind": "meal",
+              "title": "Breakfast at Teras Ubud Resort",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-a",
+              "kind": "stay",
+              "title": "Checkout from Teras Ubud Resort",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "intercity",
+              "kind": "transfer",
+              "title": "Ubud to Seminyak",
+              "detail": "Private AC vehicle · Luggage included · Driver and vehicle details are shared 24 hours before pickup."
+            },
+            {
+              "id": "second-stay",
+              "kind": "stay",
+              "title": "The Coast Seminyak · 3 nights",
+              "detail": "Superior room · Breakfast included"
+            }
+          ]
+        },
+        {
+          "id": "day-4",
+          "title": "Nusa Penida island experience",
+          "place": "Seminyak",
+          "services": [
+            {
+              "id": "breakfast-4",
+              "kind": "meal",
+              "title": "Breakfast at The Coast Seminyak",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-b",
+              "kind": "activity",
+              "title": "Nusa Penida island experience",
+              "detail": "Full day · Shared boat and private road transfers · Admission, local coordination and scheduled transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-5",
+          "title": "Flexible day in Seminyak",
+          "place": "Seminyak",
+          "services": [
+            {
+              "id": "breakfast-5",
+              "kind": "meal",
+              "title": "Breakfast at The Coast Seminyak",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "leisure",
+              "kind": "activity",
+              "title": "Open time for an optional experience",
+              "detail": "No activity booked · Add a spa, food walk, cultural show or private local excursion."
+            }
+          ]
+        },
+        {
+          "id": "day-6",
+          "title": "Departure from Denpasar",
+          "place": "Denpasar",
+          "services": [
+            {
+              "id": "breakfast-6",
+              "kind": "meal",
+              "title": "Breakfast at The Coast Seminyak",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-b",
+              "kind": "stay",
+              "title": "Checkout from The Coast Seminyak",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "departure-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Denpasar airport",
+              "detail": "Pickup scheduled to flight time"
+            },
+            {
+              "id": "departure-flight",
+              "kind": "flight",
+              "title": "Flight required: Denpasar to New Delhi",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            }
+          ]
+        }
+      ],
+      "value": 290000,
+      "updated": "Sep 25, 2026",
+      "status": "Itinerary shared"
+    },
+    {
+      "id": "PRP-1081",
+      "name": "Shah family Dubai",
+      "customer": "Rohan Shah",
+      "customerEmail": "rohan.shah@example.com",
+      "sourcePackageId": "PKG-0219",
+      "packageName": "Dubai visa assistance",
+      "destination": "Dubai, UAE",
+      "region": "Middle East",
+      "travel": "12–17 Dec 2026",
+      "travellers": "2 adults · 2 children",
+      "requirements": "A family-friendly Dubai trip with a desert experience, private transfers and visa assistance.",
+      "note": "A city escape built around easy travel days and family time.",
+      "days": [
+        {
+          "id": "day-1",
+          "title": "Arrival in Dubai",
+          "place": "Dubai",
+          "services": [
+            {
+              "id": "arrival-flight",
+              "kind": "flight",
+              "title": "Flight required: New Delhi to Dubai",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            },
+            {
+              "id": "arrival-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Downtown Dubai",
+              "detail": "Private AC vehicle · Meet and assist · Flight-tracked pickup with one comfort stop on request."
+            },
+            {
+              "id": "first-stay",
+              "kind": "stay",
+              "title": "Vida Downtown · 3 nights",
+              "detail": "Deluxe room · Breakfast included · Flexible check-in requested; confirmation pending from the property."
+            }
+          ]
+        },
+        {
+          "id": "day-2",
+          "title": "Old Dubai and desert experience",
+          "place": "Downtown Dubai",
+          "services": [
+            {
+              "id": "breakfast-2",
+              "kind": "meal",
+              "title": "Breakfast at Vida Downtown",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-a",
+              "kind": "activity",
+              "title": "Old Dubai and desert experience",
+              "detail": "Private experience · 8 hours · Local guide · Pickup, entry coordination and destination transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-3",
+          "title": "Travel to Dubai Marina",
+          "place": "Dubai Marina",
+          "services": [
+            {
+              "id": "breakfast-3",
+              "kind": "meal",
+              "title": "Breakfast at Vida Downtown",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-a",
+              "kind": "stay",
+              "title": "Checkout from Vida Downtown",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "intercity",
+              "kind": "transfer",
+              "title": "Downtown Dubai to Dubai Marina",
+              "detail": "Private AC vehicle · Luggage included · Driver and vehicle details are shared 24 hours before pickup."
+            },
+            {
+              "id": "second-stay",
+              "kind": "stay",
+              "title": "Marina View Hotel · 3 nights",
+              "detail": "Superior room · Breakfast included"
+            }
+          ]
+        },
+        {
+          "id": "day-4",
+          "title": "Abu Dhabi city and mosque tour",
+          "place": "Dubai Marina",
+          "services": [
+            {
+              "id": "breakfast-4",
+              "kind": "meal",
+              "title": "Breakfast at Marina View Hotel",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-b",
+              "kind": "activity",
+              "title": "Abu Dhabi city and mosque tour",
+              "detail": "Full day · Shared boat and private road transfers · Admission, local coordination and scheduled transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-5",
+          "title": "Flexible day in Dubai Marina",
+          "place": "Dubai Marina",
+          "services": [
+            {
+              "id": "breakfast-5",
+              "kind": "meal",
+              "title": "Breakfast at Marina View Hotel",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "leisure",
+              "kind": "activity",
+              "title": "Open time for an optional experience",
+              "detail": "No activity booked · Add a spa, food walk, cultural show or private local excursion."
+            }
+          ]
+        },
+        {
+          "id": "day-6",
+          "title": "Departure from Dubai",
+          "place": "Dubai",
+          "services": [
+            {
+              "id": "breakfast-6",
+              "kind": "meal",
+              "title": "Breakfast at Marina View Hotel",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-b",
+              "kind": "stay",
+              "title": "Checkout from Marina View Hotel",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "departure-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Dubai airport",
+              "detail": "Pickup scheduled to flight time"
+            },
+            {
+              "id": "departure-flight",
+              "kind": "flight",
+              "title": "Flight required: Dubai to New Delhi",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            }
+          ]
+        }
+      ],
+      "value": 235000,
+      "updated": "Sep 24, 2026",
+      "status": "Draft"
+    },
+    {
+      "id": "PRP-1076",
+      "name": "Kapoor family Himachal",
+      "customer": "Ira Kapoor",
+      "customerEmail": "ira.kapoor@example.com",
+      "queryId": "QRY-2018",
+      "sourcePackageId": "PKG-0232",
+      "packageName": "Himachal stays",
+      "sharingMode": "priced",
+      "destination": "Himachal Pradesh, India",
+      "region": "North India",
+      "travel": "18–23 Dec 2026",
+      "travellers": "4 adults",
+      "requirements": "Mountain views, a comfortable hotel in each stop, private car and light sightseeing.",
+      "note": "A mountain journey with space to enjoy each stop.",
+      "days": [
+        {
+          "id": "day-1",
+          "title": "Arrival in Chandigarh",
+          "place": "Chandigarh",
+          "services": [
+            {
+              "id": "arrival-flight",
+              "kind": "flight",
+              "title": "Flight required: New Delhi to Chandigarh",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            },
+            {
+              "id": "arrival-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Shimla",
+              "detail": "Private AC vehicle · Meet and assist · Flight-tracked pickup with one comfort stop on request."
+            },
+            {
+              "id": "first-stay",
+              "kind": "stay",
+              "title": "Woodrina Shimla · 3 nights",
+              "detail": "Deluxe room · Breakfast included · Flexible check-in requested; confirmation pending from the property."
+            }
+          ]
+        },
+        {
+          "id": "day-2",
+          "title": "Shimla and Kufri sightseeing",
+          "place": "Shimla",
+          "services": [
+            {
+              "id": "breakfast-2",
+              "kind": "meal",
+              "title": "Breakfast at Woodrina Shimla",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-a",
+              "kind": "activity",
+              "title": "Shimla and Kufri sightseeing",
+              "detail": "Private experience · 8 hours · Local guide · Pickup, entry coordination and destination transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-3",
+          "title": "Travel to Manali",
+          "place": "Manali",
+          "services": [
+            {
+              "id": "breakfast-3",
+              "kind": "meal",
+              "title": "Breakfast at Woodrina Shimla",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-a",
+              "kind": "stay",
+              "title": "Checkout from Woodrina Shimla",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "intercity",
+              "kind": "transfer",
+              "title": "Shimla to Manali",
+              "detail": "Private AC vehicle · Luggage included · Driver and vehicle details are shared 24 hours before pickup."
+            },
+            {
+              "id": "second-stay",
+              "kind": "stay",
+              "title": "Shuru House Manali · 3 nights",
+              "detail": "Superior room · Breakfast included"
+            }
+          ]
+        },
+        {
+          "id": "day-4",
+          "title": "Solang Valley and Manali trail",
+          "place": "Manali",
+          "services": [
+            {
+              "id": "breakfast-4",
+              "kind": "meal",
+              "title": "Breakfast at Shuru House Manali",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-b",
+              "kind": "activity",
+              "title": "Solang Valley and Manali trail",
+              "detail": "Full day · Shared boat and private road transfers · Admission, local coordination and scheduled transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-5",
+          "title": "Flexible day in Manali",
+          "place": "Manali",
+          "services": [
+            {
+              "id": "breakfast-5",
+              "kind": "meal",
+              "title": "Breakfast at Shuru House Manali",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "leisure",
+              "kind": "activity",
+              "title": "Open time for an optional experience",
+              "detail": "No activity booked · Add a spa, food walk, cultural show or private local excursion."
+            }
+          ]
+        },
+        {
+          "id": "day-6",
+          "title": "Departure from Chandigarh",
+          "place": "Chandigarh",
+          "services": [
+            {
+              "id": "breakfast-6",
+              "kind": "meal",
+              "title": "Breakfast at Shuru House Manali",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-b",
+              "kind": "stay",
+              "title": "Checkout from Shuru House Manali",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "departure-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Chandigarh airport",
+              "detail": "Pickup scheduled to flight time"
+            },
+            {
+              "id": "departure-flight",
+              "kind": "flight",
+              "title": "Flight required: Chandigarh to New Delhi",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            }
+          ]
+        }
+      ],
+      "value": 312000,
+      "updated": "Sep 21, 2026",
+      "status": "Approved"
+    },
+    {
+      "id": "PRP-1072",
+      "name": "Khanna Bali honeymoon",
+      "customer": "Samar Khanna",
+      "customerEmail": "samar.khanna@example.com",
+      "sourcePackageId": "PKG-0238",
+      "packageName": "Bali Honeymoon",
+      "destination": "Bali, Indonesia",
+      "region": "Southeast Asia",
+      "travel": "02–07 Jan 2027",
+      "travellers": "2 adults",
+      "requirements": "Quiet stays, private experiences and more time by the coast.",
+      "note": "A personal Bali journey with a calm pace and memorable shared experiences.",
+      "days": [
+        {
+          "id": "day-1",
+          "title": "Arrival in Denpasar",
+          "place": "Denpasar",
+          "services": [
+            {
+              "id": "arrival-flight",
+              "kind": "flight",
+              "title": "Flight required: New Delhi to Denpasar",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            },
+            {
+              "id": "arrival-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Ubud",
+              "detail": "Private AC vehicle · Meet and assist · Flight-tracked pickup with one comfort stop on request."
+            },
+            {
+              "id": "first-stay",
+              "kind": "stay",
+              "title": "Ubud Valley Retreat · 3 nights",
+              "detail": "Deluxe room · Breakfast included · Flexible check-in requested; confirmation pending from the property."
+            }
+          ]
+        },
+        {
+          "id": "day-2",
+          "title": "Private Ubud culture trail",
+          "place": "Ubud",
+          "services": [
+            {
+              "id": "breakfast-2",
+              "kind": "meal",
+              "title": "Breakfast at Ubud Valley Retreat",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-a",
+              "kind": "activity",
+              "title": "Private Ubud culture trail",
+              "detail": "Private experience · 8 hours · Local guide · Pickup, entry coordination and destination transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-3",
+          "title": "Travel to Nusa Dua",
+          "place": "Nusa Dua",
+          "services": [
+            {
+              "id": "breakfast-3",
+              "kind": "meal",
+              "title": "Breakfast at Ubud Valley Retreat",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-a",
+              "kind": "stay",
+              "title": "Checkout from Ubud Valley Retreat",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "intercity",
+              "kind": "transfer",
+              "title": "Ubud to Nusa Dua",
+              "detail": "Private AC vehicle · Luggage included · Driver and vehicle details are shared 24 hours before pickup."
+            },
+            {
+              "id": "second-stay",
+              "kind": "stay",
+              "title": "Nusa Dua Beach Resort · 3 nights",
+              "detail": "Superior room · Breakfast included"
+            }
+          ]
+        },
+        {
+          "id": "day-4",
+          "title": "Sunset coast experience",
+          "place": "Nusa Dua",
+          "services": [
+            {
+              "id": "breakfast-4",
+              "kind": "meal",
+              "title": "Breakfast at Nusa Dua Beach Resort",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "activity-b",
+              "kind": "activity",
+              "title": "Sunset coast experience",
+              "detail": "Full day · Shared boat and private road transfers · Admission, local coordination and scheduled transfers included."
+            }
+          ]
+        },
+        {
+          "id": "day-5",
+          "title": "Flexible day in Nusa Dua",
+          "place": "Nusa Dua",
+          "services": [
+            {
+              "id": "breakfast-5",
+              "kind": "meal",
+              "title": "Breakfast at Nusa Dua Beach Resort",
+              "detail": "Included · 07:00–10:00"
+            },
+            {
+              "id": "leisure",
+              "kind": "activity",
+              "title": "Open time for an optional experience",
+              "detail": "No activity booked · Add a spa, food walk, cultural show or private local excursion."
+            }
+          ]
+        },
+        {
+          "id": "day-6",
+          "title": "Departure from Denpasar",
+          "place": "Denpasar",
+          "services": [
+            {
+              "id": "breakfast-6",
+              "kind": "meal",
+              "title": "Breakfast at Nusa Dua Beach Resort",
+              "detail": "Included · Before checkout"
+            },
+            {
+              "id": "checkout-b",
+              "kind": "stay",
+              "title": "Checkout from Nusa Dua Beach Resort",
+              "detail": "Checkout by 11:00"
+            },
+            {
+              "id": "departure-transfer",
+              "kind": "transfer",
+              "title": "Private transfer to Denpasar airport",
+              "detail": "Pickup scheduled to flight time"
+            },
+            {
+              "id": "departure-flight",
+              "kind": "flight",
+              "title": "Flight required: Denpasar to New Delhi",
+              "detail": "Economy preference · Standard checked baggage · Final schedule selected in proposal"
+            }
+          ]
+        }
+      ],
+      "value": 268000,
+      "updated": "Sep 19, 2026",
+      "status": "Changes requested"
+    }
+  ],
+  "finance": {
+    "REVIEW_DATE": "2026-09-26",
+    "OBLIGATIONS": [
+      {
+        "id": "COL-00031",
+        "kind": "customer",
+        "party": "XYZ Family",
+        "booking": "BK-2026-000003",
+        "item": "Final instalment · Dubai",
+        "amount": 12000000,
+        "applied": 4000000,
+        "postedAt": "2026-09-01",
+        "due": "2026-09-30",
+        "document": "INV-2026-0084",
+        "documentState": "Issued",
+        "owner": "Anjali Menon",
+        "note": "Accepted booking price ₹1,20,000. The verified ₹40,000 receipt is applied; ₹80,000 remains."
+      },
+      {
+        "id": "COL-00029",
+        "kind": "customer",
+        "party": "Kapoor Group",
+        "booking": "BK-2026-000018",
+        "item": "Second instalment · Alleppey",
+        "amount": 1200000,
+        "applied": 0,
+        "postedAt": "2026-09-15",
+        "due": "2026-09-24",
+        "document": "INV-2026-0079",
+        "documentState": "Issued",
+        "owner": "Nisha Rao",
+        "note": "An existing ₹12,000 receipt awaits verification. It does not settle this balance yet."
+      },
+      {
+        "id": "PAY-00044",
+        "kind": "supplier",
+        "party": "Trailmakers Experiences",
+        "booking": "BK-2026-000003",
+        "item": "Hotel · Dubai",
+        "amount": 7000000,
+        "applied": 3000000,
+        "postedAt": "2026-09-18",
+        "due": "2026-09-28",
+        "document": "COM-2026-0094",
+        "documentState": "Bill not received",
+        "owner": "Anjali Menon",
+        "note": "The confirmed ₹70,000 hotel commitment includes the ₹30,000 already paid. A later bill documents this cost; it does not add it again."
+      },
+      {
+        "id": "PAY-00045",
+        "kind": "supplier",
+        "party": "Desert Wheels",
+        "booking": "BK-2026-000003",
+        "item": "Transfers · Dubai",
+        "amount": 2500000,
+        "applied": 0,
+        "postedAt": "2026-09-19",
+        "due": "2026-10-03",
+        "document": "COM-2026-0095",
+        "documentState": "Bill not received",
+        "owner": "Anjali Menon",
+        "note": "Confirmed transport commitment. Supplier confirmation remains a Booking service action."
+      },
+      {
+        "id": "CLM-2026-0012",
+        "kind": "reimbursement",
+        "party": "Meera Iyer",
+        "booking": "BK-2026-000021",
+        "item": "Trip incidentals · Kerala",
+        "amount": 700000,
+        "applied": 0,
+        "postedAt": "2026-09-25",
+        "due": "2026-09-28",
+        "document": "EXP-2026-0030",
+        "documentState": "Claim approved",
+        "owner": "Finance team",
+        "note": "Approved staff claim: one expense and one unpaid reimbursement obligation, with no recorded cash payment yet."
+      }
+    ],
+    "bookingProjectedMargin": 2500000,
+    "CUSTOMER_ADVANCE": {
+      "id": "ADV-2026-0024",
+      "party": "Singh Family",
+      "amount": 1000000,
+      "recorded": "2026-09-20",
+      "receipt": "RCPT-2026-0072"
+    },
+    "REFUND": {
+      "id": "RFND-2026-0016",
+      "party": "Nair Family",
+      "amount": 1800000,
+      "due": "2026-09-29",
+      "booking": "BK-2026-000016",
+      "state": "Approved · payment due"
+    },
+    "TRANSACTIONS": [
+      {
+        "id": "RCPT-2026-0081",
+        "type": "Receipt",
+        "party": "XYZ Family",
+        "amount": 4000000,
+        "direction": "in",
+        "occurredAt": "2026-09-25T10:34:00",
+        "recordedAt": "2026-09-25T11:12:00",
+        "recordedBy": "Anjali Menon",
+        "account": "HDFC Bank · 2163",
+        "linked": "BK-2026-000003 / INV-2026-0084",
+        "verification": "Verified",
+        "allocation": "₹40,000 applied",
+        "bankMatch": "Matched",
+        "externalReference": "HDFC-UTR-56824"
+      },
+      {
+        "id": "PAY-2026-0109",
+        "type": "Supplier payment",
+        "party": "Trailmakers Experiences",
+        "amount": 3000000,
+        "direction": "out",
+        "occurredAt": "2026-09-25T14:30:00",
+        "recordedAt": "2026-09-25T16:05:00",
+        "recordedBy": "Anjali Menon",
+        "account": "HDFC Bank · 2163",
+        "linked": "BK-2026-000003 / COM-2026-0094",
+        "verification": "Verified",
+        "allocation": "₹30,000 applied",
+        "bankMatch": "Matched",
+        "externalReference": "HDFC-UTR-56831"
+      },
+      {
+        "id": "RCPT-2026-0088",
+        "type": "Receipt",
+        "party": "Kapoor Group",
+        "amount": 1200000,
+        "direction": "in",
+        "occurredAt": "2026-09-26T09:10:00",
+        "recordedAt": "2026-09-26T09:42:00",
+        "recordedBy": "Nisha Rao",
+        "account": "HDFC Bank · 2163",
+        "linked": "BK-2026-000018 / INV-2026-0079",
+        "verification": "Awaiting verification",
+        "allocation": "Not applied",
+        "bankMatch": "Unmatched",
+        "externalReference": "UPI-904186"
+      },
+      {
+        "id": "PAY-2026-0108",
+        "type": "Agency payment",
+        "party": "Studio North",
+        "amount": 280000,
+        "direction": "out",
+        "occurredAt": "2026-09-24T12:15:00",
+        "recordedAt": "2026-09-24T13:02:00",
+        "recordedBy": "Meera Iyer",
+        "account": "HDFC Bank · 2163",
+        "linked": "Agency / EXP-2026-0032",
+        "verification": "Verified",
+        "allocation": "Expense settled",
+        "bankMatch": "Matched",
+        "externalReference": "HDFC-UTR-56307"
+      },
+      {
+        "id": "RCPT-2026-0072",
+        "type": "Receipt",
+        "party": "Singh Family",
+        "amount": 1000000,
+        "direction": "in",
+        "occurredAt": "2026-09-20T10:20:00",
+        "recordedAt": "2026-09-20T11:04:00",
+        "recordedBy": "Nisha Rao",
+        "account": "HDFC Bank · 2163",
+        "linked": "Customer account / ADV-2026-0024",
+        "verification": "Verified",
+        "allocation": "Unallocated customer advance",
+        "bankMatch": "Matched",
+        "externalReference": "HDFC-UTR-55322"
+      },
+      {
+        "id": "PAY-2026-0091",
+        "type": "Agency payment",
+        "party": "MG Road Properties",
+        "amount": 7500000,
+        "direction": "out",
+        "occurredAt": "2026-09-05T13:15:00",
+        "recordedAt": "2026-09-05T14:08:00",
+        "recordedBy": "Meera Iyer",
+        "account": "HDFC Bank · 2163",
+        "linked": "Agency / EXP-2026-0031",
+        "verification": "Verified",
+        "allocation": "Expense settled",
+        "bankMatch": "Matched",
+        "externalReference": "HDFC-UTR-53830"
+      },
+      {
+        "id": "TRF-2026-0007",
+        "type": "Transfer",
+        "party": "HDFC Bank → Petty cash",
+        "amount": 100000,
+        "direction": "neutral",
+        "occurredAt": "2026-09-23T15:00:00",
+        "recordedAt": "2026-09-23T15:22:00",
+        "recordedBy": "Meera Iyer",
+        "account": "HDFC Bank → Petty cash",
+        "linked": "Internal account transfer",
+        "verification": "Verified",
+        "allocation": "Not applicable",
+        "bankMatch": "Partially matched",
+        "externalReference": "CASH-TRANSFER-007"
+      }
+    ],
+    "EXPENSES": [
+      {
+        "id": "EXP-2026-0032",
+        "category": "Software subscription",
+        "payee": "Studio North",
+        "scope": "Agency · Operations",
+        "incurred": "2026-09-24",
+        "due": "2026-09-24",
+        "amount": 280000,
+        "review": "Approved",
+        "payment": "Paid",
+        "evidence": "Invoice attached",
+        "linkedPayment": "PAY-2026-0108"
+      },
+      {
+        "id": "EXP-2026-0031",
+        "category": "Office rent",
+        "payee": "MG Road Properties",
+        "scope": "Agency · Kochi office",
+        "incurred": "2026-09-01",
+        "due": "2026-09-05",
+        "amount": 7500000,
+        "review": "Approved",
+        "payment": "Paid",
+        "evidence": "Receipt attached",
+        "linkedPayment": "PAY-2026-0091"
+      },
+      {
+        "id": "EXP-2026-0030",
+        "category": "Trip incidentals",
+        "payee": "Meera Iyer",
+        "scope": "BK-2026-000021 · Direct cost",
+        "incurred": "2026-09-22",
+        "due": "2026-09-28",
+        "amount": 700000,
+        "review": "Approved",
+        "payment": "Reimbursement due",
+        "evidence": "4 receipts attached"
+      }
+    ],
+    "ACCOUNTS": [
+      {
+        "id": "hdfc",
+        "name": "HDFC Bank",
+        "meta": "Current account · ending 2163",
+        "recorded": 23680000,
+        "lastReview": "Reconciled through 25 Sep"
+      },
+      {
+        "id": "cash",
+        "name": "Petty cash",
+        "meta": "Kochi office · custodian Meera Iyer",
+        "recorded": 1000000,
+        "lastReview": "Count due today"
+      }
+    ],
+    "recordedCash": 24680000,
+    "statementClosing": 23755000,
+    "statementDifference": 75000,
+    "unmatchedStatementRow": 750000,
+    "unexplainedAfterVisibleRow": -675000,
+    "FORECAST": [
+      {
+        "date": "27 Sep",
+        "source": "Trailmakers hotel balance",
+        "reference": "COM-2026-0094",
+        "amount": -4000000,
+        "basis": "Due"
+      },
+      {
+        "date": "28 Sep",
+        "source": "Meera Iyer reimbursement",
+        "reference": "CLM-2026-0012",
+        "amount": -700000,
+        "basis": "Approved"
+      },
+      {
+        "date": "29 Sep",
+        "source": "Nair Family refund",
+        "reference": "RFND-2026-0016",
+        "amount": -1800000,
+        "basis": "Approved"
+      },
+      {
+        "date": "30 Sep",
+        "source": "Singh Family scheduled advance",
+        "reference": "ADV-SCHED-2026-0025",
+        "amount": 3500000,
+        "basis": "Payer confirmed · not received"
+      },
+      {
+        "date": "03 Oct",
+        "source": "Desert Wheels balance",
+        "reference": "COM-2026-0095",
+        "amount": -2500000,
+        "basis": "Due"
+      },
+      {
+        "date": "04 Oct",
+        "source": "XYZ Family final instalment",
+        "reference": "INV-2026-0084",
+        "amount": 8000000,
+        "basis": "Assumed"
+      },
+      {
+        "date": "06 Oct",
+        "source": "Agency bills",
+        "reference": "EXP-SCHEDULE-SEP",
+        "amount": -1350000,
+        "basis": "Scheduled"
+      }
+    ],
+    "forecastClosing": 25830000,
+    "forecastMinimum": 18180000,
+    "ACTIVITY": [
+      {
+        "id": "EVT-00918",
+        "event": "Proof attached for review",
+        "category": "Review",
+        "occurredAt": "2026-09-26T09:43:00",
+        "recordedAt": "2026-09-26T09:43:00",
+        "actor": "Nisha Rao",
+        "recordId": "RCPT-2026-0088",
+        "party": "Kapoor Group",
+        "context": "BK-2026-000018",
+        "detail": "The existing receipt proof is queued for verification. This did not create another receipt or change the due date."
+      },
+      {
+        "id": "EVT-00917",
+        "event": "Receipt proof submitted",
+        "category": "Money",
+        "occurredAt": "2026-09-26T09:10:00",
+        "recordedAt": "2026-09-26T09:42:00",
+        "actor": "Nisha Rao",
+        "recordId": "RCPT-2026-0088",
+        "party": "Kapoor Group",
+        "context": "BK-2026-000018 · INV-2026-0079",
+        "detail": "The ₹12,000 receipt was recorded against the Kapoor Group instalment. Its debt remains outstanding until verification and application."
+      },
+      {
+        "id": "EVT-00911",
+        "event": "Supplier payment verified",
+        "category": "Verification",
+        "occurredAt": "2026-09-25T17:05:00",
+        "recordedAt": "2026-09-25T17:06:00",
+        "actor": "Finance reviewer",
+        "recordId": "PAY-2026-0109",
+        "party": "Trailmakers Experiences",
+        "context": "BK-2026-000003 · COM-2026-0094",
+        "detail": "The existing ₹30,000 supplier payment was verified; Booking, Vendor CRM and Agency Finance show its allocation."
+      },
+      {
+        "id": "EVT-00910",
+        "event": "Supplier payment allocated",
+        "category": "Allocation",
+        "occurredAt": "2026-09-25T16:08:00",
+        "recordedAt": "2026-09-25T16:08:00",
+        "actor": "Anjali Menon",
+        "recordId": "PAY-2026-0109",
+        "party": "Trailmakers Experiences",
+        "context": "BK-2026-000003 · COM-2026-0094",
+        "detail": "₹30,000 was applied to the confirmed hotel commitment; ₹40,000 remains due."
+      },
+      {
+        "id": "EVT-00909",
+        "event": "Supplier payment recorded",
+        "category": "Money",
+        "occurredAt": "2026-09-25T14:30:00",
+        "recordedAt": "2026-09-25T16:05:00",
+        "actor": "Anjali Menon",
+        "recordId": "PAY-2026-0109",
+        "party": "Trailmakers Experiences",
+        "context": "BK-2026-000003 · Hotel",
+        "detail": "An external bank transfer was recorded. Payment recording did not confirm the supplier service."
+      },
+      {
+        "id": "EVT-00907",
+        "event": "Customer receipt verified and applied",
+        "category": "Verification",
+        "occurredAt": "2026-09-25T11:40:00",
+        "recordedAt": "2026-09-25T11:42:00",
+        "actor": "Finance reviewer",
+        "recordId": "RCPT-2026-0081",
+        "party": "XYZ Family",
+        "context": "BK-2026-000003 · INV-2026-0084",
+        "detail": "The existing ₹40,000 receipt was verified and applied. The final customer balance is ₹80,000."
+      },
+      {
+        "id": "EVT-00906",
+        "event": "Customer receipt recorded",
+        "category": "Money",
+        "occurredAt": "2026-09-25T10:34:00",
+        "recordedAt": "2026-09-25T11:12:00",
+        "actor": "Anjali Menon",
+        "recordId": "RCPT-2026-0081",
+        "party": "XYZ Family",
+        "context": "BK-2026-000003",
+        "detail": "An external customer payment was entered using HDFC reference HDFC-UTR-56824."
+      },
+      {
+        "id": "EVT-00892",
+        "event": "Expense claim approved",
+        "category": "Review",
+        "occurredAt": "2026-09-25T09:15:00",
+        "recordedAt": "2026-09-25T09:16:00",
+        "actor": "Finance reviewer",
+        "recordId": "EXP-2026-0030",
+        "party": "Meera Iyer",
+        "context": "BK-2026-000021 · CLM-2026-0012",
+        "detail": "The ₹7,000 claim was approved. Reimbursement remains due; no cash payment was recorded."
+      },
+      {
+        "id": "EVT-00888",
+        "event": "Agency payment recorded",
+        "category": "Money",
+        "occurredAt": "2026-09-24T12:15:00",
+        "recordedAt": "2026-09-24T13:02:00",
+        "actor": "Meera Iyer",
+        "recordId": "PAY-2026-0108",
+        "party": "Studio North",
+        "context": "Agency · EXP-2026-0032",
+        "detail": "The software subscription payment was recorded once and linked to the existing expense."
+      },
+      {
+        "id": "EVT-00879",
+        "event": "Bank statement matched",
+        "category": "Bank match",
+        "occurredAt": "2026-09-24T13:12:00",
+        "recordedAt": "2026-09-24T13:14:00",
+        "actor": "Finance reviewer",
+        "recordId": "PAY-2026-0108",
+        "party": "Studio North",
+        "context": "HDFC Bank · EXP-2026-0032",
+        "detail": "An imported statement row was matched to the existing agency payment. No second payment was created."
+      },
+      {
+        "id": "EVT-00870",
+        "event": "Account transfer recorded",
+        "category": "Money",
+        "occurredAt": "2026-09-23T15:00:00",
+        "recordedAt": "2026-09-23T15:22:00",
+        "actor": "Meera Iyer",
+        "recordId": "TRF-2026-0007",
+        "party": "HDFC Bank → Petty cash",
+        "context": "Internal account transfer",
+        "detail": "₹1,000 was transferred between agency accounts. The transfer is neither customer income nor an agency expense."
+      },
+      {
+        "id": "EVT-00851",
+        "event": "Customer advance received",
+        "category": "Money",
+        "occurredAt": "2026-09-20T10:20:00",
+        "recordedAt": "2026-09-20T11:04:00",
+        "actor": "Nisha Rao",
+        "recordId": "RCPT-2026-0072",
+        "party": "Singh Family",
+        "context": "ADV-2026-0024 · customer account",
+        "detail": "₹10,000 was received as a party-owned advance. It is still unallocated and does not settle another customer's debt."
+      },
+      {
+        "id": "EVT-00818",
+        "event": "Office rent payment recorded",
+        "category": "Money",
+        "occurredAt": "2026-09-05T13:15:00",
+        "recordedAt": "2026-09-05T14:08:00",
+        "actor": "Meera Iyer",
+        "recordId": "PAY-2026-0091",
+        "party": "MG Road Properties",
+        "context": "Agency · EXP-2026-0031",
+        "detail": "The ₹75,000 office rent payment was linked to the existing expense. The expense was not counted twice."
+      }
+    ]
+  },
+  "destinations": {
+    "baliExample": {
+      "packages": [
+        {
+          "id": "BALI-PKG-01",
+          "name": "Ubud & Penida discovery",
+          "image": "/src/assets/bali/bali-rice-terraces-hero.jpg",
+          "location": "Ubud · Nusa Penida",
+          "description": "A five-day route linking Ubud's inland stops with a day on Nusa Penida.",
+          "highlights": [
+            "Ubud stay · 3 nights",
+            "Rice terrace walk",
+            "Nusa Penida coastal day",
+            "Private airport transfers"
+          ],
+          "connections": [
+            "Ubud Garden Suites",
+            "Bali Heritage Studio",
+            "Penida Coast Experiences",
+            "Island Wheels Bali"
+          ],
+          "duration": "5 days · 4 nights",
+          "price": 82500,
+          "status": "Published"
+        },
+        {
+          "id": "BALI-PKG-02",
+          "name": "Bali family coast & culture",
+          "image": "/src/assets/bali/ubud-temple.jpg",
+          "location": "Ubud · Uluwatu",
+          "description": "A family-paced itinerary with cultural visits, beach time and private transport.",
+          "highlights": [
+            "Family accommodation",
+            "Uluwatu temple visit",
+            "Private day car",
+            "Flexible leisure day"
+          ],
+          "connections": [
+            "Seminyak Coastal Stay",
+            "Uluwatu Sunset Visit",
+            "Island Wheels Bali"
+          ],
+          "duration": "6 days · 5 nights",
+          "price": 108000,
+          "status": "Published"
+        },
+        {
+          "id": "BALI-PKG-03",
+          "name": "Slow Bali wellness stay",
+          "image": "/src/assets/destinations/bali-honeymoon.jpg",
+          "location": "Seminyak · Ubud",
+          "description": "A slower itinerary with a coastal stay, Ubud time and unhurried day plans.",
+          "highlights": [
+            "Seminyak coastal stay",
+            "Ubud garden suite",
+            "Campuhan Ridge Walk",
+            "Private point-to-point transfers"
+          ],
+          "connections": [
+            "Ubud Stay Collective",
+            "Seminyak Coastal Stay",
+            "Island Wheels Bali"
+          ],
+          "duration": "4 days · 3 nights",
+          "price": 69500,
+          "status": "Draft"
+        }
+      ],
+      "services": [],
+      "guides": [
+        {
+          "id": "BALI-GDE-01",
+          "name": "Tegallalang rice terraces",
+          "image": "/src/assets/bali/bali-rice-terraces-hero.jpg",
+          "location": "Tegallalang, Bali",
+          "kind": "Viewpoint",
+          "description": "An inland viewpoint and walking stop to pair with an Ubud day.",
+          "highlights": [
+            "Rice terrace outlook",
+            "Walking route",
+            "Pairs with Ubud private day car"
+          ],
+          "connections": [
+            "Tegallalang rice terrace walk",
+            "Ubud & Penida discovery"
+          ]
+        },
+        {
+          "id": "BALI-GDE-02",
+          "name": "Kelingking overlook",
+          "image": "/src/assets/bali/nusa-penida.jpg",
+          "location": "Nusa Penida, Bali",
+          "kind": "Viewpoint",
+          "description": "A coastal viewpoint on a Nusa Penida day route.",
+          "highlights": [
+            "Coastal outlook",
+            "Road transfer planning",
+            "Part of an island day"
+          ],
+          "connections": [
+            "Nusa Penida coastal day",
+            "Ubud & Penida discovery"
+          ]
+        },
+        {
+          "id": "BALI-GDE-03",
+          "name": "Uluwatu Temple",
+          "image": "/src/assets/bali/ubud-temple.jpg",
+          "location": "Uluwatu, Bali",
+          "kind": "Culture",
+          "description": "A cultural stop for a south-coast day, often planned around late-day light.",
+          "highlights": [
+            "Temple area",
+            "Coastal viewpoint",
+            "Private car pairing"
+          ],
+          "connections": [
+            "Uluwatu sunset visit",
+            "Bali family coast & culture"
+          ]
+        },
+        {
+          "id": "BALI-GDE-04",
+          "name": "Campuhan Ridge Walk",
+          "image": "/src/assets/bali/bali-rice-terraces-hero.jpg",
+          "location": "Ubud, Bali",
+          "kind": "Nature",
+          "description": "An easy-to-place outdoor stop within an Ubud-focused day.",
+          "highlights": [
+            "Walking stop",
+            "Ubud location",
+            "Fits a slower itinerary"
+          ],
+          "connections": [
+            "Slow Bali wellness stay"
+          ]
+        },
+        {
+          "id": "BALI-GDE-05",
+          "name": "Seminyak coastline",
+          "image": "/src/assets/destinations/bali-honeymoon.jpg",
+          "location": "Seminyak, Bali",
+          "kind": "Coast",
+          "description": "Coastal time that can be kept open rather than scheduled as a fixed activity.",
+          "highlights": [
+            "Beach time",
+            "Coastal stay pairing",
+            "Flexible evening"
+          ],
+          "connections": [
+            "Seminyak Coastal Stay",
+            "Slow Bali wellness stay"
+          ]
+        },
+        {
+          "id": "BALI-GDE-06",
+          "name": "Ubud temple quarter",
+          "image": "/src/assets/bali/ubud-temple.jpg",
+          "location": "Ubud, Bali",
+          "kind": "Culture",
+          "description": "A cluster of cultural stops that can be explored as part of an Ubud day.",
+          "highlights": [
+            "Cultural stops",
+            "Short local transfers",
+            "Ubud base"
+          ],
+          "connections": [
+            "Ubud private day car",
+            "Bali Heritage Studio"
+          ]
+        }
+      ],
+      "vendors": [],
+      "trips": [
+        {
+          "id": "BALI-TRP-01",
+          "name": "Ubud & Penida family plan",
+          "image": "/src/assets/bali/bali-rice-terraces-hero.jpg",
+          "location": "Ubud · Nusa Penida",
+          "kind": "Proposal",
+          "customer": "Family travel example",
+          "travel": "April 2027 · dates open",
+          "status": "Draft",
+          "description": "An example proposal assembled from the Ubud and Penida package and linked services.",
+          "highlights": [
+            "5-day itinerary",
+            "Private transfers",
+            "Island day"
+          ],
+          "connections": [
+            "Ubud & Penida discovery",
+            "Island Wheels Bali",
+            "Penida Coast Experiences"
+          ]
+        },
+        {
+          "id": "BALI-TRP-02",
+          "name": "Bali coast arrival plan",
+          "image": "/src/assets/destinations/bali-honeymoon.jpg",
+          "location": "Seminyak, Bali",
+          "kind": "Booking",
+          "customer": "Couple travel example",
+          "travel": "May 2027 · dates open",
+          "status": "Planning",
+          "description": "An example booking handoff showing a coastal stay and airport transfer together.",
+          "highlights": [
+            "Coastal stay",
+            "Airport pickup",
+            "Arrival coordination"
+          ],
+          "connections": [
+            "Seminyak Coastal Stay",
+            "Denpasar airport transfer",
+            "Bali Ground Desk"
+          ]
+        }
+      ]
+    }
+  },
+  "profiles": {},
+  "featuredRegions": [
+    {
+      "id": "bengaluru-karnataka",
+      "label": "Bengaluru, Karnataka",
+      "country": "India",
+      "group": "South India",
+      "aliases": [
+        "Bangalore",
+        "Bengaluru",
+        "Karnataka",
+        "BLR"
+      ],
+      "packageTerms": [
+        "Bangalore",
+        "Bengaluru",
+        "Karnataka"
+      ]
+    },
+    {
+      "id": "bali-indonesia",
+      "label": "Bali",
+      "country": "Indonesia",
+      "group": "Southeast Asia",
+      "aliases": [
+        "Bali",
+        "Denpasar",
+        "Indonesia"
+      ],
+      "packageTerms": [
+        "Bali",
+        "Denpasar",
+        "Indonesia"
+      ]
+    },
+    {
+      "id": "dubai-uae",
+      "label": "Dubai",
+      "country": "United Arab Emirates",
+      "group": "Middle East",
+      "aliases": [
+        "Dubai",
+        "UAE",
+        "United Arab Emirates"
+      ],
+      "packageTerms": [
+        "Dubai",
+        "UAE"
+      ]
+    },
+    {
+      "id": "kerala-india",
+      "label": "Kerala",
+      "country": "India",
+      "group": "South India",
+      "aliases": [
+        "Kerala",
+        "Kochi",
+        "Munnar",
+        "South India"
+      ],
+      "packageTerms": [
+        "Kerala",
+        "Kochi",
+        "Munnar"
+      ]
+    }
+  ],
+  "supplierServiceOptions": [
+    {
+      "id": "cityride-fixed",
+      "name": "Kochi fixed transfers",
+      "category": "Transport",
+      "location": "Kochi",
+      "description": "Private chauffeured transport supplied by CityRide Transfers.",
+      "vendor": "CityRide Transfers",
+      "vendorId": "cityride",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-cityride-fixed"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "kochi-local-duty",
+      "name": "Kochi local sightseeing",
+      "category": "Transport",
+      "location": "Kochi",
+      "description": "Private chauffeured transport supplied by Kochi Local Cabs.",
+      "vendor": "Kochi Local Cabs",
+      "vendorId": "kochi-local-cabs",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-local-cabs"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "jaipur-local-duty",
+      "name": "Jaipur local sightseeing",
+      "category": "Transport",
+      "location": "Jaipur",
+      "description": "Private chauffeured transport supplied by Jaipur Local Cabs.",
+      "vendor": "Jaipur Local Cabs",
+      "vendorId": "jaipur-local-cabs",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-jaipur-local"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "bengaluru-local-duty",
+      "name": "Bengaluru local sightseeing",
+      "category": "Transport",
+      "location": "Bengaluru",
+      "description": "Private chauffeured transport supplied by Bengaluru City Rides.",
+      "vendor": "Bengaluru City Rides",
+      "vendorId": "bengaluru-city-rides",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-bengaluru-local"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "kerala-road-hire",
+      "name": "Kerala outstation transport",
+      "category": "Transport",
+      "location": "Kerala",
+      "description": "Private chauffeured transport supplied by Kerala Road Trips.",
+      "vendor": "Kerala Road Trips",
+      "vendorId": "kerala-road-trips",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-road-trips"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "south-coast-daily",
+      "name": "Van and coach daily hire",
+      "category": "Transport",
+      "location": "Kerala",
+      "description": "Private chauffeured transport supplied by South Coast Coaches.",
+      "vendor": "South Coast Coaches",
+      "vendorId": "south-coast-coaches",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-south-coast"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "trail-fixed",
+      "name": "Kochi fixed transfers",
+      "category": "Transport",
+      "location": "Kochi",
+      "description": "Private chauffeured transport supplied by Trailmakers Experiences.",
+      "vendor": "Trailmakers Experiences",
+      "vendorId": "trailmakers",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-trail-fixed"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "trail-local",
+      "name": "Kochi local sightseeing",
+      "category": "Transport",
+      "location": "Kochi",
+      "description": "Private chauffeured transport supplied by Trailmakers Experiences.",
+      "vendor": "Trailmakers Experiences",
+      "vendorId": "trailmakers",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-trail-local"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "trail-outstation",
+      "name": "Kerala outstation transport",
+      "category": "Transport",
+      "location": "Kerala",
+      "description": "Private chauffeured transport supplied by Trailmakers Experiences.",
+      "vendor": "Trailmakers Experiences",
+      "vendorId": "trailmakers",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-trail-km"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "trail-daily",
+      "name": "Kerala daily vehicle hire",
+      "category": "Transport",
+      "location": "Kerala",
+      "description": "Private chauffeured transport supplied by Trailmakers Experiences.",
+      "vendor": "Trailmakers Experiences",
+      "vendorId": "trailmakers",
+      "image": "/service-thumbnails/photo-1449965408869-eaa3f722e40d.jpg",
+      "rateCardIds": [
+        "rc-trail-daily"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "taj-exotica",
+      "name": "Taj Exotica Resort & Spa",
+      "category": "Accommodation",
+      "location": "Goa",
+      "description": "Accommodation service in Goa",
+      "vendor": "Example Hospitality",
+      "vendorId": "exhosp",
+      "image": "/service-thumbnails/photo-1582719478250-c89cae4dc85b.jpg",
+      "rateCardIds": [
+        "rc-acc-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "taj-exotica",
+      "name": "Taj Exotica Resort & Spa",
+      "category": "Accommodation",
+      "location": "Goa",
+      "description": "Accommodation service in Goa",
+      "vendor": "Wanderlust Trails",
+      "vendorId": "wanderlust",
+      "image": "/service-thumbnails/photo-1582719478250-c89cae4dc85b.jpg",
+      "rateCardIds": [
+        "rc-acc-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "taj-exotica",
+      "name": "Taj Exotica Resort & Spa",
+      "category": "Accommodation",
+      "location": "Goa",
+      "description": "Accommodation service in Goa",
+      "vendor": "Coastal Stay Properties",
+      "vendorId": "coastal",
+      "image": "/service-thumbnails/photo-1582719478250-c89cae4dc85b.jpg",
+      "rateCardIds": [
+        "rc-acc-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "taj-lake-palace",
+      "name": "Taj Lake Palace",
+      "category": "Accommodation",
+      "location": "Udaipur",
+      "description": "Accommodation service in Udaipur",
+      "vendor": "Kerala Heritage Hotels",
+      "vendorId": "kerala-heritage",
+      "image": "/service-thumbnails/photo-1564501049412-61c2a3083791.jpg",
+      "rateCardIds": [
+        "rc-acc-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "taj-lake-palace",
+      "name": "Taj Lake Palace",
+      "category": "Accommodation",
+      "location": "Udaipur",
+      "description": "Accommodation service in Udaipur",
+      "vendor": "Horizon DMC Partners",
+      "vendorId": "horizon",
+      "image": "/service-thumbnails/photo-1564501049412-61c2a3083791.jpg",
+      "rateCardIds": [
+        "rc-acc-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "taj-bekal",
+      "name": "Taj Bekal Resort & Spa",
+      "category": "Accommodation",
+      "location": "Kerala",
+      "description": "Accommodation service in Kerala",
+      "vendor": "Coastal Stay Properties",
+      "vendorId": "coastal",
+      "image": "/service-thumbnails/photo-1571896349842-33c89424de2d.jpg",
+      "rateCardIds": [
+        "rc-acc-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "taj-bekal",
+      "name": "Taj Bekal Resort & Spa",
+      "category": "Accommodation",
+      "location": "Kerala",
+      "description": "Accommodation service in Kerala",
+      "vendor": "Example Hospitality",
+      "vendorId": "exhosp",
+      "image": "/service-thumbnails/photo-1571896349842-33c89424de2d.jpg",
+      "rateCardIds": [
+        "rc-acc-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "taj-bekal",
+      "name": "Taj Bekal Resort & Spa",
+      "category": "Accommodation",
+      "location": "Kerala",
+      "description": "Accommodation service in Kerala",
+      "vendor": "Wanderlust Trails",
+      "vendorId": "wanderlust",
+      "image": "/service-thumbnails/photo-1571896349842-33c89424de2d.jpg",
+      "rateCardIds": [
+        "rc-acc-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "taj-bekal",
+      "name": "Taj Bekal Resort & Spa",
+      "category": "Accommodation",
+      "location": "Kerala",
+      "description": "Accommodation service in Kerala",
+      "vendor": "Horizon DMC Partners",
+      "vendorId": "horizon",
+      "image": "/service-thumbnails/photo-1571896349842-33c89424de2d.jpg",
+      "rateCardIds": [
+        "rc-acc-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "example-lake",
+      "name": "Example Lake Resort",
+      "category": "Accommodation",
+      "location": "Alleppey",
+      "description": "Accommodation service in Alleppey",
+      "vendor": "Example Hospitality",
+      "vendorId": "exhosp",
+      "image": "/service-thumbnails/photo-1566073771259-6a8506099945.jpg",
+      "rateCardIds": [
+        "rc-acc-2627",
+        "rc-acc-2526"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "example-lake",
+      "name": "Example Lake Resort",
+      "category": "Accommodation",
+      "location": "Alleppey",
+      "description": "Accommodation service in Alleppey",
+      "vendor": "Wanderlust Trails",
+      "vendorId": "wanderlust",
+      "image": "/service-thumbnails/photo-1566073771259-6a8506099945.jpg",
+      "rateCardIds": [
+        "rc-acc-2627",
+        "rc-acc-2526"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "example-hill",
+      "name": "Example Hill Retreat",
+      "category": "Accommodation",
+      "location": "Munnar",
+      "description": "Accommodation service in Munnar",
+      "vendor": "Example Hospitality",
+      "vendorId": "exhosp",
+      "image": "/service-thumbnails/photo-1506905925346-21bda4d32df4.jpg",
+      "rateCardIds": [
+        "rc-hill-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "example-hill",
+      "name": "Example Hill Retreat",
+      "category": "Accommodation",
+      "location": "Munnar",
+      "description": "Accommodation service in Munnar",
+      "vendor": "Horizon DMC Partners",
+      "vendorId": "horizon",
+      "image": "/service-thumbnails/photo-1506905925346-21bda4d32df4.jpg",
+      "rateCardIds": [
+        "rc-hill-2627"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "munnar-trek",
+      "name": "Munnar Ridge Trek",
+      "category": "Activities",
+      "location": "Munnar",
+      "description": "Activities service in Munnar",
+      "vendor": "Trailmakers Experiences",
+      "vendorId": "trailmakers",
+      "image": "/service-thumbnails/photo-1506905925346-21bda4d32df4.jpg",
+      "rateCardIds": [
+        "rc-act-trek-trail"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "munnar-trek",
+      "name": "Munnar Ridge Trek",
+      "category": "Activities",
+      "location": "Munnar",
+      "description": "Activities service in Munnar",
+      "vendor": "Summit Adventures",
+      "vendorId": "summit",
+      "image": "/service-thumbnails/photo-1506905925346-21bda4d32df4.jpg",
+      "rateCardIds": [
+        "rc-act-trek-summit"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "munnar-trek",
+      "name": "Munnar Ridge Trek",
+      "category": "Activities",
+      "location": "Munnar",
+      "description": "Activities service in Munnar",
+      "vendor": "Spice Route Experiences",
+      "vendorId": "spice-route",
+      "image": "/service-thumbnails/photo-1506905925346-21bda4d32df4.jpg",
+      "rateCardIds": [
+        "rc-act-trek-spice"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "backwater-kayak",
+      "name": "Backwater Kayak",
+      "category": "Activities",
+      "location": "Alleppey",
+      "description": "Activities service in Alleppey",
+      "vendor": "Trailmakers Experiences",
+      "vendorId": "trailmakers",
+      "image": "/service-thumbnails/photo-1602216056096-3b40cc0c9944.jpg",
+      "rateCardIds": [
+        "rc-act-kayak-trail"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "backwater-kayak",
+      "name": "Backwater Kayak",
+      "category": "Activities",
+      "location": "Alleppey",
+      "description": "Activities service in Alleppey",
+      "vendor": "Spice Route Experiences",
+      "vendorId": "spice-route",
+      "image": "/service-thumbnails/photo-1602216056096-3b40cc0c9944.jpg",
+      "rateCardIds": [
+        "rc-act-kayak-spice"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "cardamom-tour",
+      "name": "Cardamom Plantation Tour",
+      "category": "Activities",
+      "location": "Thekkady",
+      "description": "Activities service in Thekkady",
+      "vendor": "Example Hospitality",
+      "vendorId": "exhosp",
+      "image": "/service-thumbnails/photo-1544735716-392fe2489ffa.jpg",
+      "rateCardIds": [
+        "rc-act-cardamom-exhosp"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "cardamom-tour",
+      "name": "Cardamom Plantation Tour",
+      "category": "Activities",
+      "location": "Thekkady",
+      "description": "Activities service in Thekkady",
+      "vendor": "Spice Route Experiences",
+      "vendorId": "spice-route",
+      "image": "/service-thumbnails/photo-1544735716-392fe2489ffa.jpg",
+      "rateCardIds": [
+        "rc-act-cardamom-spice"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "sunset-cruise",
+      "name": "Alleppey Sunset Cruise",
+      "category": "Activities",
+      "location": "Alleppey",
+      "description": "Activities service in Alleppey",
+      "vendor": "Coastal Stay Properties",
+      "vendorId": "coastal",
+      "image": "/service-thumbnails/photo-1571896349842-33c89424de2d.jpg",
+      "rateCardIds": [
+        "rc-act-cruise-coastal"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "spice-cooking-class",
+      "name": "Kerala Spice Cooking Class",
+      "category": "Activities",
+      "location": "Kochi",
+      "description": "Activities service in Kochi",
+      "vendor": "Spice Route Experiences",
+      "vendorId": "spice-route",
+      "image": "/service-thumbnails/photo-1544735716-392fe2489ffa.jpg",
+      "rateCardIds": [
+        "rc-act-class-spice"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "periyar-safari",
+      "name": "Periyar Wildlife Safari",
+      "category": "Activities",
+      "location": "Thekkady",
+      "description": "Activities service in Thekkady",
+      "vendor": "Summit Adventures",
+      "vendorId": "summit",
+      "image": "/service-thumbnails/photo-1464822759023-fed622ff2c3b.jpg",
+      "rateCardIds": [
+        "rc-act-safari-summit"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "heritage-admission",
+      "name": "Fort Kochi Heritage Admission",
+      "category": "Activities",
+      "location": "Kochi",
+      "description": "Activities service in Kochi",
+      "vendor": "Kerala Heritage Hotels",
+      "vendorId": "kerala-heritage",
+      "image": "/service-thumbnails/photo-1564501049412-61c2a3083791.jpg",
+      "rateCardIds": [
+        "rc-act-admission-heritage"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "uae-visa",
+      "name": "UAE Tourist Visa",
+      "category": "Visa",
+      "location": "UAE",
+      "description": "Visa service in UAE",
+      "vendor": "Atlas Visa Services",
+      "vendorId": "atlas-visa",
+      "image": "/service-thumbnails/photo-1436491865332-7a61a109cc05.jpg",
+      "rateCardIds": [
+        "rc-visa-uae"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "uae-visa",
+      "name": "UAE Tourist Visa",
+      "category": "Visa",
+      "location": "UAE",
+      "description": "Visa service in UAE",
+      "vendor": "Horizon DMC Partners",
+      "vendorId": "horizon",
+      "image": "/service-thumbnails/photo-1436491865332-7a61a109cc05.jpg",
+      "rateCardIds": [
+        "rc-visa-uae"
+      ],
+      "source": "vendor-crm"
+    },
+    {
+      "id": "kerala-flights",
+      "name": "Kerala Flight Ticketing",
+      "category": "Flights",
+      "location": "India",
+      "description": "Flights service in India",
+      "vendor": "Trailmakers Experiences",
+      "vendorId": "trailmakers",
+      "image": "/service-thumbnails/photo-1436491865332-7a61a109cc05.jpg",
+      "rateCardIds": [
+        "rc-air-2026"
+      ],
+      "source": "vendor-crm"
+    }
+  ]
+}

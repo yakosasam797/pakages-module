@@ -1,0 +1,947 @@
+{
+  "scope": "Meaningful source-supported module states; current and earlier real UI evidence, with explicit remaining conditions",
+  "reviewed": "5 October 2026",
+  "currentStates": 47,
+  "earlierStates": 81,
+  "contextualStates": 0,
+  "stateCount": 128,
+  "imageCount": 203,
+  "remainingStates": [
+    {
+      "id": "transport-variants",
+      "description": "Mixed vehicles, split groups, daily usage/retained hires, alternative tariff and payable-at-actuals variants",
+      "source": "src/PrivateTransportProposalCosting.tsx",
+      "reason": "Four focused method references included from earlier atlas; not every current allocation/usage/actuals permutation photographed.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    },
+    {
+      "id": "activity-variants",
+      "description": "Per-unit/time, age/session/capacity, required external services and on-request confirmation branches",
+      "source": "src/TripComposer.tsx; src/PackageStructuredPricing.tsx",
+      "reason": "Person/private cards and draft activation guard pictured. Remaining enabled-card-specific variants require source/fixture review and new scenario captures.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    },
+    {
+      "id": "supplier-api",
+      "description": "Supplier/region API finding/error states",
+      "source": "src/packageServiceSearch.ts; src/regionSearch.ts",
+      "reason": "No configured external service API was fabricated. Local search/empty results are pictured.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    },
+    {
+      "id": "photo-upload",
+      "description": "File selection, six-photo limit and every image removal state",
+      "source": "src/TripComposer.tsx",
+      "reason": "Place photo controls and source are included. Operating-system chooser and every count not photographed.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    },
+    {
+      "id": "sharing-validation",
+      "description": "All date/email/day/price/readiness and supplier-approval rejection combinations",
+      "source": "src/TripComposer.tsx; src/serviceCosting.ts",
+      "reason": "Required basics, empty itinerary, unresolved rates and publication mismatch pictured; each remaining guard is retained in exact source.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    },
+    {
+      "id": "unused-package-mode",
+      "description": "TripComposer package-mode fixed-departure controls",
+      "source": "src/TripComposer.tsx; src/App.tsx",
+      "reason": "Root PackageBuilder mounts PackageComposer. Do not treat the alternate package mode as a reachable root screen.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    },
+    {
+      "id": "approval-snapshot-handoff",
+      "description": "New priced approval with supplier snapshots and resulting Booking panels",
+      "source": "src/App.tsx; src/serviceCosting.ts",
+      "reason": "Approved fixture and revision history pictured; current clean fixtures do not establish approved supplier snapshot integration.",
+      "status": "NOT SCREENSHOT VERIFIED"
+    }
+  ],
+  "sourceMarkers": [
+    {
+      "path": "src/App.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useEffect, useLayoutEffect, useMemo, useRef, useState } from \"react\";"
+        },
+        {
+          "line": 359,
+          "text": "  const [activeModule, setActiveModule] = useState<WorkspaceModule>(moduleFromUrl);"
+        },
+        {
+          "line": 360,
+          "text": "  const [workspaceView, setWorkspaceView] = useState<\"packages\" | \"proposals\">(\"packages\");"
+        },
+        {
+          "line": 361,
+          "text": "  const [statusFilter, setStatusFilter] = useState(\"all\");"
+        },
+        {
+          "line": 362,
+          "text": "  const [sourceFilter, setSourceFilter] = useState(\"all\");"
+        },
+        {
+          "line": 363,
+          "text": "  const [query, setQuery] = useState(\"\");"
+        },
+        {
+          "line": 364,
+          "text": "  const [region, setRegion] = useState(\"all\");"
+        },
+        {
+          "line": 365,
+          "text": "  const [page, setPage] = useState(1);"
+        },
+        {
+          "line": 366,
+          "text": "  const [pageSize, setPageSize] = useState(5);"
+        },
+        {
+          "line": 367,
+          "text": "  const [selectedSearchRegion, setSelectedSearchRegion] = useState<RegionSuggestion | null>(null);"
+        },
+        {
+          "line": 368,
+          "text": "  const [regionSuggestions, setRegionSuggestions] = useState<RegionSuggestion[]>([]);"
+        },
+        {
+          "line": 369,
+          "text": "  const [regionSearchOpen, setRegionSearchOpen] = useState(false);"
+        },
+        {
+          "line": 370,
+          "text": "  const [regionSearchLoading, setRegionSearchLoading] = useState(false);"
+        },
+        {
+          "line": 371,
+          "text": "  const [creatingPackage, setCreatingPackage] = useState(false);"
+        },
+        {
+          "line": 372,
+          "text": "  const [creatingProposal, setCreatingProposal] = useState(false);"
+        },
+        {
+          "line": 373,
+          "text": "  const [proposalSource, setProposalSource] = useState<PackageRecord | null>(null);"
+        },
+        {
+          "line": 374,
+          "text": "  const [toast, setToast] = useState<string | null>(null);"
+        },
+        {
+          "line": 375,
+          "text": "  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());"
+        },
+        {
+          "line": 376,
+          "text": "  const [selectedPackage, setSelectedPackage] = useState<PackageRecord | null>(null);"
+        },
+        {
+          "line": 377,
+          "text": "  const [selectedProposal, setSelectedProposal] = useState<ProposalRecord | null>(null);"
+        },
+        {
+          "line": 378,
+          "text": "  const [queryPreview, setQueryPreview] = useState<ProposalRecord | null>(null);"
+        },
+        {
+          "line": 379,
+          "text": "  const [packageRecords, setPackageRecords] = useState<PackageRecord[]>(packages);"
+        },
+        {
+          "line": 380,
+          "text": "  const [proposalRecords, setProposalRecords] = useState<ProposalRecord[]>(proposals);"
+        },
+        {
+          "line": 381,
+          "text": "  const [openRowMenu, setOpenRowMenu] = useState<string | null>(null);"
+        },
+        {
+          "line": 387,
+          "text": "  const [packageInitialNavigation, setPackageInitialNavigation] = useState<StepNavigationSnapshot | null>(null);"
+        },
+        {
+          "line": 388,
+          "text": "  const [proposalInitialNavigation, setProposalInitialNavigation] = useState<StepNavigationSnapshot | null>(null);"
+        },
+        {
+          "line": 1295,
+          "text": "                      <div className=\"package-row-menu\" role=\"menu\" aria-label={`Actions for ${item.name}`}>"
+        },
+        {
+          "line": 1399,
+          "text": "                      <div className=\"package-row-menu\" role=\"menu\" aria-label={`Actions for ${item.name}`}>"
+        },
+        {
+          "line": 1432,
+          "text": "      <Modal open={Boolean(queryPreview)} onClose={() => setQueryPreview(null)} title={queryPreview?.queryId ?? \"Linked query\"} eyebrow=\"Linked query\" footer={<Button variant=\"ghost\" size=\"sm\" onClick={() => setQueryPreview(null)}>Close</Button>}>"
+        }
+      ]
+    },
+    {
+      "path": "src/PackageComposer.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useEffect, useMemo, useState, type FormEvent } from \"react\";"
+        },
+        {
+          "line": 60,
+          "text": "  const [name, setName] = useState(source?.name ?? \"\");"
+        },
+        {
+          "line": 61,
+          "text": "  const [destination, setDestination] = useState(source?.destination ?? \"\");"
+        },
+        {
+          "line": 62,
+          "text": "  const [region, setRegion] = useState(source?.region ?? \"\");"
+        },
+        {
+          "line": 63,
+          "text": "  const [days, setDays] = useState<ProposalDay[]>(() => initialDays(source));"
+        },
+        {
+          "line": 64,
+          "text": "  const [overview, setOverview] = useState(source?.highlights?.[0] ?? \"\");"
+        },
+        {
+          "line": 65,
+          "text": "  const [inclusions, setInclusions] = useState(source?.inclusions ?? \"\");"
+        },
+        {
+          "line": 66,
+          "text": "  const [exclusions, setExclusions] = useState(source?.exclusions ?? \"\");"
+        },
+        {
+          "line": 67,
+          "text": "  const [price, setPrice] = useState(source?.startingPrice ? String(source.startingPrice) : \"\");"
+        },
+        {
+          "line": 68,
+          "text": "  const [priceBasis, setPriceBasis] = useState(source?.priceBasis ?? \"Per adult, twin sharing\");"
+        },
+        {
+          "line": 69,
+          "text": "  const [markup, setMarkup] = useState(String(source?.markupPercent ?? 9));"
+        },
+        {
+          "line": 70,
+          "text": "  const [pickerDayId, setPickerDayId] = useState<string | null>(null);"
+        },
+        {
+          "line": 71,
+          "text": "  const [phase, setPhase] = useState<\"details\" | \"itinerary\" | \"content\">(\"details\");"
+        },
+        {
+          "line": 73,
+          "text": "  const [category, setCategory] = useState<PackageServiceCategory | null>(null);"
+        },
+        {
+          "line": 74,
+          "text": "  const [query, setQuery] = useState(\"\");"
+        },
+        {
+          "line": 75,
+          "text": "  const [apiResults, setApiResults] = useState<PackageServiceOption[]>([]);"
+        },
+        {
+          "line": 76,
+          "text": "  const [apiLoading, setApiLoading] = useState(false);"
+        },
+        {
+          "line": 77,
+          "text": "  const [apiError, setApiError] = useState(\"\");"
+        },
+        {
+          "line": 78,
+          "text": "  const [error, setError] = useState(\"\");"
+        },
+        {
+          "line": 137,
+          "text": "    if (!name.trim() || !destination.trim()) { setError(\"Add a package name and destination.\"); return; }"
+        },
+        {
+          "line": 138,
+          "text": "    if (!finalDays.some((day) => day.services.length)) { setError(\"Add at least one service block to the itinerary.\"); setPhase(\"itinerary\"); return; }"
+        },
+        {
+          "line": 144,
+          "text": "    <nav className=\"package-composer__stages\" aria-label=\"Package builder steps\">{([\"details\", \"itinerary\", \"content\"] as const).map((stage, index) => <button type=\"button\" key={stage} className={phase === stage ? \"is-active\" : \"\"} onClick={() => { setPhase(stage); setError(\"\"); }}><span>{index + 1}</span>{stage === \"details\" ? \"Basic details\" : stage === \"itinerary\" ? \"Build itinerary\" : \"Content & pricing\"}</button>)}</nav>"
+        },
+        {
+          "line": 152,
+          "text": "      <div className=\"package-composer__itinerary-toolbar\"><div><strong>{days.length} {days.length === 1 ? \"day\" : \"days\"}</strong><span>{blockCount} {blockCount === 1 ? \"service\" : \"services\"} added</span></div><Button type=\"button\" variant=\"ghost\" size=\"sm\" leadingIcon={<Icon name=\"plus\" size=\"sm\" />} disabled={days.length >= 30} onClick={() => { setDays((current) => [...current, makeDay(current.length + 1)]); setError(\"\"); }}>Add day</Button></div>"
+        },
+        {
+          "line": 154,
+          "text": "        <div className=\"package-composer__day-rail\"><span className=\"package-composer__day-number\">{String(index + 1).padStart(2, \"0\")}</span><h3>Day {index + 1}</h3><small>{day.services.length} {day.services.length === 1 ? \"service\" : \"services\"}</small><button type=\"button\" disabled={days.length === 1} onClick={() => { setDays((current) => current.filter((item) => item.id !== day.id)); setError(\"\"); }} aria-label={`Remove day ${index + 1}`}><Icon name=\"clear\" size=\"xs\" /> Remove day</button></div>"
+        },
+        {
+          "line": 167,
+          "text": "    <footer className=\"package-composer__footer\"><Button type=\"button\" variant=\"ghost\" size=\"sm\" onClick={phase === \"details\" ? onCancel : () => setPhase(phase === \"content\" ? \"itinerary\" : \"details\")}>{phase === \"details\" ? \"Cancel\" : \"Back\"}</Button>{phase === \"content\" ? <Button type=\"submit\" variant=\"primary\" size=\"sm\">{existing ? \"Save package\" : \"Create draft package\"}</Button> : <Button type=\"button\" variant=\"primary\" size=\"sm\" onClick={(event) => { event.preventDefault(); if (phase === \"details\" && (!name.trim() || !destination.trim())) { setError(\"Add a package name and destination before building the itinerary.\"); return; } setError(\"\"); setPhase(phase === \"details\" ? \"itinerary\" : \"content\"); }}>{phase === \"details\" ? \"Continue to itinerary\" : \"Continue\"}</Button>}</footer>"
+        },
+        {
+          "line": 169,
+          "text": "    <Modal open={Boolean(pickerDayId)} onClose={() => { setPickerDayId(null); setCategory(null); }} title={category ? `Add ${blockLabels[category]} block` : \"Choose a block type\"} eyebrow={`Day ${days.findIndex((day) => day.id === pickerDayId) + 1}`} size=\"wide\" className=\"package-composer__picker\" footer={<><Button variant=\"ghost\" size=\"sm\" onClick={() => category ? setCategory(null) : setPickerDayId(null)}>{category ? \"Back to block types\" : \"Cancel\"}</Button></>}>"
+        }
+      ]
+    },
+    {
+      "path": "src/PackageDetail.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { forwardRef, useEffect, useId, useImperativeHandle, useMemo, useState } from \"react\";"
+        },
+        {
+          "line": 343,
+          "text": "  const [openDays, setOpenDays] = useState<Set<string>>(() => new Set([record.proposalDays?.[0]?.id ?? \"day-1\"]));"
+        },
+        {
+          "line": 344,
+          "text": "  const [storyExpanded, setStoryExpanded] = useState(false);"
+        },
+        {
+          "line": 345,
+          "text": "  const [status, setStatus] = useState(record.status.toLowerCase());"
+        },
+        {
+          "line": 346,
+          "text": "  const [addOpen, setAddOpen] = useState(false);"
+        },
+        {
+          "line": 347,
+          "text": "  const [addType, setAddType] = useState(\"activity\");"
+        },
+        {
+          "line": 348,
+          "text": "  const [headerActionsOpen, setHeaderActionsOpen] = useState(false);"
+        },
+        {
+          "line": 349,
+          "text": "  const [activityRecords, setActivityRecords] = useState<PackageActivityEvent[]>(record.proposalDays ? [] : activityEvents);"
+        },
+        {
+          "line": 350,
+          "text": "  const [jumpDayId, setJumpDayId] = useState<string | null>(null);"
+        },
+        {
+          "line": 444,
+          "text": "              <div className=\"package-row-menu package-detail-actions__menu\" role=\"menu\" aria-label={`Actions for ${record.name}`}>"
+        },
+        {
+          "line": 584,
+          "text": "      <Modal"
+        },
+        {
+          "line": 748,
+          "text": "  const [query, setQuery] = useState(\"\");"
+        },
+        {
+          "line": 749,
+          "text": "  const [selected, setSelected] = useState<Set<string>>(() => new Set());"
+        },
+        {
+          "line": 750,
+          "text": "  const [openMenu, setOpenMenu] = useState<{ id: string; top: number; left: number } | null>(null);"
+        },
+        {
+          "line": 751,
+          "text": "  const [viewing, setViewing] = useState<PackageActivityEvent | null>(null);"
+        },
+        {
+          "line": 752,
+          "text": "  const [removing, setRemoving] = useState<PackageActivityEvent | null>(null);"
+        },
+        {
+          "line": 874,
+          "text": "      {openMenu ? createPortal(<div className=\"package-activity__menu\" role=\"menu\" aria-label=\"Activity actions\" style={{ top: openMenu.top, left: openMenu.left }} onPointerDown={(event) => event.stopPropagation()}>"
+        },
+        {
+          "line": 878,
+          "text": "      {viewing ? createPortal(<div className=\"package-activity__overlay\" role=\"presentation\" onClick={() => setViewing(null)}><div className=\"package-activity__dialog\" role=\"dialog\" aria-modal=\"true\" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>"
+        },
+        {
+          "line": 888,
+          "text": "      {removing ? createPortal(<div className=\"package-activity__overlay\" role=\"presentation\" onClick={() => setRemoving(null)}><div className=\"package-activity__dialog\" role=\"dialog\" aria-modal=\"true\" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>"
+        }
+      ]
+    },
+    {
+      "path": "src/PrivateTransportProposalCosting.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useState } from \"react\";"
+        },
+        {
+          "line": 14,
+          "text": "  const [manualPackage, setManualPackage] = useState(false);"
+        }
+      ]
+    },
+    {
+      "path": "src/ProposalDetail.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { forwardRef, useImperativeHandle, useState } from \"react\";"
+        },
+        {
+          "line": 58,
+          "text": "  const [customerView, setCustomerView] = useState(false);"
+        },
+        {
+          "line": 69,
+          "text": "  const [openDay, setOpenDay] = useState(record.days[0]?.id ?? \"\");"
+        },
+        {
+          "line": 160,
+          "text": "  const [openDay, setOpenDay] = useState(record.days[0]?.id ?? \"\");"
+        },
+        {
+          "line": 161,
+          "text": "  const [feedback, setFeedback] = useState(\"\");"
+        },
+        {
+          "line": 162,
+          "text": "  const [changeBoxOpen, setChangeBoxOpen] = useState(false);"
+        },
+        {
+          "line": 163,
+          "text": "  const [previewResponse, setPreviewResponse] = useState<ProposalStatus | null>(null);"
+        }
+      ]
+    },
+    {
+      "path": "src/TripComposer.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useEffect, useMemo, useState } from \"react\";"
+        },
+        {
+          "line": 111,
+          "text": "  return <div className=\"trip-composer__simple-images\"><div className=\"trip-composer__simple-images-heading\"><strong>Place photos</strong><span>Optional · up to 6 images</span></div><div className=\"trip-composer__simple-images-grid\">{images.map((image, index) => <div className=\"trip-composer__simple-image\" key={`${image.slice(0, 32)}-${index}`}><img src={image} alt={`Place photo ${index + 1}`} /><button type=\"button\" aria-label={`Remove place photo ${index + 1}`} onClick={() => onChange(images.filter((_, imageIndex) => imageIndex !== index))}><Icon name=\"clear\" size=\"xs\" /></button></div>)}{images.length < 6 ? <label className=\"trip-composer__simple-image-add\"><Icon name=\"plus\" size=\"sm\" /><span>Add photos</span><input type=\"file\" accept=\"image/*\" multiple onChange={(event) => { addImages(event.target.files); event.target.value = \"\"; }} /></label> : null}</div></div>;"
+        },
+        {
+          "line": 117,
+          "text": "  const [step, setStep] = useState(isProposal ? -1 : 0);"
+        },
+        {
+          "line": 118,
+          "text": "  const [itineraryMode, setItineraryMode] = useState<ItineraryMode>(isProposal ? existing?.itineraryMode ?? (initialPackage ? \"advanced\" : \"simple\") : \"advanced\");"
+        },
+        {
+          "line": 119,
+          "text": "  const [creationChoice, setCreationChoice] = useState<\"choose\" | \"ready\">(isProposal && !existing && !initialPackage ? \"choose\" : \"ready\");"
+        },
+        {
+          "line": 121,
+          "text": "  const [source, setSource] = useState<PackageRecord | null>(initialPackage ?? packages.find((item) => item.id === existing?.sourcePackageId) ?? null);"
+        },
+        {
+          "line": 122,
+          "text": "  const [name, setName] = useState(existing?.name ?? existingPackage?.name ?? (initialPackage && isProposal ? `${initialPackage.destination.split(\",\")[0]} trip` : queryContext?.customer && queryContext.destination ? `${queryContext.customer} · ${queryContext.destination.split(\",\")[0]}` : \"\"));"
+        },
+        {
+          "line": 123,
+          "text": "  const [destination, setDestination] = useState(existing?.destination ?? existingPackage?.destination ?? initialPackage?.destination ?? queryContext?.destination ?? \"\");"
+        },
+        {
+          "line": 124,
+          "text": "  const [region, setRegion] = useState(existing?.region ?? existingPackage?.region ?? initialPackage?.region ?? queryContext?.region ?? \"\");"
+        },
+        {
+          "line": 125,
+          "text": "  const [startDate, setStartDate] = useState(existing?.travelStart ?? existingPackage?.fixedStart ?? (initialPackage?.departureType === \"fixed\" ? initialPackage.fixedStart ?? \"\" : queryContext?.travelStart ?? \"\"));"
+        },
+        {
+          "line": 126,
+          "text": "  const [endDate, setEndDate] = useState(existing?.travelEnd ?? existingPackage?.fixedEnd ?? (initialPackage?.departureType === \"fixed\" ? initialPackage.fixedEnd ?? \"\" : queryContext?.travelEnd ?? \"\"));"
+        },
+        {
+          "line": 127,
+          "text": "  const [customer, setCustomer] = useState(existing?.customer ?? queryContext?.customer ?? \"\");"
+        },
+        {
+          "line": 128,
+          "text": "  const [customerEmail, setCustomerEmail] = useState(existing?.customerEmail ?? queryContext?.customerEmail ?? \"\");"
+        },
+        {
+          "line": 129,
+          "text": "  const [adults, setAdults] = useState(existing?.travellers.match(/\\d+ adult/)?.[0].split(\" \")[0] ?? String(queryContext?.adults ?? 2));"
+        },
+        {
+          "line": 130,
+          "text": "  const [children, setChildren] = useState(existing?.travellers.match(/\\d+ child/)?.[0].split(\" \")[0] ?? String(queryContext?.children ?? 0));"
+        },
+        {
+          "line": 131,
+          "text": "  const [requirements, setRequirements] = useState(existing?.requirements ?? queryContext?.requirements ?? \"\");"
+        },
+        {
+          "line": 132,
+          "text": "  const [note, setNote] = useState(existing?.note ?? \"\");"
+        },
+        {
+          "line": 133,
+          "text": "  const [inclusions, setInclusions] = useState(existing?.inclusions ?? existingPackage?.inclusions ?? initialPackage?.inclusions ?? \"\");"
+        },
+        {
+          "line": 134,
+          "text": "  const [exclusions, setExclusions] = useState(existing?.exclusions ?? existingPackage?.exclusions ?? initialPackage?.exclusions ?? \"\");"
+        },
+        {
+          "line": 135,
+          "text": "  const [importantNotes, setImportantNotes] = useState(existing?.importantNotes ?? existingPackage?.importantNotes ?? initialPackage?.importantNotes ?? \"\");"
+        },
+        {
+          "line": 136,
+          "text": "  const [paymentTerms, setPaymentTerms] = useState(existing?.paymentTerms ?? existingPackage?.paymentTerms ?? initialPackage?.paymentTerms ?? \"\");"
+        },
+        {
+          "line": 137,
+          "text": "  const [cancellationPolicy, setCancellationPolicy] = useState(existing?.cancellationPolicy ?? existingPackage?.cancellationPolicy ?? initialPackage?.cancellationPolicy ?? \"\");"
+        },
+        {
+          "line": 138,
+          "text": "  const [otherTerms, setOtherTerms] = useState(existing?.otherTerms ?? existingPackage?.otherTerms ?? initialPackage?.otherTerms ?? \"\");"
+        },
+        {
+          "line": 139,
+          "text": "  const [priceBasis, setPriceBasis] = useState(existingPackage?.priceBasis ?? initialPackage?.priceBasis ?? \"Per adult, twin sharing\");"
+        },
+        {
+          "line": 140,
+          "text": "  const [departureType, setDepartureType] = useState<\"flexible\" | \"fixed\">(existingPackage?.departureType ?? \"flexible\");"
+        },
+        {
+          "line": 141,
+          "text": "  const [markupPercent, setMarkupPercent] = useState(String(existing?.markupPercent ?? existingPackage?.markupPercent ?? initialPackage?.markupPercent ?? 9));"
+        },
+        {
+          "line": 142,
+          "text": "  const [sharingMode, setSharingMode] = useState<\"itinerary\" | \"priced\">(existing?.sharingMode ?? \"priced\");"
+        },
+        {
+          "line": 143,
+          "text": "  const [price, setPrice] = useState(existing?.value ? String(existing.value) : existingPackage?.startingPrice ? String(existingPackage.startingPrice) : \"\");"
+        },
+        {
+          "line": 144,
+          "text": "  const [coverImage, setCoverImage] = useState(existing?.coverImage ?? existingPackage?.image ?? initialPackage?.image ?? \"\");"
+        },
+        {
+          "line": 145,
+          "text": "  const [days, setDays] = useState<ProposalDay[]>(() => existing ? cloneDays(existing.days).map((day) => ({ ...day, services: day.services.map((service) => service.kind === \"activity\" ? { ...service, activitySnapshot: undefined } : service.kind === \"transfer\" ? { ...service, privateTransportSnapshot: undefined } : service) })) : existingPackage ? daysFromPackage(existingPackage, isProposal) : initialPackage ? daysFromPackage(initialPackage, isProposal) : [makeDay(1, \"\", isProposal)]);"
+        },
+        {
+          "line": 146,
+          "text": "  const [activeDayId, setActiveDayId] = useState(() => days[0]?.id ?? \"\");"
+        },
+        {
+          "line": 147,
+          "text": "  const [blockOpen, setBlockOpen] = useState(false);"
+        },
+        {
+          "line": 148,
+          "text": "  const [blockStage, setBlockStage] = useState<\"type\" | \"service\" | \"details\">(\"type\");"
+        },
+        {
+          "line": 149,
+          "text": "  const [editingId, setEditingId] = useState<string | null>(null);"
+        },
+        {
+          "line": 150,
+          "text": "  const [blockKind, setBlockKind] = useState<ProposalServiceKind>(\"stay\");"
+        },
+        {
+          "line": 151,
+          "text": "  const [blockTitle, setBlockTitle] = useState(\"\");"
+        },
+        {
+          "line": 152,
+          "text": "  const [blockDetail, setBlockDetail] = useState(\"\");"
+        },
+        {
+          "line": 153,
+          "text": "  const [blockVendor, setBlockVendor] = useState(\"\");"
+        },
+        {
+          "line": 154,
+          "text": "  const [blockCost, setBlockCost] = useState(\"\");"
+        },
+        {
+          "line": 155,
+          "text": "  const [blockPriceState, setBlockPriceState] = useState<ServicePriceState>(\"unpriced\");"
+        },
+        {
+          "line": 156,
+          "text": "  const [blockQuantity, setBlockQuantity] = useState(\"1\");"
+        },
+        {
+          "line": 157,
+          "text": "  const [blockUnit, setBlockUnit] = useState(\"service\");"
+        },
+        {
+          "line": 158,
+          "text": "  const [blockOptional, setBlockOptional] = useState(false);"
+        },
+        {
+          "line": 159,
+          "text": "  const [blockRooms, setBlockRooms] = useState(\"1\");"
+        },
+        {
+          "line": 160,
+          "text": "  const [blockNights, setBlockNights] = useState(\"1\");"
+        },
+        {
+          "line": 161,
+          "text": "  const [blockMealPlan, setBlockMealPlan] = useState(\"Breakfast included\");"
+        },
+        {
+          "line": 162,
+          "text": "  const [blockRateCardId, setBlockRateCardId] = useState(\"\");"
+        },
+        {
+          "line": 163,
+          "text": "  const [blockPrivateTransportInput, setBlockPrivateTransportInput] = useState<PrivateTransportTrip | undefined>();"
+        },
+        {
+          "line": 164,
+          "text": "  const [blockTransportHireId, setBlockTransportHireId] = useState<string | undefined>();"
+        },
+        {
+          "line": 165,
+          "text": "  const [blockTransportCoversEntireGroup, setBlockTransportCoversEntireGroup] = useState(false);"
+        },
+        {
+          "line": 166,
+          "text": "  const [blockTransportActualsTerm, setBlockTransportActualsTerm] = useState<ProposalService[\"transportActualsTerm\"]>();"
+        },
+        {
+          "line": 167,
+          "text": "  const [blockRoomTypeId, setBlockRoomTypeId] = useState(\"\");"
+        },
+        {
+          "line": 168,
+          "text": "  const [blockMealPlanCode, setBlockMealPlanCode] = useState(\"\");"
+        },
+        {
+          "line": 169,
+          "text": "  const [blockStayCheckIn, setBlockStayCheckIn] = useState(\"\");"
+        },
+        {
+          "line": 170,
+          "text": "  const [blockStayAdults, setBlockStayAdults] = useState(adults);"
+        },
+        {
+          "line": 171,
+          "text": "  const [blockStayChildren, setBlockStayChildren] = useState<NonNullable<ProposalService[\"stayChildren\"]>>([]);"
+        },
+        {
+          "line": 172,
+          "text": "  const [blockRouteFrom, setBlockRouteFrom] = useState(\"\");"
+        },
+        {
+          "line": 173,
+          "text": "  const [blockRouteTo, setBlockRouteTo] = useState(\"\");"
+        },
+        {
+          "line": 174,
+          "text": "  const [blockServiceDate, setBlockServiceDate] = useState(\"\");"
+        },
+        {
+          "line": 175,
+          "text": "  const [blockVehicleType, setBlockVehicleType] = useState(\"\");"
+        },
+        {
+          "line": 176,
+          "text": "  const [blockCapacity, setBlockCapacity] = useState(\"\");"
+        },
+        {
+          "line": 177,
+          "text": "  const [blockTransportPricingMode, setBlockTransportPricingMode] = useState<\"transfer\" | \"local\" | \"outstation\">(\"transfer\");"
+        },
+        {
+          "line": 178,
+          "text": "  const [blockPlannedKm, setBlockPlannedKm] = useState(\"\");"
+        },
+        {
+          "line": 179,
+          "text": "  const [blockIncludedKm, setBlockIncludedKm] = useState(\"\");"
+        },
+        {
+          "line": 180,
+          "text": "  const [blockExtraKmRate, setBlockExtraKmRate] = useState(\"\");"
+        },
+        {
+          "line": 181,
+          "text": "  const [blockPlannedHours, setBlockPlannedHours] = useState(\"\");"
+        },
+        {
+          "line": 182,
+          "text": "  const [blockIncludedHours, setBlockIncludedHours] = useState(\"\");"
+        },
+        {
+          "line": 183,
+          "text": "  const [blockExtraHourRate, setBlockExtraHourRate] = useState(\"\");"
+        },
+        {
+          "line": 184,
+          "text": "  const [blockMinimumKmPerDay, setBlockMinimumKmPerDay] = useState(\"\");"
+        },
+        {
+          "line": 185,
+          "text": "  const [blockTransportChargesStatus, setBlockTransportChargesStatus] = useState<\"to_confirm\" | \"included\" | \"entered\">(\"to_confirm\");"
+        },
+        {
+          "line": 186,
+          "text": "  const [blockPermitFees, setBlockPermitFees] = useState(\"0\");"
+        },
+        {
+          "line": 187,
+          "text": "  const [blockSupplierTax, setBlockSupplierTax] = useState(\"0\");"
+        },
+        {
+          "line": 188,
+          "text": "  const [blockDriverIncluded, setBlockDriverIncluded] = useState(true);"
+        },
+        {
+          "line": 189,
+          "text": "  const [blockTransportUnits, setBlockTransportUnits] = useState(\"1\");"
+        },
+        {
+          "line": 190,
+          "text": "  const [blockWaitingHours, setBlockWaitingHours] = useState(\"0\");"
+        },
+        {
+          "line": 191,
+          "text": "  const [blockWaitingRate, setBlockWaitingRate] = useState(\"0\");"
+        },
+        {
+          "line": 192,
+          "text": "  const [blockTolls, setBlockTolls] = useState(\"0\");"
+        },
+        {
+          "line": 193,
+          "text": "  const [blockParking, setBlockParking] = useState(\"0\");"
+        },
+        {
+          "line": 194,
+          "text": "  const [blockDriverAllowance, setBlockDriverAllowance] = useState(\"0\");"
+        },
+        {
+          "line": 195,
+          "text": "  const [blockGuideCost, setBlockGuideCost] = useState(\"\");"
+        },
+        {
+          "line": 196,
+          "text": "  const [blockAdmissionCost, setBlockAdmissionCost] = useState(\"\");"
+        },
+        {
+          "line": 197,
+          "text": "  const [blockParticipants, setBlockParticipants] = useState(\"2\");"
+        },
+        {
+          "line": 198,
+          "text": "  const [blockActivityInput, setBlockActivityInput] = useState<ActivityQuoteInput>(emptyActivityInput);"
+        },
+        {
+          "line": 199,
+          "text": "  const [adultSupplement, setAdultSupplement] = useState(\"\");"
+        },
+        {
+          "line": 200,
+          "text": "  const [adultSupplementQty, setAdultSupplementQty] = useState(\"0\");"
+        },
+        {
+          "line": 201,
+          "text": "  const [childSupplement, setChildSupplement] = useState(\"\");"
+        },
+        {
+          "line": 202,
+          "text": "  const [childSupplementQty, setChildSupplementQty] = useState(\"0\");"
+        },
+        {
+          "line": 203,
+          "text": "  const [supplierQuery, setSupplierQuery] = useState(\"\");"
+        },
+        {
+          "line": 204,
+          "text": "  const [externalServices, setExternalServices] = useState<PackageServiceOption[]>([]);"
+        },
+        {
+          "line": 205,
+          "text": "  const [serviceSearchBusy, setServiceSearchBusy] = useState(false);"
+        },
+        {
+          "line": 206,
+          "text": "  const [serviceSearchError, setServiceSearchError] = useState(\"\");"
+        },
+        {
+          "line": 207,
+          "text": "  const [blockSource, setBlockSource] = useState<PackageServiceOption | null>(null);"
+        },
+        {
+          "line": 208,
+          "text": "  const [packagePickerOpen, setPackagePickerOpen] = useState(false);"
+        },
+        {
+          "line": 209,
+          "text": "  const [packageQuery, setPackageQuery] = useState(\"\");"
+        },
+        {
+          "line": 210,
+          "text": "  const [pendingPackage, setPendingPackage] = useState<PackageRecord | null>(null);"
+        },
+        {
+          "line": 211,
+          "text": "  const [error, setError] = useState(\"\");"
+        },
+        {
+          "line": 529,
+          "text": "    setError(\"\");"
+        },
+        {
+          "line": 560,
+          "text": "    setError(\"\");"
+        },
+        {
+          "line": 567,
+          "text": "    if (!name.trim() || !destination.trim()) { setError(\"Add a trip name and destination before saving.\"); return; }"
+        },
+        {
+          "line": 568,
+          "text": "    if (isProposal && itineraryMode === \"simple\" && status !== \"Draft\" && days.some((day) => !day.place.trim())) { setError(\"Add a place name for every day before sharing.\"); setStep(0); return; }"
+        },
+        {
+          "line": 569,
+          "text": "    if (!isProposal && departureType === \"fixed\" && (!startDate || !endDate)) { setError(\"A fixed-departure package needs both departure dates.\"); setStep(0); return; }"
+        },
+        {
+          "line": 570,
+          "text": "    if (isProposal && !customer.trim()) { setError(\"Add the customer name before saving the proposal.\"); return; }"
+        },
+        {
+          "line": 571,
+          "text": "    if (isProposal && status !== \"Draft\" && !customerEmail.trim()) { setError(\"Add the customer email before sharing this proposal.\"); setStep(0); return; }"
+        },
+        {
+          "line": 572,
+          "text": "    if ((isProposal || departureType === \"fixed\") && (Boolean(startDate) !== Boolean(endDate) || (startDate && endDate < startDate))) { setError(\"Add both travel dates in the correct order, or leave both open.\"); setStep(0); return; }"
+        },
+        {
+          "line": 573,
+          "text": "    if (status !== \"Draft\" && plannedDays !== days.length) { setError(\"Describe the purpose of every day before sharing. Arrival, leisure and transfer days can be planned without an activity.\"); setStep(0); return; }"
+        },
+        {
+          "line": 574,
+          "text": "    if (isProposal && status === \"Itinerary shared\" && requestedSharingMode === \"priced\" && costing.unpricedRequired > 0) { setError(`Resolve ${costing.unpricedRequired} included service${costing.unpricedRequired === 1 ? \"\" : \"s\"} without a supplier rate before sharing a priced proposal, or share the itinerary for review.`); setStep(2); return; }"
+        },
+        {
+          "line": 575,
+          "text": "    if (isProposal && status === \"Itinerary shared\" && requestedSharingMode === \"priced\" && (!Number(price) || Number(price) <= 0)) { setError(\"Add a customer quote, or share the itinerary without pricing.\"); setStep(2); return; }"
+        },
+        {
+          "line": 576,
+          "text": "    setError(\"\");"
+        },
+        {
+          "line": 590,
+          "text": "      {!isNewPackage ? <nav className=\"trip-composer__steps\" aria-label=\"Builder steps\">{(isProposal ? [\"Basic details\", \"Itinerary\", \"Content & policies\", \"Costing\", \"Preview\"] : [\"Build itinerary\", \"Content & policies\", \"Costing\", \"Preview\"]).map((label, index) => { const target = isProposal ? index - 1 : index; return <button key={label} type=\"button\" className={step === target ? \"is-active\" : \"\"} aria-current={step === target ? \"step\" : undefined} onClick={() => { setStep(target); setError(\"\"); }}><span>{index + 1}</span>{label}</button>; })}</nav> : null}"
+        },
+        {
+          "line": 651,
+          "text": "      {isNewPackage ? <footer className=\"trip-composer__footer trip-composer__form-actions\"><div><Button variant=\"ghost\" size=\"sm\" onClick={onCancel}>Cancel</Button><Button variant=\"primary\" size=\"sm\" disabled={!name.trim() || !destination.trim() || (departureType === \"fixed\" && (!startDate || !endDate || endDate < startDate))} onClick={() => save(\"Draft\")}>Create draft package</Button></div></footer> : <footer className={`trip-composer__footer${isProposal && step === -1 ? \" trip-composer__footer--basics\" : \"\"}`}><span>{isProposal ? step === -1 ? \"Next: build the itinerary, day by day.\" : \"Save your work as a draft or continue to review.\" : \"Package edits do not update proposals already created from it.\"}</span><div>{step > (isProposal ? -1 : 0) ? <Button variant=\"ghost\" size=\"sm\" onClick={() => setStep(step - 1)}>Back</Button> : null}<Button variant=\"ghost\" size=\"sm\" onClick={() => save(\"Draft\")}>Save draft</Button>{step < 3 ? <Button variant=\"primary\" size=\"sm\" onClick={() => { if (isProposal && step === -1 && (!customer.trim() || !name.trim() || !destination.trim() || (Boolean(startDate) !== Boolean(endDate)) || (startDate && endDate < startDate))) { setError(\"Add the customer, proposal name, destination and a valid date range before building the itinerary.\"); return; } setError(\"\"); setStep(step + 1); }}>{isProposal && step === -1 ? \"Continue to itinerary\" : \"Continue\"}</Button> : isProposal ? <><Button variant=\"ghost\" size=\"sm\" onClick={() => save(\"Itinerary shared\", \"itinerary\")}>Share itinerary for review</Button><Button variant=\"primary\" size=\"sm\" onClick={() => save(\"Itinerary shared\", \"priced\")}>Share priced itinerary</Button></> : <Button variant=\"primary\" size=\"sm\" onClick={() => save(\"Draft\")}>{existingPackage ? \"Save package\" : \"Save draft package\"}</Button>}</div></footer>}"
+        },
+        {
+          "line": 655,
+          "text": "    <Modal open={blockOpen} onClose={() => setBlockOpen(false)} size=\"wide\" title={blockStage === \"type\" ? \"Choose a block type\" : blockStage === \"service\" ? `Add ${serviceSearchName} block` : editingId ? \"Edit service block\" : \"Complete service block\"} eyebrow={`Day ${activeIndex + 1} · ${activeDay.place || destination || \"Itinerary\"}`} footer={blockStage === \"type\" ? <Button variant=\"ghost\" onClick={() => setBlockOpen(false)}>Cancel</Button> : blockStage === \"service\" ? <><Button variant=\"ghost\" onClick={() => setBlockStage(\"type\")}>Back to block types</Button><Button variant=\"ghost\" onClick={() => { setBlockSource(null); setBlockTitle(supplierQuery); setBlockDetail(\"\"); setBlockVendor(\"\"); setBlockCost(\"\"); setBlockPriceState(\"unpriced\"); setBlockStage(\"details\"); }}>Enter a custom service</Button></> : <><Button variant=\"ghost\" onClick={() => setBlockStage(\"service\")}>Back to services</Button><Button variant=\"primary\" disabled={!blockTitle.trim()} onClick={saveBlock}>{editingId ? \"Save block\" : \"Add block\"}</Button></>}>"
+        },
+        {
+          "line": 713,
+          "text": "    <Modal open={packagePickerOpen} onClose={() => setPackagePickerOpen(false)} size=\"wide\" title=\"Use an existing package\" eyebrow=\"Proposal starting point\" footer={<Button variant=\"ghost\" onClick={() => setPackagePickerOpen(false)}>Close</Button>}>"
+        },
+        {
+          "line": 736,
+          "text": "  return <label className=\"trip-composer__cover-picker\">{image ? <img src={image} alt=\"Current cover\" /> : <span><Icon name=\"camera\" size=\"md\" />No cover yet</span>}<strong>{image ? \"Change cover\" : \"Upload cover\"}</strong><input type=\"file\" accept=\"image/*\" onChange={(event) => { const file = event.target.files?.[0]; if (file) onChange(URL.createObjectURL(file)); event.target.value = \"\"; }} /></label>;"
+        }
+      ]
+    },
+    {
+      "path": "src/WorkspaceNotes.tsx",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useEffect, useState } from \"react\";"
+        },
+        {
+          "line": 46,
+          "text": "  const [notes, setNotes] = useState<Note[]>(() => readNotes(module));"
+        },
+        {
+          "line": 47,
+          "text": "  const [open, setOpen] = useState(false);"
+        },
+        {
+          "line": 48,
+          "text": "  const [mode, setMode] = useState<NotesMode>(\"browse\");"
+        },
+        {
+          "line": 49,
+          "text": "  const [filter, setFilter] = useState(\"all\");"
+        },
+        {
+          "line": 50,
+          "text": "  const [search, setSearch] = useState(\"\");"
+        },
+        {
+          "line": 51,
+          "text": "  const [draft, setDraft] = useState(\"\");"
+        },
+        {
+          "line": 52,
+          "text": "  const [related, setRelated] = useState(\"\");"
+        },
+        {
+          "line": 53,
+          "text": "  const [pin, setPin] = useState(false);"
+        },
+        {
+          "line": 113,
+          "text": "    {createPortal(<NotesDrawer"
+        }
+      ]
+    },
+    {
+      "path": "src/useStepNavigation.ts",
+      "markers": [
+        {
+          "line": 1,
+          "text": "import { useCallback, useRef, useState } from \"react\";"
+        },
+        {
+          "line": 16,
+          "text": "  const [current, setCurrent] = useState<T>((restored?.current as T | undefined) ?? initial);"
+        }
+      ]
+    }
+  ],
+  "markerLimit": "Marker search identifies review candidates, not every semantic branch. The complete source bytes are embedded; receiving agent must enumerate all branches before implementation.",
+  "excludedIncompleteCaptures": [
+    {
+      "imageId": "earlier-proposal-block-types-1",
+      "screenId": "earlier-proposal-block-types",
+      "reason": "Earlier unfinished modal; use current-proposal-block-types instead."
+    },
+    {
+      "imageId": "earlier-proposal-shared-1",
+      "screenId": "earlier-proposal-shared",
+      "reason": "Earlier unfinished main view; the next earlier image and current shared-customer captures contain the rendered UI."
+    }
+  ]
+}
